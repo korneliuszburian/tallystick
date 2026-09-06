@@ -1,0 +1,21 @@
+{
+  "name": "ledger",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test:ledger": "vitest run test/ledger",
+    "test:adapters": "vitest run test/adapters",
+    "test:state": "vitest run test/state",
+    "test:guards": "vitest run test/guards",
+    "test:e2e": "vitest run test/integration",
+    "test:acceptance": "npm run test:ledger && npm run test:adapters && npm run test:state && npm run test:guards && npm run test:e2e"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.6.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
+  }
+}
