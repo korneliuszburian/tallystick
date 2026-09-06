@@ -38,6 +38,12 @@
 
 **Uzasadnienie:** Każda kolejna warstwa opiera swoje gwarancje na działających invariantach warstwy wcześniejszej.
 
+### ADR-007 — Kompletność capture jest własnością eventu, nie blobu
+
+**Reguła:** `BlobReceipt` (hash, bytes, complete) opisuje pojedyncze przechwycenie strumienia. Ponieważ CAS deduplikuje po zawartości, dwa różne przechwycenia tych samych bajtów (jedno pełne, jedno przerwane) mają ten sam hash. Dlatego `capture_status` eventu nie może być wywnioskowany z samych hashy i musi być przekazany jawnie przy `append()`.
+
+**Uzasadnienie:** content-addressable storage utożsamia obiekty po treści; status kompletności jest cechą operacji zapisu, nie cechą bajtów.
+
 ## Cel i granica systemu
 
 LEDGER jest zewnętrzną warstwą transaction/control plane otaczającą istniejący runtime Codexa.
@@ -337,6 +343,11 @@ export interface BlobReceipt {
   complete: boolean;
 }
 
+export interface BlobRef {
+  hash: Hash;
+  complete: boolean; // status tego konkretnego przechwycenia, z BlobReceipt
+}
+
 export interface AppendEventInput {
   eventId: Id;
   sessionId: Id;
@@ -344,7 +355,7 @@ export interface AppendEventInput {
   kind: EventRecord["kind"];
   sourceTimestamp: ISODate;
   payload: Json;
-  blobHashes: readonly Hash[];
+  blobs: readonly BlobRef[]; // było: blobHashes: readonly Hash[]
 }
 
 export interface EventLedger {
@@ -464,6 +475,11 @@ Triggery chronią przed błędem aplikacji, nie przed administratorem uprawniony
 - `INSERT OR REPLACE` jest zabronione dla eventów.
 - UPDATE i DELETE eventów są blokowane przez storage.
 - Raw archive pozostaje niezależne od digestów i przyszłego compaction.
+- `capture_status` eventu jest wyliczane z `blobs[].complete` w chwili `append()`:
+  - jeśli `blobs` jest puste → `"not_applicable"`;
+  - jeśli wszystkie `complete: true` → `"complete"`;
+  - jeśli choć jeden `complete: false` → `"partial"`.
+- Dwa eventy mogą wskazywać ten sam blob i mieć różny `capture_status`.
 
 #### Kolejność zapisu raw
 
