@@ -349,6 +349,8 @@ export function createFailureGate(options: FailureGateOptions): FailureGate {
         const key = actionKey(input.request, input.preconditionEpoch);
         const previous = latestFailure(db, key);
         const proofWasUsed = previous === undefined ? false : proofRetryAlreadyUsed(options.ledger, previous);
+        db.prepare("UPDATE reservations SET status='completed' WHERE request_hash=? AND status IN ('reserved','started')")
+          .run(key);
         const record: FailureRecord = {
           id: randomUUID(),
           tool: input.request.executable,
@@ -372,7 +374,7 @@ export function createFailureGate(options: FailureGateOptions): FailureGate {
           correlationId: input.request.goalId,
           kind: "guard_decision",
           sourceTimestamp: new Date().toISOString(),
-          payload: { recordType: "failure", failure: record },
+          payload: { recordType: "failure", failure: record as unknown as Json },
           blobs: [],
         });
         db.prepare("INSERT INTO failures(id,action_key,fingerprint,precondition_epoch,source_event_id,record_json) VALUES (?,?,?,?,?,?)")
