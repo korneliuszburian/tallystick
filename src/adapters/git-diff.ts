@@ -22,9 +22,9 @@ export function gitDiffDigest(process: CapturedProcess): GitDiffDigest {
       stats.set(path, { additions: stat[1] === "-" ? null : Number(stat[1]), deletions: stat[2] === "-" ? null : Number(stat[2]) });
       continue;
     }
-    const raw = token.match(/^:[0-7]{6}\s+[0-7]{6}\s+[0-9a-f]+\s+[0-9a-f]+\s+([AMD RCT])(\d+)?$/i);
+    const raw = token.match(/^:[0-7]{6}\s+[0-7]{6}\s+[0-9a-f]+\s+[0-9a-f]+\s+([AMDRCT])(\d+)?$/i);
     if (!raw) continue;
-    const status = raw[1]!.trim() as "A" | "M" | "D" | "R" | "C" | "T";
+    const status = raw[1]! as "A" | "M" | "D" | "R" | "C" | "T";
     const first = tokens[index + 1] ?? "";
     const second = status === "R" || status === "C" ? tokens[index + 2] ?? "" : null;
     const path = second ?? first;
@@ -49,7 +49,7 @@ export function gitDiffDigest(process: CapturedProcess): GitDiffDigest {
     kind: "git-diff", adapter_version: "git-diff/v1", raw_event_id: process.rawEventId, receipt_id: process.rawEventId,
     capture_complete: process.stdoutReceipt.complete && process.stderrReceipt.complete,
     parser_status: process.exitCode === 0 ? "recognized" : summaries.length > 0 ? "partial" : "unknown",
-    omitted_count: 0, truncated: false, base, head,
+    omitted_count: 0, truncated: false, unknown_fragment: null, base, head,
     files_changed: summaries.length,
     additions: summaries.reduce((sum, item) => sum + (item.additions ?? 0), 0),
     deletions: summaries.reduce((sum, item) => sum + (item.deletions ?? 0), 0),
