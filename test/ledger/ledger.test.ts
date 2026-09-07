@@ -70,6 +70,33 @@ describe("Event Ledger", () => {
     expect(await ledger.readFragment({ event_id: "binary", blob_hash: receipt.hash, stream: "payload", byte_start: 1, byte_end: 7 })).toEqual(raw.slice(1, 7)); ledger.close();
   });
 
+  it("addresses stdout and stderr independently through BlobRef.stream", async () => {
+    const { ledger } = fixture();
+    const out = new TextEncoder().encode("OUT"); const err = new TextEncoder().encode("ERR");
+    const stdout = await ledger.archive(await chunks(out)); const stderr = await ledger.archive(await chunks(err));
+    ledger.append(input("streams", {}, [
+      { ...stdout, stream: "stdout" },
+      { ...stderr, stream: "stderr" },
+    ]));
+    expect(await ledger.readFragment({ event_id: "streams", blob_hash: stdout.hash, stream: "stdout", byte_start: 0, byte_end: out.byteLength })).toEqual(out);
+    expect(await ledger.readFragment({ event_id: "streams", blob_hash: stderr.hash, stream: "stderr", byte_start: 0, byte_end: err.byteLength })).toEqual(err);
+    ledger.close();
+  });
+
+  it("rejects a SourceHandle stream that was not stored", async () => {
+    const { ledger } = fixture(); const data = new TextEncoder().encode("payload");
+    const receipt = await ledger.archive(await chunks(data)); ledger.append(input("wrong-stream", {}, [{ ...receipt, stream: "stdout" }]));
+    await expect(ledger.readFragment({ event_id: "wrong-stream", blob_hash: receipt.hash, stream: "stderr", byte_start: 0, byte_end: data.byteLength })).rejects.toThrow(/not backed/);
+    ledger.close();
+  });
+
+  it("defaults BlobRef.stream to payload", async () => {
+    const { ledger } = fixture(); const data = new TextEncoder().encode("legacy");
+    const receipt = await ledger.archive(await chunks(data)); ledger.append(input("legacy", {}, [receipt]));
+    expect(await ledger.readFragment({ event_id: "legacy", blob_hash: receipt.hash, stream: "payload", byte_start: 0, byte_end: data.byteLength })).toEqual(data);
+    ledger.close();
+  });
+
   it("leaves a sealed pre-commit blob as a detectable orphan that can be referenced later", async () => {
     const { ledger, databasePath, blobs } = fixture();
     const receipt = await ledger.archive(await chunks(new TextEncoder().encode("sealed"))); ledger.close();
