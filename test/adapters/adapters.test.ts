@@ -94,7 +94,7 @@ describe("Acquisition adapters", () => {
     execFileSync("git", ["add", "-A"], { cwd: base }); execFileSync("git", ["commit", "-qm", "base"], { cwd: base });
     execFileSync("git", ["mv", "old.txt", "new.txt"], { cwd: base }); writeFileSync(join(base, "tab\tname.txt"), "x\ny\n"); writeFileSync(join(base, "bin.dat"), Buffer.from([0,9,8,0,255])); execFileSync("git", ["add", "-A"], { cwd: base }); execFileSync("git", ["commit", "-qm", "head"], { cwd: base });
     const ledger = ledgerAt(base); const api = adapters(ledger);
-    const argv = ["diff", "--raw", "--numstat", "-z", "--no-ext-diff", "--no-textconv", "HEAD~1", "HEAD"];
+    const argv = ["diff", "--raw", "--numstat", "-z", "--no-ext-diff", "--no-textconv", "-M", "HEAD~1", "HEAD"];
     const result = await api.execute(req(base, "git-diff", "git", argv, "diff"), permit("diff"));
     if (result.digest.kind !== "git-diff") throw new Error("wrong digest");
     expect(result.digest.file_summaries.some((f) => f.status === "R" && f.old_path === "old.txt" && f.path === "new.txt")).toBe(true);
@@ -110,7 +110,8 @@ describe("Acquisition adapters", () => {
 
   it("timeout and signal termination are captured without shell invocation", async () => {
     const base = root(); const ledger = ledgerAt(base); const api = adapters(ledger);
-    const timed = await api.execute(req(base, "shell", process.execPath, ["-e", "setTimeout(()=>{},10000)"], "timeout"), permit("timeout"));
+    const timeoutRequest = { ...req(base, "shell", process.execPath, ["-e", "setTimeout(()=>{},10000)"], "timeout"), timeoutMs: 100 };
+    const timed = await api.execute(timeoutRequest, permit("timeout"));
     if (timed.digest.kind !== "shell") throw new Error("wrong digest"); expect(timed.digest.termination_signal).toBe("TIMEOUT");
     const signaled = await api.execute(req(base, "shell", process.execPath, ["-e", "process.kill(process.pid,'SIGTERM')"], "signal"), permit("signal"));
     if (signaled.digest.kind !== "shell") throw new Error("wrong digest"); expect(signaled.digest.termination_signal).toBe("SIGTERM"); ledger.close();
