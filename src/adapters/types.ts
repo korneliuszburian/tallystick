@@ -31,6 +31,7 @@ export interface DigestMeta {
   parser_status: "recognized" | "partial" | "unknown";
   omitted_count: number;
   truncated: boolean;
+  unknown_fragment: { excerpt: string; source: SourceHandle } | null;
 }
 
 export interface ShellDigest extends DigestMeta {
