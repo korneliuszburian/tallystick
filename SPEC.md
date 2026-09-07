@@ -62,6 +62,14 @@
 
 **Uzasadnienie:** ADR-004 wymaga, by dowód istniał przed admission — na etapie adapterów najsilniejszym dostępnym dowodem jest commitowane, hash-chained zdarzenie ze zweryfikowanymi blobami. Dane wiązane dopiero przez Gate i State Twin (decyzja guarda, epoki) nie istnieją przed issue #4/#5 i nie mogą być udawane.
 
+ADR-011 — epochFor(request, world) wylicza epokę preconditions jako H(git_head, environment_fingerprint, hashes plików z request.dependencyPaths pobrane z manifestu world); zmiana pliku spoza dependencyPaths nie zmienia epoki eksperymentu.
+
+### ADR-012 — State Twin jest wiązany z Ledgerem przy konstrukcji
+
+Reguła: Publiczne API State Twin uzupełnia fabryka createStateTwin(options: { ledger: EventLedger; sessionId: Id; correlationId: Id }): StateTwin. Samodzielnie eksportowany computeStateEpoch(input) wykonuje wyłącznie czysty pomiar (kroki 1–11 algorytmu R.3) bez zapisu i bez wymogu posiadania ledgera. Metoda StateTwin.computeStateEpoch(input) wykonuje pomiar oraz krok 12: utrwala wynik jako zdarzenie kind="state_epoch" z pełnym StateEpoch w payload, z sessionId i correlationId z konstrukcji. epochFor i revalidateMemory są czyste i niczego nie zapisują.
+
+Uzasadnienie: R.3 wymaga trwałego zapisu obserwacji, ale zamrożone sygnatury metod nie niosą kontekstu storage. Wiązanie przy konstrukcji realizuje zapis bez zmiany sygnatur i powtarza zatwierdzony wzorzec createAdapters. Czysta funkcja pozostaje dostępna do testów i użytku bez ledgera.
+
 ## Cel i granica systemu
 
 LEDGER jest zewnętrzną warstwą transaction/control plane otaczającą istniejący runtime Codexa.
@@ -871,7 +879,15 @@ Stan nie może pochodzić z odpowiedzi modelu.
 
 #### Public API
 
+Fabryka `createStateTwin` wiąże pomiar z ledgerem i kontekstem zdarzeń przy konstrukcji; samodzielny `computeStateEpoch` pozostaje pomiarem bez zapisu (ADR-012).
+
 ```ts
+export function createStateTwin(options: {
+  ledger: EventLedger;
+  sessionId: Id;
+  correlationId: Id;
+}): StateTwin;
+
 export interface StateInput {
   repositoryRoot: string;
   environmentFingerprint: Hash;
@@ -950,6 +966,8 @@ Do epoki eksperymentu nie wchodzą:
 Epoka używana przez Failure Gate opisuje istotne preconditions eksperymentu, a nie dowolną zmianę niezwiązanego pliku.
 
 #### SQLite schema — część State Twin
+
+W MVP-0 obserwacje stanu są utrwalane jako zdarzenia ledgera kind="state_epoch" z pełnym StateEpoch w payload; tabela state_observations jest projekcją odłożoną do etapu integracji (issue #6) i nie jest tworzona w tym module. Lookup po epoch realizuje scan po kind.
 
 Dalsza część `src/ledger/schema.sql`, wdrażana na etapie State Twin:
 
