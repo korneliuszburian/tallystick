@@ -1,49 +1,60 @@
 import type { CapturedProcess, GitDiffDigest } from "./types.js";
 
 function refs(argv: readonly string[]): { base: string; head: string } {
-  const values = argv.filter((value) => !value.startsWith("-"));
+  const values = argv.filter((value) => !value.startsWith("-") && value !== "diff");
   return { base: values.at(-2) ?? "", head: values.at(-1) ?? "" };
 }
 
+function patchHandle(process: CapturedProcess) {
+  return { event_id: process.rawEventId, blob_hash: process.stdoutReceipt.hash, stream: "file" as const, byte_start: 0, byte_end: process.stdoutReceipt.bytes };
+}
+
 export function gitDiffDigest(process: CapturedProcess): GitDiffDigest {
-  const bytes = Buffer.from(process.stdout);
-  const text = bytes.toString("utf8");
-  const tokens = text.split("\0");
+  const tokens = Buffer.from(process.stdout).toString("utf8").split("\0");
   const summaries: GitDiffDigest["file_summaries"][number][] = [];
   const stats = new Map<string, { additions: number | null; deletions: number | null }>();
   const binary = new Set<string>();
 
-  for (let index = 0; index < tokens.length; index += 1) {
-    const token = tokens[index] ?? "";
+  for (let i = 0; i < tokens.length; i += 1) {
+    const token = tokens[i] ?? "";
     const stat = token.match(/^(\d+|-)\t(\d+|-)\t(.*)$/s);
-    if (stat) {
-      const path = stat[3] || (tokens[index + 1] ?? "");
-      if (stat[1] === "-" || stat[2] === "-") binary.add(path);
-      stats.set(path, { additions: stat[1] === "-" ? null : Number(stat[1]), deletions: stat[2] === "-" ? null : Number(stat[2]) });
+    if (!stat) continue;
+    const additions = stat[1] === "-" ? null : Number(stat[1]);
+    const deletions = stat[2] === "-" ? null : Number(stat[2]);
+    const embedded = stat[3] ?? "";
+    if (embedded !== "") {
+      stats.set(embedded, { additions, deletions });
+      if (additions === null || deletions === null) binary.add(embedded);
       continue;
     }
-    const raw = token.match(/^:[0-7]{6}\s+[0-7]{6}\s+[0-9a-f]+\s+[0-9a-f]+\s+([AMDRCT])(\d+)?$/i);
+    const first = tokens[++i] ?? "";
+    const next = tokens[i + 1] ?? "";
+    if (next !== "" && !/^[:\d-]/.test(next)) {
+      const second = tokens[++i] ?? "";
+      stats.set(first, { additions, deletions });
+      stats.set(second, { additions, deletions });
+      if (additions === null || deletions === null) { binary.add(first); binary.add(second); }
+    } else {
+      stats.set(first, { additions, deletions });
+      if (additions === null || deletions === null) binary.add(first);
+    }
+  }
+
+  for (let i = 0; i < tokens.length; i += 1) {
+    const raw = (tokens[i] ?? "").match(/^:[0-7]{6}\s+[0-7]{6}\s+[0-9a-f]+\s+[0-9a-f]+\s+([AMDRCT])(\d+)?$/i);
     if (!raw) continue;
     const status = raw[1]! as "A" | "M" | "D" | "R" | "C" | "T";
-    const first = tokens[index + 1] ?? "";
-    const second = status === "R" || status === "C" ? tokens[index + 2] ?? "" : null;
+    const first = tokens[++i] ?? "";
+    const second = status === "R" || status === "C" ? tokens[++i] ?? "" : null;
     const path = second ?? first;
-    const statValue = stats.get(path) ?? stats.get(first) ?? { additions: null, deletions: null };
-    summaries.push({
-      path, old_path: second === null ? null : first, status,
-      additions: statValue.additions, deletions: statValue.deletions,
-      patch_source: { event_id: process.rawEventId, blob_hash: process.stdoutReceipt.hash, stream: "file", byte_start: 0, byte_end: process.stdoutReceipt.bytes },
-    });
+    const stat = stats.get(path) ?? stats.get(first) ?? { additions: null, deletions: null };
+    summaries.push({ path, old_path: second === null ? null : first, status, additions: stat.additions, deletions: stat.deletions, patch_source: patchHandle(process) });
   }
 
   if (summaries.length === 0) {
-    for (const [path, value] of stats) {
-      summaries.push({
-        path, old_path: null, status: "M", additions: value.additions, deletions: value.deletions,
-        patch_source: { event_id: process.rawEventId, blob_hash: process.stdoutReceipt.hash, stream: "file", byte_start: 0, byte_end: process.stdoutReceipt.bytes },
-      });
-    }
+    for (const [path, stat] of stats) summaries.push({ path, old_path: null, status: "M", additions: stat.additions, deletions: stat.deletions, patch_source: patchHandle(process) });
   }
+
   const { base, head } = refs(process.request.argv);
   return {
     kind: "git-diff", adapter_version: "git-diff/v1", raw_event_id: process.rawEventId, receipt_id: process.rawEventId,
@@ -53,6 +64,6 @@ export function gitDiffDigest(process: CapturedProcess): GitDiffDigest {
     files_changed: summaries.length,
     additions: summaries.reduce((sum, item) => sum + (item.additions ?? 0), 0),
     deletions: summaries.reduce((sum, item) => sum + (item.deletions ?? 0), 0),
-    file_summaries: summaries, binary_files: [...binary],
+    file_summaries: summaries, binary_files: [...new Set([...binary].filter((path) => summaries.some((item) => item.path === path || item.old_path === path)))],
   };
 }
