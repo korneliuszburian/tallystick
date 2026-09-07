@@ -149,11 +149,16 @@ export function openLedger(options: LedgerOptions): EventLedger {
     const ingestedAt = new Date().toISOString();
     const captureStatus: EventRecord["capture_status"] = input.blobs.length === 0
       ? "not_applicable" : input.blobs.every((blob) => blob.complete) ? "complete" : "partial";
+    const normalizedBlobs = input.blobs.map((blob) => ({
+      hash: blob.hash,
+      complete: blob.complete,
+      stream: blob.stream ?? "payload",
+    }));
     const eventHash = sha256(canonicalJson({
       event_id: input.eventId, schema_version: SCHEMA_VERSION, project_id: options.projectId,
       session_id: input.sessionId, correlation_id: input.correlationId, kind: input.kind,
       source_timestamp: input.sourceTimestamp, ingested_at: ingestedAt, payload_hash: payloadHash,
-      blobs: input.blobs.map((blob) => ({ hash: blob.hash, complete: blob.complete })),
+      blobs: normalizedBlobs,
       previous_event_hash: previousHash, capture_status: captureStatus,
     }));
     database.prepare(`INSERT INTO events
@@ -162,9 +167,9 @@ export function openLedger(options: LedgerOptions): EventLedger {
       input.eventId, SCHEMA_VERSION, options.projectId, input.sessionId, input.correlationId,
       input.kind, input.sourceTimestamp, ingestedAt, payloadJson, payloadHash, previousHash, eventHash, captureStatus,
     );
-    for (const blob of input.blobs) {
+    for (const blob of normalizedBlobs) {
       database.prepare("INSERT INTO event_blobs(event_id,blob_hash,stream_name) VALUES (?,?,?)")
-        .run(input.eventId, blob.hash, "payload");
+        .run(input.eventId, blob.hash, blob.stream);
     }
     return rowToEvent(database.prepare("SELECT * FROM events WHERE event_id = ?").get(input.eventId) as EventRow);
   });
