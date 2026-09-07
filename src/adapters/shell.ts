@@ -50,7 +50,7 @@ export function shellDigest(process: CapturedProcess, before: Readonly<Record<st
   return {
     kind: "shell", adapter_version: VERSION, raw_event_id: process.rawEventId, receipt_id: process.rawEventId,
     capture_complete: process.stdoutReceipt.complete && process.stderrReceipt.complete,
-    parser_status: "recognized", omitted_count: 0, truncated: false,
+    parser_status: "recognized", omitted_count: 0, truncated: false, unknown_fragment: null,
     command: commandPreview(process.request), normalized_args_hash: argsHash(process.request),
     exit_code: process.exitCode, termination_signal: process.signal, duration_ms: process.durationMs,
     stdout_bytes: process.stdoutReceipt.bytes, stderr_bytes: process.stderrReceipt.bytes,
