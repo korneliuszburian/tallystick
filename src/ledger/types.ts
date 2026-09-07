@@ -45,7 +45,11 @@ export interface LedgerOptions {
   maxRawBytesPerExecution: number;
 }
 export interface BlobReceipt { hash: Hash; bytes: number; complete: boolean; }
-export interface BlobRef { hash: Hash; complete: boolean; }
+export interface BlobRef {
+  hash: Hash;
+  complete: boolean;
+  stream?: "stdout" | "stderr" | "file" | "payload"; // default: "payload"
+}
 export interface AppendEventInput {
   eventId: Id;
   sessionId: Id;
