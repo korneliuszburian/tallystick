@@ -38,6 +38,17 @@ export interface EventRecord {
   capture_status: "complete" | "partial" | "not_applicable";
 }
 
+export interface DatabaseStatement {
+  get(...parameters: unknown[]): unknown;
+  all(...parameters: unknown[]): unknown[];
+  run(...parameters: unknown[]): { changes: number; lastInsertRowid: number | bigint };
+}
+
+export interface DatabaseHandle {
+  prepare(sql: string): DatabaseStatement;
+  exec(sql: string): unknown;
+}
+
 export interface LedgerOptions {
   databasePath: string;
   blobDirectory: string;
@@ -61,6 +72,7 @@ export interface AppendEventInput {
 }
 export interface EventLedger {
   append(input: AppendEventInput): EventRecord;
+  transactionImmediate<T>(fn: (db: DatabaseHandle) => T): T;
   archive(chunks: AsyncIterable<Uint8Array>): Promise<BlobReceipt>;
   readBlob(hash: Hash): Promise<Uint8Array>;
   readFragment(handle: SourceHandle): Promise<Uint8Array>;
