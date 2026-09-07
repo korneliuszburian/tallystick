@@ -37,7 +37,7 @@ export function compilerDigest(process: CapturedProcess): CompilerDigest {
   return {
     kind: "compiler", adapter_version: "compiler/tsc-v1", raw_event_id: process.rawEventId, receipt_id: process.rawEventId,
     capture_complete: process.stdoutReceipt.complete && process.stderrReceipt.complete,
-    parser_status: recognized ? "recognized" : "unknown", omitted_count: 0, truncated: false,
+    parser_status: recognized ? "recognized" : "unknown", omitted_count: 0, truncated: false, unknown_fragment: null,
     compiler: process.request.executable, command: commandPreview(process.request), exit_code: process.exitCode,
     error_count: errorCount, warning_count: warningCount, diagnostics,
     affected_files: [...new Set(diagnostics.flatMap((item) => item.file === null ? [] : [item.file]))],
