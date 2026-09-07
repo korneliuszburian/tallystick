@@ -44,6 +44,24 @@
 
 **Uzasadnienie:** content-addressable storage utożsamia obiekty po treści; status kompletności jest cechą operacji zapisu, nie cechą bajtów.
 
+### ADR-008 — changed_artifacts z lokalnego pomiaru filesystem, nie z komunikatu procesu
+
+**Reguła:** W `ShellDigest.changed_artifacts` wartości before/after pochodzą z deterministycznego pomiaru zawartości plików wskazanych w `dependencyPaths` (SHA-256 przed spawn i po zakończeniu procesu; `"MISSING"` dla nieistniejących), nigdy z komunikatu procesu typu `"wrote file"`. W etapie adapterów pomiar ten implementuje sam adapter, lokalnie, bez modułu State Twin. State Twin (R.3) to osobny moduł epok, manifestów i revalidation; jego późniejsze powstanie nie zmienia kontraktu adapterów.
+
+**Uzasadnienie:** R.2 zakazuje pochodzenia `changed_artifacts` z tekstu procesu — intencją jest pomiar, nie deklaracja. Lokalny hash przed/po realizuje ten invariant deterministycznie i bez wywołań LLM, a ADR-006 dotyczy kolejności modułów, nie zakazuje użycia fs i crypto w adapterze.
+
+### ADR-009 — BlobRef niesie strumień źródła
+
+**Reguła:** `BlobRef` rozszerza się o opcjonalne pole `stream?: "stdout" | "stderr" | "file" | "payload"` z wartością domyślną `"payload"`. Ledger zapisuje `stream ?? "payload"` jako `event_blobs.stream_name`. `SourceHandle` jest rozwiązywalny przez `readFragment` wyłącznie wtedy, gdy potrójka `(event_id, blob_hash, stream)` istnieje w storage. Przy obliczaniu `event_hash` wartość domyślna stream jest aplikowana przed hashowaniem, więc `{hash, complete}` oraz `{hash, complete, stream: "payload"}` dają ten sam hash.
+
+**Uzasadnienie:** R.2 wymaga oddzielnych, adresowalnych strumieni stdout/stderr; bez stream w referencji uchwyty adapterów nie byłyby rozwiązywalne. Pole opcjonalne z domyślną wartością rozszerza kontrakt bez łamania go.
+
+### ADR-010 — receipt_id wskazuje zatwierdzone zdarzenie evidence w Ledgerze
+
+**Reguła:** W `DigestMeta` pola `receipt_id` i `raw_event_id` odnoszą się do `event_id` zdarzenia `kind="tool_output"`, commitowanego w Event Ledgerze PO zalodowaniu raw blobów i PRZED zwróceniem digestu. Payload tego zdarzenia zawiera `requestId` oraz `reservationId` z `ExecutionPermit`. Pełny Evidence Receipt z R.5 (wiążący `proposal_id`, `guard_decision_id`, `input_epoch`, `output_epoch`) jest kompozycją warstwy middleware w issue #6 i odwołuje się do tego samego zdarzenia raw; wtedy `receipt_id` wskaże nowe zdarzenie receipt, a `raw_event_id` pozostanie przy raw. Pola pozostają rozdzielne w kontrakcie nawet gdy przechodnio niosą tę samą wartość.
+
+**Uzasadnienie:** ADR-004 wymaga, by dowód istniał przed admission — na etapie adapterów najsilniejszym dostępnym dowodem jest commitowane, hash-chained zdarzenie ze zweryfikowanymi blobami. Dane wiązane dopiero przez Gate i State Twin (decyzja guarda, epoki) nie istnieją przed issue #4/#5 i nie mogą być udawane.
+
 ## Cel i granica systemu
 
 LEDGER jest zewnętrzną warstwą transaction/control plane otaczającą istniejący runtime Codexa.
@@ -91,6 +109,7 @@ Typ `MemoryRecord` jest kontraktem wejściowym revalidation, nie zobowiązaniem 
 - TypeScript z `exactOptionalPropertyTypes: true`.
 - `better-sqlite3`.
 - Vitest.
+- `@types/node`.
 - SQLite w wersji co najmniej `3.51.3`.
 - `PRAGMA synchronous = FULL`.
 - `PRAGMA journal_mode = WAL`.
@@ -99,7 +118,7 @@ Typ `MemoryRecord` jest kontraktem wejściowym revalidation, nie zobowiązaniem 
 - Publiczne API w `src/index.ts`.
 - Jeden pakiet npm.
 
-Bezpośrednie zależności pakietowe wynikające z tej specyfikacji to `better-sqlite3`, `typescript` i `vitest`. Dodatkowych zależności nie wolno dodawać bez jawnej akceptacji zmiany specyfikacji.
+Bezpośrednie zależności pakietowe wynikające z tej specyfikacji to `better-sqlite3`, `typescript`, `vitest` i `@types/node`. Dodatkowych zależności nie wolno dodawać bez jawnej akceptacji zmiany specyfikacji.
 
 Wersję SQLite należy sprawdzić w rzeczywistym połączeniu używanym przez `better-sqlite3`, a nie na podstawie wersji systemowego polecenia `sqlite3`.
 
@@ -346,6 +365,7 @@ export interface BlobReceipt {
 export interface BlobRef {
   hash: Hash;
   complete: boolean; // status tego konkretnego przechwycenia, z BlobReceipt
+  stream?: "stdout" | "stderr" | "file" | "payload"; // default: "payload"
 }
 
 export interface AppendEventInput {
@@ -475,6 +495,7 @@ Triggery chronią przed błędem aplikacji, nie przed administratorem uprawniony
 - `INSERT OR REPLACE` jest zabronione dla eventów.
 - UPDATE i DELETE eventów są blokowane przez storage.
 - Raw archive pozostaje niezależne od digestów i przyszłego compaction.
+- `append()` zapisuje `blob.stream ?? "payload"` jako `stream_name` w `event_blobs`.
 - `capture_status` eventu jest wyliczane z `blobs[].complete` w chwili `append()`:
   - jeśli `blobs` jest puste → `"not_applicable"`;
   - jeśli wszystkie `complete: true` → `"complete"`;
@@ -612,12 +633,18 @@ export interface DigestMeta {
   parser_status: "recognized" | "partial" | "unknown";
   omitted_count: number;
   truncated: boolean;
+  unknown_fragment: {
+    excerpt: string;
+    source: SourceHandle;
+  } | null;
 }
 ```
 
+`receipt_id = raw_event_id = event_id` zatwierdzonego zdarzenia `tool_output` (ADR-010); rozdzielą się w warstwie R.5.
+
 Każdy digest ma maksymalnie 4096 bajtów UTF-8 po serializacji.
 
-Nieznany parser nie przepuszcza całego outputu. Zwraca `parser_status=unknown`, ograniczony fragment i uchwyt do raw źródła.
+Nieznany parser nie przepuszcza całego outputu. Zwraca `parser_status=unknown`, ograniczony fragment i uchwyt do raw źródła. Dla `parser_status="unknown"` pole `unknown_fragment` MUSI być nie-null i zawierać bounded excerpt oraz rozwiązywalny `SourceHandle`; dla `recognized` jest `null`. Dla `partial` może być nie-null wyłącznie dla nierozpoznanej części.
 
 `null` w polach liczników oznacza „nie ustalono”, nie zero.
 
@@ -662,7 +689,7 @@ Raw archival form:
 - Allowlisted environment fingerprint.
 - Informacje o sygnale i zakończeniu.
 
-`changed_artifacts` pochodzą z porównania State Twin, nie z komunikatu narzędzia „wrote file”.
+`changed_artifacts` pochodzą z deterministycznego pomiaru filesystem przed i po wykonaniu (ADR-008), nigdy z komunikatu narzędzia „wrote file".
 
 #### Test-runner digest
 
