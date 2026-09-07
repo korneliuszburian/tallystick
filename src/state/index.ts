@@ -21,7 +21,15 @@ type Snapshot = {
 
 // These are measurement capabilities, not cached facts. A deserialized epoch
 // has no filesystem capability and cannot by itself prove freshness.
-const measurementInputs = new WeakMap<StateEpoch, StateInput>();
+type MeasurementContext = { input: StateInput };
+const measurementInputs = new WeakMap<StateEpoch, MeasurementContext>();
+// Keep the latest explicitly supplied environment/attestation probes, not file
+// facts. Revalidation always rereads the filesystem and must not resurrect
+// historical attestations just because an older epoch object was passed in.
+const inputContexts = new Map<string, WeakRef<MeasurementContext>>();
+const contextCleanup = new FinalizationRegistry<string>((root) => {
+  if (inputContexts.get(root)?.deref() === undefined) inputContexts.delete(root);
+});
 
 function hash(value: string | Uint8Array): Hash {
   return createHash("sha256").update(value).digest("hex");
@@ -80,6 +88,7 @@ function missing(error: unknown): boolean {
 
 async function measureEntry(root: string, path: string, submodule: boolean): Promise<{
   entry: Entry; stamp: string; verified: boolean;
+  children?: { entry: Entry; stamp: string }[];
 }> {
   const absolute = join(root, canonicalPath(path));
   const absent = { entry: { path, type: "missing", mode: 0, hash: "MISSING" }, stamp: "MISSING", verified: true };
@@ -136,6 +145,9 @@ async function measureEntry(root: string, path: string, submodule: boolean): Pro
       entry: { path, type, mode, hash: content },
       stamp: hashJson([stamp(before), nested.stamps, stamp(after)]),
       verified: verified && stamp(before) === stamp(after),
+      children: nested.entries.map((entry, index) => ({
+        entry: { ...entry, path: `${path}/${entry.path}` }, stamp: nested.stamps[index]!,
+      })),
     };
   } else {
     throw new Error(`unsupported filesystem type: ${path}`);
@@ -167,9 +179,18 @@ async function snapshot(root: string): Promise<Snapshot> {
     const measured = await measureEntry(root, path, submodules.has(path));
     entries.push(measured.entry);
     stamps.push(measured.stamp);
+    for (const child of measured.children ?? []) {
+      entries.push(child.entry);
+      stamps.push(child.stamp);
+    }
     verified &&= measured.verified;
   }
-  return { head: startHead, index, entries, stamps, verified };
+  const ordered = entries.map((entry, position) => ({ entry, stamp: stamps[position]! }))
+    .sort((a, b) => comparePaths(a.entry.path, b.entry.path));
+  return {
+    head: startHead, index, entries: ordered.map((item) => item.entry),
+    stamps: ordered.map((item) => item.stamp), verified,
+  };
 }
 
 /** Steps 1–11 of R.3. No database is opened and no ledger event is written. */
@@ -204,9 +225,16 @@ export async function computeStateEpoch(input: StateInput): Promise<StateEpoch> 
       state_revision_id: hashJson([epochId, pairs(attestations)]),
       completeness: verified ? "verified" : "unknown",
     });
-    measurementInputs.set(epoch, {
+    const measuredInput = Object.freeze({
       repositoryRoot: root, environmentFingerprint: environment, testAttestations: attestations,
     });
+    let context = inputContexts.get(root)?.deref();
+    if (context === undefined) {
+      context = { input: measuredInput };
+      inputContexts.set(root, new WeakRef(context));
+      contextCleanup.register(context, root);
+    } else { context.input = measuredInput; }
+    measurementInputs.set(epoch, context);
     return epoch;
   } finally { await rmdir(lease); }
 }
@@ -225,7 +253,7 @@ async function revalidate(
   memory: MemoryRecord, epoch: StateEpoch, ledger?: EventLedger,
 ): Promise<"active" | "stale"> {
   if (epoch.completeness !== "verified") return "stale";
-  const input = measurementInputs.get(epoch);
+  const input = measurementInputs.get(epoch)?.input;
   if (input === undefined) return "stale";
   let fresh: StateEpoch;
   try { fresh = await computeStateEpoch(input); }
