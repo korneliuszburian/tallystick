@@ -51,3 +51,29 @@ END;
 CREATE TRIGGER event_blobs_no_delete BEFORE DELETE ON event_blobs BEGIN
   SELECT RAISE(ABORT, 'event sources are immutable');
 END;
+
+CREATE TABLE failures (
+  id TEXT PRIMARY KEY,
+  action_key TEXT NOT NULL,
+  fingerprint TEXT NOT NULL,
+  precondition_epoch TEXT NOT NULL,
+  source_event_id TEXT NOT NULL REFERENCES events(event_id),
+  record_json TEXT NOT NULL CHECK(json_valid(record_json))
+);
+
+CREATE INDEX failures_action_key ON failures(action_key);
+
+CREATE TABLE reservations (
+  id TEXT PRIMARY KEY,
+  request_hash TEXT NOT NULL,
+  worktree_id TEXT NOT NULL,
+  fencing_token INTEGER NOT NULL,
+  status TEXT NOT NULL
+    CHECK(status IN ('reserved','started','completed','unknown'))
+);
+
+CREATE TABLE consumed_escape_proofs (
+  proof_id TEXT PRIMARY KEY,
+  consumed_by_reservation TEXT NOT NULL REFERENCES reservations(id),
+  event_id TEXT NOT NULL REFERENCES events(event_id)
+);

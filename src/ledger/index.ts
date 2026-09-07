@@ -3,7 +3,7 @@ import { closeSync, existsSync, mkdirSync, openSync, readFileSync, renameSync, r
 import { dirname, join } from "node:path";
 import { createRequire } from "node:module";
 import type {
-  AppendEventInput, BlobReceipt, EventLedger, EventRecord, Json,
+  AppendEventInput, BlobReceipt, DatabaseHandle, EventLedger, EventRecord, Json,
   LedgerOptions, SourceHandle,
 } from "./types.js";
 
@@ -12,11 +12,15 @@ interface Statement {
   all(...parameters: unknown[]): unknown[];
   run(...parameters: unknown[]): { changes: number; lastInsertRowid: number | bigint };
 }
+interface Transaction<T extends unknown[], R> {
+  (...args: T): R;
+  immediate(...args: T): R;
+}
 interface Database {
   exec(sql: string): this;
   pragma(source: string, options?: { simple?: boolean }): unknown;
   prepare(sql: string): Statement;
-  transaction<T extends unknown[], R>(fn: (...args: T) => R): (...args: T) => R;
+  transaction<T extends unknown[], R>(fn: (...args: T) => R): Transaction<T, R>;
   close(): void;
 }
 interface DatabaseConstructor { new(path: string): Database; }
@@ -180,6 +184,10 @@ export function openLedger(options: LedgerOptions): EventLedger {
       const payloadJson = canonicalJson(input.payload);
       return commitEvent(input, payloadJson, sha256(payloadJson));
     },
+    transactionImmediate<T>(fn: (db: DatabaseHandle) => T): T {
+      assertOpen();
+      return database.transaction(() => fn(database)).immediate();
+    },
     async archive(chunks) {
       assertOpen();
       const spool = join(options.blobDirectory, `.spool-${randomUUID()}`);
@@ -247,6 +255,6 @@ export function openLedger(options: LedgerOptions): EventLedger {
 }
 
 export type {
-  AppendEventInput, BlobReceipt, BlobRef, EventLedger, EventRecord, Hash, Id,
+  AppendEventInput, BlobReceipt, BlobRef, DatabaseHandle, DatabaseStatement, EventLedger, EventRecord, Hash, Id,
   ISODate, Json, LedgerOptions, SourceHandle,
 } from "./types.js";
