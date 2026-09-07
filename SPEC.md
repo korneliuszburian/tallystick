@@ -70,6 +70,26 @@ Reguła: Publiczne API State Twin uzupełnia fabryka createStateTwin(options: { 
 
 Uzasadnienie: R.3 wymaga trwałego zapisu obserwacji, ale zamrożone sygnatury metod nie niosą kontekstu storage. Wiązanie przy konstrukcji realizuje zapis bez zmiany sygnatur i powtarza zatwierdzony wzorzec createAdapters. Czysta funkcja pozostaje dostępna do testów i użytku bez ledgera.
 
+### ADR-013 — Gate jest wiązany ze storage przy konstrukcji
+
+Reguła: Publiczne API Gate uzupełnia fabryka createFailureGate(options: { ledger: EventLedger; databasePath: string; signingKey: string }): FailureGate. Tabele failures, reservations i consumed_escape_proofs są projekcjami odbudowywalnymi z append-only events; Gate otwiera własne połączenie better-sqlite3 do tego samego pliku bazy i tworzy je przez CREATE TABLE IF NOT EXISTS (idempotentnie, dla baz istniejących przed ich dodaniem do schema.sql). Autorytatywną historią decyzji pozostają zdarzenia ledgera: każdy ALLOW i BLOCK jest zapisywany jako kind="guard_decision" z pełnym kontekstem decyzji w payload.
+
+Uzasadnienie: preflight wymaga atomowych transakcji BEGIN IMMEDIATE i fencing tokenów, których event-sourced scan nie zapewnia; projekcje w tej samej bazie dają atomowość bez ruszania zamrożonego API ledgera. Wzorzec fabryki powtarza createAdapters i createStateTwin.
+
+### ADR-014 — Escape proof jest podpisany kluczem harnessu
+
+Reguła: Podpis EscapeProof to HMAC-SHA256(signingKey, canonical({ schema: "escape-proof/v1", id, failureId, kind, evidenceEventIds, expiresAt })) w notacji hex. signingKey jest trzymany przez harness i przekazywany do Gate przy konstrukcji; model nigdy nie widzi klucza. Weryfikacja proof sprawdza podpis, ważność expiresAt, zgodność failureId, istnienie evidenceEventIds w ledgerze i jednorazowość zużycia.
+
+Uzasadnienie: R.4 wymaga podpisu "zgodnego z kontraktem brokera" bez definiowania mechanizmu; HMAC z kluczem harnessu daje deterministyczną, testowalną autoryzację bez zewnętrznego PKI.
+
+### ADR-015 — Transakcja Gate działa na połączeniu Ledgera
+
+Reguła: EventLedger zyskuje metodę transactionImmediate<T>(fn: (db: DatabaseHandle) => T): T, która wykonuje fn w jednej transakcji BEGIN IMMEDIATE na własnym połączeniu Ledgera. Wywołany wewnątrz ledger.append dołącza do tej samej transakcji przez savepoint. DatabaseHandle to minimalna powierzchnia (prepare, exec) przeznaczona dla modułów first-party. Gate wykonuje cały preflight — odczyty i zapisy projekcji oraz zapis zdarzenia guard_decision — wewnątrz jednej transactionImmediate. Tabele projekcji tworzy przez CREATE TABLE IF NOT EXISTS wewnątrz transactionImmediate przy konstrukcji.
+
+ADR-015 zastępuje klauzulę ADR-013 o własnym połączeniu Gate: SQLite dopuszcza jedną transakcję zapisu naraz, więc drugie połączenie podczas BEGIN IMMEDIATE daje SQLITE_BUSY (wykazano diagnostycznie). Fabryka createFailureGate(options: { ledger: EventLedger; signingKey: string }) — databasePath z ADR-013 nie jest już potrzebne.
+
+Uzasadnienie: R.4 wymaga atomowego utrwalenia rezerwacji, zużycia proof i zdarzenia decyzji w jednej transakcji. Właścicielem połączenia i hash chain pozostaje Ledger.
+
 ## Cel i granica systemu
 
 LEDGER jest zewnętrzną warstwą transaction/control plane otaczającą istniejący runtime Codexa.
@@ -386,8 +406,24 @@ export interface AppendEventInput {
   blobs: readonly BlobRef[]; // było: blobHashes: readonly Hash[]
 }
 
+export interface DatabaseHandle {
+  prepare(sql: string): {
+    get(...parameters: unknown[]): unknown;
+    all(...parameters: unknown[]): unknown[];
+    run(...parameters: unknown[]): {
+      changes: number;
+      lastInsertRowid: number | bigint;
+    };
+  };
+  exec(sql: string): unknown;
+}
+
 export interface EventLedger {
   append(input: AppendEventInput): EventRecord;
+
+  transactionImmediate<T>(
+    fn: (db: DatabaseHandle) => T
+  ): T;
 
   archive(
     chunks: AsyncIterable<Uint8Array>
@@ -415,6 +451,8 @@ export function openLedger(
   options: LedgerOptions
 ): EventLedger;
 ```
+
+`transactionImmediate` jest przeznaczone dla modułów first-party wymagających atomowych projekcji na tym samym połączeniu co append-only Ledger.
 
 #### SQLite schema — część Event Ledger
 
@@ -1058,6 +1096,11 @@ Zablokować równoważny nieudany eksperyment w niezmienionych preconditions prz
 #### Public API
 
 ```ts
+export function createFailureGate(options: {
+  ledger: EventLedger;
+  signingKey: string;
+}): FailureGate;
+
 export interface EscapeProof {
   id: Id;
   failureId: Id;
