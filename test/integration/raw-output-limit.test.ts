@@ -106,7 +106,8 @@ it("R.0/R.1 raw overflow terminates a real child without waiting for its timeout
     const stdout = result.rawBlobs[0];
     if (stdout === undefined) throw new Error("Missing stdout capture");
     expect(consumptions).toBe(1);
-    expect(result.digest.stdout_bytes).toBeGreaterThan(rawLimit);
+    // ShellDigest reports archived bytes; incomplete capture establishes overflow.
+    expect(result.digest.stdout_bytes).toBe(stdout.bytes);
     expect(result.digest.capture_complete).toBe(false);
     expect(event?.capture_status).toBe("partial");
     expect(stdout.complete).toBe(false);
@@ -114,7 +115,8 @@ it("R.0/R.1 raw overflow terminates a real child without waiting for its timeout
     expect(Buffer.from(await storage.readBlob(stdout.hash))).toEqual(Buffer.alloc(rawLimit, 120));
     console.info("raw-limit reproduction:", JSON.stringify({
       configured_limit: rawLimit,
-      observed_stdout_bytes: result.digest.stdout_bytes,
+      fixture_stdout_bytes: 8192,
+      digest_stdout_bytes: result.digest.stdout_bytes,
       archived_stdout_bytes: stdout.bytes,
       capture_complete: result.digest.capture_complete,
       termination_signal: result.digest.termination_signal,
