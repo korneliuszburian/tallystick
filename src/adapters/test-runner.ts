@@ -40,7 +40,7 @@ export function testRunnerDigest(process: CapturedProcess): TestRunnerDigest {
   return {
     kind: "test-runner", adapter_version: "test-runner/vitest-json-v1", raw_event_id: process.rawEventId, receipt_id: process.rawEventId,
     capture_complete: process.stdoutReceipt.complete && process.stderrReceipt.complete, parser_status,
-    omitted_count: 0, truncated: false, framework: "vitest", command: commandPreview(process.request), exit_code: process.exitCode,
+    omitted_count: 0, truncated: false, unknown_fragment: null, framework: "vitest", command: commandPreview(process.request), exit_code: process.exitCode,
     ...totals, failed_tests, failure_signatures: failed_tests.map((item) => item.signature), duration_ms: process.durationMs,
     tested_epoch: process.request.goalId,
     test_fingerprint: sha256(JSON.stringify({ executable: process.request.executable, argv: process.request.argv, cwd: process.request.cwd })),
