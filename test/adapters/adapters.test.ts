@@ -92,7 +92,7 @@ describe("Acquisition adapters", () => {
     const base = root(); execFileSync("git", ["init", "-q"], { cwd: base }); execFileSync("git", ["config", "user.email", "test@example.com"], { cwd: base }); execFileSync("git", ["config", "user.name", "Test"], { cwd: base });
     writeFileSync(join(base, "old.txt"), "a\n"); writeFileSync(join(base, "tab\tname.txt"), "x\n"); writeFileSync(join(base, "line\nname.txt"), "n\n"); writeFileSync(join(base, "bin.dat"), Buffer.from([0,1,2,0,255]));
     execFileSync("git", ["add", "-A"], { cwd: base }); execFileSync("git", ["commit", "-qm", "base"], { cwd: base });
-    execFileSync("git", ["mv", "old.txt", "new.txt"], { cwd: base }); writeFileSync(join(base, "tab\tname.txt"), "x\ny\n"); writeFileSync(join(base, "bin.dat"), Buffer.from([0,9,8,0,255])); execFileSync("git", ["add", "-A"], { cwd: base }); execFileSync("git", ["commit", "-qm", "head"], { cwd: base });
+    execFileSync("git", ["mv", "old.txt", "new.txt"], { cwd: base }); writeFileSync(join(base, "tab\tname.txt"), "x\ny\n"); writeFileSync(join(base, "line\nname.txt"), "n\nm\n"); writeFileSync(join(base, "bin.dat"), Buffer.from([0,9,8,0,255])); execFileSync("git", ["add", "-A"], { cwd: base }); execFileSync("git", ["commit", "-qm", "head"], { cwd: base });
     const ledger = ledgerAt(base); const api = adapters(ledger);
     const argv = ["diff", "--raw", "--numstat", "-z", "--no-ext-diff", "--no-textconv", "-M", "HEAD~1", "HEAD"];
     const result = await api.execute(req(base, "git-diff", "git", argv, "diff"), permit("diff"));
