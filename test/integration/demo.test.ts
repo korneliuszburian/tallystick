@@ -7,5 +7,6 @@ it("npm run demo passes all three deterministic scenarios", () => {
     encoding: "utf8",
     env: process.env,
   });
+  console.info(output.trimEnd());
   expect(output).toContain("All three deterministic demo scenarios passed.");
 }, 30000);
