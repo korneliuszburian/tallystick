@@ -90,6 +90,65 @@ ADR-015 zastępuje klauzulę ADR-013 o własnym połączeniu Gate: SQLite dopusz
 
 Uzasadnienie: R.4 wymaga atomowego utrwalenia rezerwacji, zużycia proof i zdarzenia decyzji w jednej transakcji. Właścicielem połączenia i hash chain pozostaje Ledger.
 
+### ADR-016 — Kompozycja middleware, zużycie permit, klucz i obwoluta receipt
+
+Reguła:
+- createLedgerMiddleware(options: { repositoryRoot, databasePath,
+  blobDirectory, digestByteLimit, maxRawBytesPerExecution }) składa ledger,
+  state twin, gate i adapters w jeden pipeline R.5; nie jest piątym modułem.
+- signingKey harnessu jest generowany losowo przy pierwszym otwarciu
+  i utrwalany w pliku <databasePath>.harness-key z uprawnieniami 0600;
+  model nigdy go nie widzi.
+- verifyAndConsumePermit w middleware: weryfikuje HMAC permit z signingKey,
+  sprawdzi rezerwację (status reserved, zgodny requestHash) i atomowo przez
+  transactionImmediate oznacza ją started przed spawn oraz completed po
+  wyniku. Permit niezgodny, zużyty albo nierozpoznany = brak spawn.
+- errorSignature dla recordFailure jest deterministyczny:
+  shell → sha256(canonical({exit_code, salient_errors[].signature}));
+  test-runner → sha256(canonical({failure_signatures}));
+  compiler → sha256(canonical({kody diagnostyk error}));
+  git-diff → brak recordFailure (diff nie jest eksperymentem z failure).
+  recordFailure wywoływane wyłącznie gdy wykonanie zakończyło się porażką
+  (exit_code != 0 albo rozpoznane failed tests/errors).
+- Receipt to obwoluta w pamięci zwracana z intercept(): wiąże
+  proposal_id, guard_decision_id, execution_id (raw event), input_epoch,
+  output_epoch, digest_hash, capture_completeness. Jej składowe są trwałymi
+  zdarzeniami/blobami w ledgerze; receipt_id/raw_event_id zgodnie z ADR-010.
+  Nie powstaje nowy rodzaj zdarzenia.
+- scripts/demo.ts uruchamia się przez "demo": "node scripts/demo.ts"
+  (Node 24 wykonuje erasable TypeScript bez flag); żadnych nowych
+  zależności.
+
+Uzasadnienie: R.5 wymaga jednej ścieżki proposal → preflight → execution →
+raw archive → digest → state update; powyższe reguły domykają szwy bez
+zmiany zamrożonych API czterech modułów.
+
+### ADR-017 — Limit raw zatrzymuje proces podczas strumieniowego capture
+
+Reguła: Adaptery przechwytują stdout/stderr strumieniowo W TRAKCIE wykonania
+procesu, nie po jego zakończeniu. Przekroczenie maxRawBytesPerExecution
+kończy proces potomny (SIGTERM), zatrzymuje dalszy zapis, a wynik ma
+capture_complete=false i termination_signal="RAW_LIMIT_EXCEEDED".
+Częściowe przechwycenie jest zachowywane i odzyskiwalne; nie powstaje
+pozytywna atestacja kompletności. Buforowanie całego outputu procesu
+w pamięci jest zabronione.
+
+Uzasadnienie: R.0 wymaga, by przekroczenie limitu kończyło proces. Limit
+egzekwowany po zakończeniu procesu nie zatrzymuje ani procesu, ani wzrostu
+pamięci harnessu. Defekt wykryty testem integracyjnym issue #6.
+
+### ADR-018 — Demo uruchamia skompilowane artefakty
+
+Reguła: npm run demo wykonuje tsc -p tsconfig.demo.json (emit do
+.demo-dist, rootDir ".", include: src i scripts, dziedziczy strict)
+i uruchamia node .demo-dist/scripts/demo.js. Specifiery .js w źródłach
+nie są zmieniane; nie wprowadza się loaderów ani nowych zależności.
+.demo-dist jest objęte .gitignore.
+
+Uzasadnienie: Node 24 nie mapuje specyfierów .js na pliki .ts, a repo
+używa NodeNext, gdzie specifiery .js są poprawne po emisji. Kompilacja
+demo dodatkowo weryfikuje, że pakiet emituje się poprawnie.
+
 ## Cel i granica systemu
 
 LEDGER jest zewnętrzną warstwą transaction/control plane otaczającą istniejący runtime Codexa.
@@ -203,6 +262,7 @@ Nie zmieniać nazw modułów, plików ani publicznych symboli określonych w spe
 | Autoryzowane retry bez zmiany preconditions w jednym failure lineage | Maksymalnie 1 |
 
 Przekroczenie limitu raw output kończy proces, zapisuje niekompletny capture i nie może wygenerować pozytywnej atestacji kompletnego wyniku.
+Egzekwowanie limitu jest strumieniowe i przerywa proces (ADR-017).
 
 #### Rozdzielenie klas danych
 
@@ -725,6 +785,8 @@ export interface ShellDigest extends DigestMeta {
 ```
 
 `command` jest ograniczonym preview; pełne argumenty pozostają w raw proposal.
+
+`termination_signal="RAW_LIMIT_EXCEEDED"` oznacza przerwanie limitem.
 
 Raw archival form:
 
@@ -1497,6 +1559,8 @@ zero wykonanych identycznych retry bez dopuszczenia przez gate
 Plik: `scripts/demo.ts`.
 
 Skrypt używa rzeczywistych procesów i tymczasowego repo, nie modelu.
+
+Demo wykonuje się przez skompilowane artefakty (ADR-018); import `"../src/index.js"` pozostaje bez zmian.
 
 `createLedgerMiddleware` jest cienką kompozycją czterech modułów. Nazwy helperów użytych w skrypcie stanowią kontrakt tego złożenia; helpery nie tworzą piątego modułu ani agent loop.
 
