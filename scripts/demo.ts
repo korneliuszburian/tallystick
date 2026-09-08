@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { execFileSync } from "node:child_process";
@@ -8,6 +8,12 @@ import {
   createLedgerMiddleware,
   type MemoryRecord
 } from "../src/index.js";
+
+await mkdir(join(process.cwd(), ".demo-dist", "src", "ledger"), { recursive: true });
+await copyFile(
+  join(process.cwd(), "src", "ledger", "schema.sql"),
+  join(process.cwd(), ".demo-dist", "src", "ledger", "schema.sql")
+);
 
 const root = await mkdtemp(join(tmpdir(), "ledger-demo-"));
 const repo = join(root, "repo");
