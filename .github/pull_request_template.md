@@ -1,8 +1,8 @@
 ## Issue / ADR
 
-Powiązane issue, obowiązujące ADR i sekcje SPEC:
+Powiązane issue, ADR i sekcje SPEC:
 
-Typ PR: dokumentacyjny / implementacyjny / diagnostic STOP.
+Typ PR według [AGENTS](../AGENTS.md#konwencje-commitów-i-pr): dokumentacyjny / implementacyjny / diagnostic STOP.
 
 ## Zakres
 
@@ -10,13 +10,15 @@ Zatwierdzony plan plików i źródło zgody właściciela:
 
 Co zmieniono i dlaczego; czego zakres nie obejmuje:
 
+Dla dokumentacji — plik → element [filtra](../AGENTS.md#dokumentacja) → źródło; przeniesienia skąd → dokąd:
+
 ## Invariants
 
-Które invariants dotyczą zmiany i jak są zachowane:
+Dotknięte invariants: odsyłacze do SPEC i evidence ich zachowania:
 
 ## Rzeczywiście wykonane komendy i wyniki
 
-FACT = potwierdzone obserwacją; TODO = niewykonane; BLOCKED = brak możliwości sprawdzenia. FAIL pozostaje FAIL. Nie zaznaczaj PASS na podstawie planu, kodu testu lub cudzej deklaracji.
+Zasady klasyfikacji wyników: [AGENTS](../AGENTS.md#wyniki-i-evidence).
 
 | Komenda / kontrola | SHA i środowisko | Rzeczywisty wynik / exit code | Evidence |
 |---|---|---|---|
@@ -24,7 +26,7 @@ FACT = potwierdzone obserwacją; TODO = niewykonane; BLOCKED = brak możliwości
 
 ## CI link / status
 
-Link do run/checka, testowany SHA, push/PR merge ref, czas odczytu i wynik. Historyczny baseline nie jest wynikiem obecnego HEAD.
+Run/check, testowany SHA, push/PR merge ref, czas odczytu i wynik:
 
 ## Celowo niewykonane rzeczy
 
@@ -32,11 +34,13 @@ TODO / BLOCKED, uzasadnienie i brakujące evidence:
 
 ## SPEC CONFLICT
 
-Tak / nie. Jeżeli tak: link, dokładne cytaty sprzecznych fragmentów, dotknięty invariant/publiczne API i test-case wymagający rozstrzygnięcia. Diagnostic STOP nie upoważnia do samodzielnej zmiany kontraktu.
+Tak / nie. Przy konflikcie: cytaty i linki, invariant/API i test-case według [procedury STOP](../AGENTS.md#sprzeczności-i-brak-rozstrzygnięcia).
 
 ## Checklist
 
-- [ ] No fake green — wyniki mają rzeczywisty dowód; niewykonane lub pominięte testy nie są PASS.
-- [ ] No weakened assertions — nie osłabiono asercji ani bramki, aby uzyskać sukces.
-- [ ] No unapproved API changes — brak niezatwierdzonych zmian API, SPEC i ADR.
-- [ ] No merge by author — autor nie wykonuje merge'u.
+- [ ] [No fake green](../AGENTS.md#wyniki-i-evidence).
+- [ ] [No weakened assertions](../AGENTS.md#konwencje-commitów-i-pr).
+- [ ] [No unapproved API changes](../AGENTS.md#reguły-pracy).
+- [ ] [No merge by author](../AGENTS.md#konwencje-commitów-i-pr).
+
+<!-- Kiedy ten dokument traci aktualność: po zmianie reguł AGENTS, wymaganego evidence PR lub ścieżek przywołanych źródeł; wyniki wypełnionego PR dotyczą wskazanego SHA i środowiska. -->
