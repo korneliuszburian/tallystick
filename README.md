@@ -1,6 +1,6 @@
-# Tallystick / LEDGER
+# Tallystick
 
-Deterministyczny **transaction/control plane dla coding agents**, projektowany wokół istniejącego runtime'u Codexa. LEDGER utrwala dowody wykonania, kontroluje dopuszczenie wyników do kontekstu, mierzy stan repozytorium i blokuje równoważne znane porażki przed uruchomieniem procesu.
+Deterministyczny **transaction/control plane dla coding agents**, projektowany wokół istniejącego runtime'u Codexa. Tallystick utrwala dowody wykonania, kontroluje dopuszczenie wyników do kontekstu, mierzy stan repozytorium i blokuje równoważne znane porażki przed uruchomieniem procesu.
 
 ## What it is
 
@@ -24,7 +24,7 @@ Raw truth, derived memory, verified world state i assembled context nie są tym 
 
 ## What it is not
 
-LEDGER nie jest chatbotem, RAG systemem, vector-memory-only, własnym agent runtime'em, wrapperem na provider API ani nową pętlą inference. Sesja, reasoning i model/tool loop pozostają odpowiedzialnością hosta. Hot path LEDGER-a nie wywołuje LLM. MVP-0 nie dostarcza Context Atlas, Recovery Engine, persistent semantic memory ani Compounding Evaluator.
+Tallystick nie jest chatbotem, RAG systemem, vector-memory-only, własnym agent runtime'em, wrapperem na provider API ani nową pętlą inference. Sesja, reasoning i model/tool loop pozostają odpowiedzialnością hosta. Hot path Tallysticka nie wywołuje LLM. MVP-0 nie dostarcza Context Atlas, Recovery Engine, persistent semantic memory ani Compounding Evaluator.
 
 ## Status MVP-0
 
@@ -58,6 +58,10 @@ Pełny plan pomiaru, evidence i kryteria PASS / FAIL / BLOCKED: [Laptop integrat
 
 ## Dokumentacja i źródła prawdy
 
+Zasady nazewnictwa i zgodności historycznej: [AGENTS.md — Nazewnictwo](AGENTS.md#nazewnictwo).
+
 [ SPEC.md ](SPEC.md) określa kontrakty i ADR; [AGENTS.md](AGENTS.md) określa reguły pracy. [ISSUES.md](ISSUES.md) jest historycznym podziałem etapów, nie bieżącą listą GitHub Issues. Aktualne refs, kod, PR, issues i CI w GitHub mają pierwszeństwo przed historycznymi opisami projektu.
 
 Katalog [docs/](docs/) zawiera [MVP-0 status](docs/MVP-0-STATUS.md), [laptop audit](docs/LAPTOP-INTEGRATION-AUDIT.md) i [repository hygiene](docs/REPOSITORY-HYGIENE.md).
+
+**Kiedy ten dokument traci aktualność:** gdy zmieniają się wskazane pliki, sposób uruchomienia lub granice przywołanych dowodów; historyczny baseline nadal dotyczy wyłącznie swojego SHA.
