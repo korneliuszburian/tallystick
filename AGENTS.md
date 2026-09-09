@@ -2,7 +2,13 @@
 
 ## Kontekst projektu
 
-LEDGER jest deterministyczną warstwą transaction/control plane otaczającą istniejący runtime Codexa. Codex pozostaje odpowiedzialny za sesję, reasoning, interakcję z modelem i execution loop. MVP-0 obejmuje dokładnie cztery moduły: Event Ledger, Acquisition Adapters, State Twin i Failure Antibody Gate. LEDGER nie jest wrapperem na model, „lepszym summarizerem”, rozwiązaniem RAG + vector DB ani drugim agentem orkiestrującym Codexa. Jego zadaniem jest utrwalanie odzyskiwalnego evidence, filtrowanie wyników przed admission, deterministyczna weryfikacja stanu i blokowanie równoważnych porażek przed uruchomieniem procesu.
+Tallystick jest deterministyczną warstwą transaction/control plane otaczającą istniejący runtime Codexa. Codex pozostaje odpowiedzialny za sesję, reasoning, interakcję z modelem i execution loop. MVP-0 obejmuje dokładnie cztery moduły: Event Ledger, Acquisition Adapters, State Twin i Failure Antibody Gate. Tallystick nie jest wrapperem na model, „lepszym summarizerem”, rozwiązaniem RAG + vector DB ani drugim agentem orkiestrującym Codexa. Jego zadaniem jest utrwalanie odzyskiwalnego evidence, filtrowanie wyników przed admission, deterministyczna weryfikacja stanu i blokowanie równoważnych porażek przed uruchomieniem procesu.
+
+## Nazewnictwo
+
+- Nazwa produktu w nowych i redagowanych opisach to **Tallystick**. Identyfikator repozytorium i pakietu pozostaje `tallystick` ([package.json](package.json)).
+- **LEDGER** to dotychczasowy alias tego samego projektu, występujący w [SPEC.md](SPEC.md) i materiałach historycznych; nie oznacza osobnego silnika ani produktu. Poza tymi odwołaniami nie używaj go jako drugiej nazwy produktu.
+- Zachowuj nazwy techniczne z [SPEC.md](SPEC.md): `Event Ledger`, `EventLedger`, `openLedger`, `createLedgerMiddleware`, `src/ledger/` i `test:ledger`. Nie zmieniaj nazw historycznych commitów, gałęzi, runów (np. `LEDGER CI`), SHA ani identyfikatorów dowodów w ramach normalizacji nazwy produktu. Migracja API, ścieżek lub kontraktów wymaga osobnego, jawnego zakresu.
 
 ## Źródło wymagań
 
@@ -96,3 +102,5 @@ Zielone testy lokalnej biblioteki nie uprawniają do deklarowania zaliczonego au
 - Wszystkie zmiany integruj przez PR.
 - Nie obchodź branch protection ani required check.
 - Nie włączaj `continue-on-error`, nie pomijaj grup testów i nie zastępuj czerwonego wyniku sztucznym sukcesem.
+
+**Kiedy ten dokument traci aktualność:** po jawnej zmianie zasad pracy lub kontraktów, do których odsyła; wymaga wtedy przeglądu zgodności, nie automatycznego uchylenia reguł.
