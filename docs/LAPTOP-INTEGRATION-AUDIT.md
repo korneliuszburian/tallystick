@@ -1,16 +1,23 @@
-# Laptop integration audit — Tallystick / Codex / MCP
+# Tallystick — kryteria audytu integracji
+
+[Start](../README.md) · [Kontrakty](../SPEC.md) · [Reguły pracy](../AGENTS.md)
+
+> **Rola:** kryteria testu i wymagane evidence · **Status:** S.6 — DO OCENY DLA KONKRETNEGO PROFILU  
+> **Zakres:** jeden SHA, wersja hosta, transport i zestaw dozwolonych ścieżek  
+> **Źródła:** [SPEC S.6](../SPEC.md#s6-dodatkowa-bramka-wdrożenia--poza-mvp-0); wyniki w [rejestrze](AUDIT-REGISTER.md)  
+> **Kiedy ten dokument traci aktualność:** zmiana SHA, wersji/config hosta, transportu, narzędzi lub admission wymaga ponownej walidacji dotkniętych granic.
 
 ## Cel i status
 
 **FACT — kontrakt:** [SPEC.md S.6](../SPEC.md) wymaga sprawdzenia rzeczywistego hosta po testach biblioteki; ADR-002, ADR-003, ADR-004, R.0, R.2, R.4 i R.5 określają granice wykonania i admission. [MVP-0 baseline](MVP-0-STATUS.md) potwierdza testy lokalnego wycinka, nie to połączenie.
 
-**TODO:** wykonać poniższy laptop-only audit i zebrać dowody. **BLOCKED:** na etapie publikacji checklisty brak pomiarów z laptopa, więc nie wolno deklarować `production-ready`, `enforce-ready` ani `Codex-integrated`.
+**Status checklisty:** kryteria do oceny konkretnego profilu, nie raport wykonania. Przy publikacji pierwotnej wersji brakowało pomiarów hosta; późniejsze [raporty operatora](AUDIT-REGISTER.md#raporty-operatora--oddzielna-klasa-dowodu) są osobną klasą dowodu. Pola poniżej nie są automatycznie zaliczane wynikami z różnych konfiguracji. Całe S.6 pozostaje bez deklaracji PASS.
 
-Checklistę wykonuje człowiek na małym, izolowanym worktree. Ten dokument nie uruchamia Codexa ani nie zleca jego uruchomienia z Chat/Work; nie dodaje nowego runtime'u, provider loop ani funkcji LEDGER-a. Nie zakłada nieudokumentowanych hooków, flag lub vendor-internal behavior.
+Checklistę wykonuje człowiek na małym, izolowanym worktree. Ten dokument nie uruchamia Codexa ani nie zleca jego uruchomienia z Chat/Work; nie dodaje nowego runtime'u, provider loop ani funkcji Tallystick. Nie zakłada nieudokumentowanych hooków, flag lub vendor-internal behavior.
 
 ## 1. Prerequisites — TODO
 
-- [ ] Dostęp do `korneliuszburian/tallystick`, Git, Node i npm; zapisane wersje i system operacyjny. Punkt odniesienia z CI: Node 24.20.0, npm 11.19.0, Ubuntu 24.04, nie gwarancja kompatybilności laptopa.
+- [ ] Dostęp do `korneliuszburian/tallystick`, Git, Node i npm; zapisane wersje i system operacyjny. Środowisko referencyjne i granice transferu wyniku: [baseline CI](MVP-0-STATUS.md#fact--zakres-i-identyfikacja-dowodu); nie jest to gwarancja kompatybilności laptopa.
 - [ ] Zainstalowany, dostępny lokalnie Codex CLI lub SDK, oraz konfiguracja MCP, jeżeli wybrana ścieżka go używa; zapisane dokładne wersje i źródło informacji o dostępnych interfejsach.
 - [ ] Czysty checkout konkretnego commitu; brak równoległego writera badanego worktree; lokalny filesystem dla SQLite/CAS, nie NFS.
 - [ ] Działające `npm ci`, wszystkie pięć suit, typecheck i demo na laptopie; rzeczywiste exit codes, nie wyłącznie obecność komend.
@@ -159,6 +166,6 @@ Nie publikuj harness key, tokenów, haseł ani wrażliwego raw. Oryginały przec
 
 Jeżeli występują jednocześnie FAIL i BLOCKED, wynik całości to FAIL, a blokady pozostają zapisane osobno. UNKNOWN execution oznacza zero automatycznych retry i reconciliation procesu, worktree i skutków przed kontynuacją; nie jest usprawiedliwieniem ponownego wykonania.
 
-Użyj jednego issue **„Laptop integration audit: validate Tallystick enforce path with Codex/MCP”** po osobnym zatwierdzeniu jego utworzenia; przed utworzeniem sprawdź, czy już istnieje. Kolejne wyniki dopisuj do tego issue zamiast produkować duplikaty. Każda proponowana zmiana architektury musi wskazać naruszony ADR i uzyskać jawną decyzję supersedującą; nie edytuj historii ani API po cichu. Brak konieczności zmiany kontraktu nie wymaga sztucznego nowego ADR, lecz wymaga wskazania obowiązujących decyzji w wyniku audytu.
+Użyj istniejącego [issue #22 — Laptop integration audit: validate Tallystick enforce path with Codex/MCP](https://github.com/korneliuszburian/tallystick/issues/22), zamiast tworzyć drugi tracker. Kolejne wyniki dopisuj do tego issue zamiast produkować duplikaty. Każda proponowana zmiana architektury musi wskazać naruszony ADR i uzyskać jawną decyzję supersedującą; nie edytuj historii ani API po cichu. Brak konieczności zmiany kontraktu nie wymaga sztucznego nowego ADR, lecz wymaga wskazania obowiązujących decyzji w wyniku audytu.
 
 Zmiana SHA, wersji/config Codexa/MCP, transportu, dozwolonych narzędzi lub sposobu admission wymaga ponownej walidacji dotkniętych granic. PASS jednego profilu nie jest uniwersalnym certyfikatem produkcyjnym.
