@@ -6,7 +6,7 @@
 
 **TODO:** wykonać poniższy laptop-only audit i zebrać dowody. **BLOCKED:** na etapie publikacji checklisty brak pomiarów z laptopa, więc nie wolno deklarować `production-ready`, `enforce-ready` ani `Codex-integrated`.
 
-Checklistę wykonuje człowiek na małym, izolowanym worktree. Ten dokument nie uruchamia Codexa ani nie zleca jego uruchomienia z Chat/Work; nie dodaje nowego runtime'u, provider loop ani funkcji LEDGER-a. Nie zakłada nieudokumentowanych hooków, flag lub vendor-internal behavior.
+Checklistę wykonuje człowiek na małym, izolowanym worktree. Ten dokument nie uruchamia Codexa ani nie zleca jego uruchomienia z Chat/Work; nie dodaje nowego runtime'u, provider loop ani funkcji Tallysticka. Nie zakłada nieudokumentowanych hooków, flag lub vendor-internal behavior.
 
 ## 1. Prerequisites — TODO
 
@@ -161,4 +161,4 @@ Jeżeli występują jednocześnie FAIL i BLOCKED, wynik całości to FAIL, a blo
 
 Użyj jednego issue **„Laptop integration audit: validate Tallystick enforce path with Codex/MCP”** po osobnym zatwierdzeniu jego utworzenia; przed utworzeniem sprawdź, czy już istnieje. Kolejne wyniki dopisuj do tego issue zamiast produkować duplikaty. Każda proponowana zmiana architektury musi wskazać naruszony ADR i uzyskać jawną decyzję supersedującą; nie edytuj historii ani API po cichu. Brak konieczności zmiany kontraktu nie wymaga sztucznego nowego ADR, lecz wymaga wskazania obowiązujących decyzji w wyniku audytu.
 
-Zmiana SHA, wersji/config Codexa/MCP, transportu, dozwolonych narzędzi lub sposobu admission wymaga ponownej walidacji dotkniętych granic. PASS jednego profilu nie jest uniwersalnym certyfikatem produkcyjnym.
+**Kiedy ten dokument traci aktualność:** zmiana SHA, wersji/config Codexa/MCP, transportu, dozwolonych narzędzi lub sposobu admission wymaga ponownej walidacji dotkniętych granic. PASS jednego profilu nie jest uniwersalnym certyfikatem produkcyjnym.
