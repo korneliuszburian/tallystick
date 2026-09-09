@@ -16,6 +16,8 @@ Transaction/control plane wokół runtime’u Codexa. Cztery moduły MVP-0 łąc
 | **Rzeczywisty host** | [Rejestr audytu i raportów operatora](docs/AUDIT-REGISTER.md). Pomiary poszczególnych scenariuszy nie są PASS całego S.6. |
 | **Docelowa pamięć i kontekst** | [Granica designu i MVP-0](docs/ARCHITECTURE.md#design-docelowy-a-mvp-0). Obecność w designie nie oznacza implementacji. |
 
+Zielone istniejące testy nie domykają wszystkich kontraktów rdzenia. [Syntezy z 10 września: zgodność rdzenia, kwalifikacja hosta i wartość produktu](docs/RESEARCH.md#trzy-bramki-dalszej-pracy) to osobne bramki, bez deklaracji naprawy ustaleń.
+
 > **Enforce pozostaje niedopuszczony bez dowodu całego profilu.** Kryteria oceny są w [S.6](SPEC.md#s6-dodatkowa-bramka-wdrożenia--poza-mvp-0); otwarty proces pomiarowy prowadzi [issue #22](https://github.com/korneliuszburian/tallystick/issues/22).
 
 ## Mapa rdzenia
@@ -35,8 +37,8 @@ Kompozycja: [R.5](SPEC.md#r5-cienkie-złożenie-w-srcindexts) · [src/index.ts](
 |---|---|
 | Uruchomić lokalną weryfikację | [Setup, komendy i zapis evidence](docs/LAPTOP-INTEGRATION-AUDIT.md#2-setup-lokalny--todo); definicje skryptów w [package.json](package.json). |
 | Zrozumieć decyzje i odrzucone alternatywy | [Motywacje, kill-round i indeks ADR](docs/ARCHITECTURE.md). |
-| Sprawdzić ryzyka zamiast liczyć zielone testy | [Rejestr A01–A24 i mapowanie F01–F15](docs/AUDIT-REGISTER.md). |
-| Przygotować eksperyment, nie nowy moduł | [Pytania DR-01–DR-20 i źródła](docs/RESEARCH.md). |
+| Sprawdzić ryzyka zamiast liczyć zielone testy | [Rejestr A01–A24 i mapowanie F01–F15](docs/AUDIT-REGISTER.md) oraz [syntezy SD/SR i korekty](docs/RESEARCH.md#syntezy-z-10-września-2026). |
+| Przygotować eksperyment, nie nowy moduł | [Pytania DR-01–DR-20 i źródła](docs/RESEARCH.md); [odrębna numeracja kampanii SR](docs/RESEARCH.md#dwie-kampanie-dr). |
 | Wprowadzić zmianę | [AGENTS.md](AGENTS.md) i [szablon PR](.github/pull_request_template.md). |
 | Odczytać dawny podział pracy | [Historyczna mapa etapów](ISSUES.md), nie aktualny tracker. |
 | Uporządkować gałąź po merge | [Checklista operacyjna](docs/REPOSITORY-HYGIENE.md). |
