@@ -18,7 +18,7 @@ Czytaj ten historyczny rejestr razem z [korektami interpretacji K01–K11](RESEA
 
 ## Rewalidacja code fixed point
 
-Poniższa tabela jest dyspozycją dla wskazanych historycznych ustaleń na code fixed point `ec9829d42441ffb026fa4131b5077177d943a25a`. Oryginalne A01–A24 i F01–F15 pozostają niezmienione jako evidence z własnego SHA; ten dopisek nie przenosi ich zakresu na późniejsze rewizje.
+Poniższa tabela jest dyspozycją dla wskazanych historycznych ustaleń na code fixed point `ec9829d42441ffb026fa4131b5077177d943a25a`. `RESOLVED` oznacza usunięcie opisanego mechanizmu w tym ograniczonym zakresie kodu/testów; nie zamyka całego A/F ani nie zastępuje nowej reprodukcji. Oryginalne A01–A24 i F01–F15 pozostają niezmienione jako evidence z własnego SHA; ten dopisek nie przenosi ich zakresu na późniejsze rewizje.
 
 | Ustalenie | Dyspozycja na `ec9829d42441ffb026fa4131b5077177d943a25a` | Dowód lokalny |
 |---|---|---|
@@ -26,7 +26,7 @@ Poniższa tabela jest dyspozycją dla wskazanych historycznych ustaleń na code 
 | A13 / eskalacja i reap procesu | `RESOLVED` dla ścieżek timeout/capture objętych testami POSIX; power-loss pozostaje poza dowodem | `src/adapters/index.ts:229-247`; `test/adapters/adapters.test.ts:240-254,256-290,393-400` |
 | A14 / bounded digest | `RESOLVED` dla pól i kolekcji objętych reducerem; brak ogólnego claimu o wszystkich przyszłych digestach | `src/adapters/index.ts:80-141`; `test/adapters/adapters.test.ts:338-363,387-391` |
 | A16 / SourceHandle i semantyka bajtów | `RESOLVED` dla przetestowanych ścieżek invalid UTF-8 shell oraz unknown git-diff; zakres nie obejmuje wszystkich przyszłych parserów | `src/adapters/index.ts:14-24`; `test/adapters/adapters.test.ts:69-74,218-237` |
-| A18 / paginacja skanów | `RESOLVED` przez wspólny `scanAll`; test poza pierwszą stroną dotyczy UNKNOWN, pozostałe ścieżki mają dowód inspekcji kodu | `src/ledger/scan.ts:1-15`; `src/index.ts:155-165`; `src/guards/index.ts:142-160`; `test/guards/guards.test.ts:211-229` |
+| A18 / paginacja skanów | `RESOLVED` dla wspólnego `scanAll`; test poza pierwszą stroną dotyczy UNKNOWN, pozostałe ścieżki mają wyłącznie dowód inspekcji kodu | `src/ledger/scan.ts:1-15`; `src/index.ts:155-165`; `src/guards/index.ts:142-160`; `test/guards/guards.test.ts:211-229` |
 | A12 / wspólny limit raw | `OPEN` — dwa strumienie nadal archiwizują niezależnie | `src/adapters/index.ts:249-267`; [historyczny wpis A12](#a12-limit-raw-na-strumień-zamiast-na-wykonanie) |
 | A15 / git-diff parser | `OPEN` — exit 0 może nadal oznaczyć nierozpoznany, niepusty output jako `recognized`, a refs są wyprowadzane z argv | `src/adapters/git-diff.ts:3-6,61-74` |
 | A17 / błąd odczytu pliku | `OPEN` — każdy wyjątek fileHash nadal daje `MISSING` | `src/adapters/shell.ts:21-24` |

@@ -24,7 +24,7 @@ To kolejność researchu, nie zmiana zamrożonej sekwencji implementacji ADR-006
 
 ## Syntezy z 10 września 2026
 
-**Status syntez: analiza źródeł, bez nowych reprodukcji ustaleń kodowych ani pomiaru hosta w tym opracowaniu.** Wspólny wniosek SD/SR/N1/N2: kierunek transaction/control plane pozostaje; przejście istniejących testów nie domyka zgodności rdzenia. Luki rdzenia i integracji są odrębnymi bramkami, a nie argumentem za rozpoczęciem kolejnego modułu pamięci — [SD: status i bramka](#source-sd), [SR: §1 i §8](#source-sr).
+**Status syntez: analiza źródeł, bez nowych reprodukcji ustaleń kodowych ani pomiaru hosta w tym opracowaniu.** Pochodny wspólny wniosek z SD/SR oraz narracyjnych N1/N2 (nie są to niezależne eksperymenty): kierunek transaction/control plane pozostaje; przejście istniejących testów nie domyka zgodności rdzenia. Luki rdzenia i integracji są odrębnymi bramkami, a nie argumentem za rozpoczęciem kolejnego modułu pamięci — [SD: status i bramka](#source-sd), [SR: §1 i §8](#source-sr).
 
 ### Identyfikatory zawsze z pochodzeniem
 
@@ -147,13 +147,13 @@ Rekomendacja z [SR §8](#source-sr) i [SD: bramka dalszej pracy](#source-sd), ni
 | Kwalifikacja hosta | Coverage, admission, izolacja i związanie kwalifikacji z aktywacją. | Dotychczasowe [relacje operatora](AUDIT-REGISTER.md#raporty-operatora--oddzielna-klasa-dowodu) zachowują swój zakres; brak pełnego S.6. |
 | Wartość | Uczciwy baseline, false blocks, correctness, koszt i osobne treatmenty pamięci. | Projekt eksperymentu, hashe raportów i licznik testów nie są pomiarem przewagi. |
 
-Zadanie patcha aktywacji hosta nie zamyka luk rdzenia. Nowe syntezy nie cofają wcześniejszych pomiarów hosta do „braku jakichkolwiek prób”. Ta redakcja nie oznacza żadnego F/A jako naprawionego i nie nadaje nowego ADR.
+Zadanie patcha aktywacji hosta nie zamyka luk rdzenia. Nowe syntezy nie cofają wcześniejszych pomiarów hosta do „braku jakichkolwiek prób”. Ta redakcja RESEARCH nie oznacza żadnego F/A jako naprawionego i nie nadaje nowego ADR.
 
 ## Wspólny kontrakt wyniku badania
 
 Wynik zawiera problem, źródła, najwyżej 2–3 alternatywy, kontrprzykład, eksperyment PASS/FAIL/BLOCKED, koszty i decyzję właściciela potrzebną przed implementacją. Reguły normatywne linkuj z [AGENTS](../AGENTS.md), nie kopiuj ich do każdego raportu. Wskazuj P1–P10 i właściwe ADR; próba nie jest wykonanym testem.
 
-### Architektura Tallystick
+### Indeks zakresów badań
 
 Poniższe `DR-01`–`DR-20` są krótkim indeksem zakresów badań. Pełne prompty pozostają w źródle `S-RESEARCH` poza repozytorium; do Gita trafiają tylko zakresy, pochodzenie i wnioski potrzebne konkretnemu konsumentowi.
 
@@ -302,7 +302,7 @@ S-SYNTEZA/S-SYNTEZA-2 mieszają historyczny status, rekomendacje i opisy designu
 
 ### Syntezy dostarczone 10 września 2026
 
-Poniższe aliasy opisują pochodzenie odsyłaczy, nie nowe ADR ani kolejność autorytetu. Oryginały dostarczono jako załączniki; nie są plikami tego repo. SHA-256 policzono z otrzymanych bajtów. Archiwum przekazania v2 zachowuje pełne źródła, ale jego lokalne ścieżki i odsyłacze sesyjne nie są publicznym evidence GitHub.
+Poniższe aliasy opisują pochodzenie odsyłaczy, nie nowe ADR ani kolejność autorytetu. Oryginały dostarczono jako załączniki; nie są plikami tego repo. SHA-256 policzono z otrzymanych bajtów.
 
 | Źródło / alias | Rola | SHA-256 otrzymanych bajtów |
 |---|---|---|
