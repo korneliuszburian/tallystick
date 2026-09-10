@@ -1,42 +1,45 @@
-## Issue / ADR
+<!-- Tallystick — formularz dowodów PR. Reguły: AGENTS.md. -->
+## Zgłoszenie / ADR
 
-Powiązane issue, obowiązujące ADR i sekcje SPEC:
+Powiązane issue, ADR i sekcje SPEC:
 
-Typ PR: dokumentacyjny / implementacyjny / diagnostic STOP.
+Typ PR według `AGENTS.md` ze sprawdzanego HEAD, sekcja „Konwencje commitów i PR”: dokumentacyjny / implementacyjny / diagnostic STOP.
 
 ## Zakres
 
 Zatwierdzony plan plików i źródło zgody właściciela:
 
-Co zmieniono i dlaczego; czego zakres nie obejmuje:
+Co zmieniono, dlaczego oraz czego zakres nie obejmuje:
 
-## Invariants
+Dla dokumentacji — plik → element filtra z `AGENTS.md` ze sprawdzanego HEAD, sekcja „Dokumentacja” → źródło; przeniesienia skąd → dokąd; zachowane ADR/SHA/run ID:
 
-Które invariants dotyczą zmiany i jak są zachowane:
+## Inwarianty
+
+Dotknięte invariants: odsyłacze do SPEC i evidence ich zachowania:
 
 ## Rzeczywiście wykonane komendy i wyniki
 
-FACT = potwierdzone obserwacją; TODO = niewykonane; BLOCKED = brak możliwości sprawdzenia. FAIL pozostaje FAIL. Nie zaznaczaj PASS na podstawie planu, kodu testu lub cudzej deklaracji.
-
-| Komenda / kontrola | SHA i środowisko | Rzeczywisty wynik / exit code | Evidence |
+| Komenda / kontrola | SHA i środowisko | Wynik / exit code | Evidence |
 |---|---|---|---|
-| Do uzupełnienia | | TODO — nie wykonano | |
+| Do uzupełnienia | — | TODO — nie wykonano | — |
 
-## CI link / status
+## CI — link i status
 
-Link do run/checka, testowany SHA, push/PR merge ref, czas odczytu i wynik. Historyczny baseline nie jest wynikiem obecnego HEAD.
+Run/check, testowany SHA, push/PR merge ref, czas odczytu i wynik:
 
 ## Celowo niewykonane rzeczy
 
 TODO / BLOCKED, uzasadnienie i brakujące evidence:
 
-## SPEC CONFLICT
+## Konflikt SPEC
 
-Tak / nie. Jeżeli tak: link, dokładne cytaty sprzecznych fragmentów, dotknięty invariant/publiczne API i test-case wymagający rozstrzygnięcia. Diagnostic STOP nie upoważnia do samodzielnej zmiany kontraktu.
+Tak / nie. Przy konflikcie: cytaty i linki, invariant/API i test-case według procedury STOP w `AGENTS.md` ze sprawdzanego HEAD.
 
-## Checklist
+## Checklista
 
-- [ ] No fake green — wyniki mają rzeczywisty dowód; niewykonane lub pominięte testy nie są PASS.
-- [ ] No weakened assertions — nie osłabiono asercji ani bramki, aby uzyskać sukces.
-- [ ] No unapproved API changes — brak niezatwierdzonych zmian API, SPEC i ADR.
-- [ ] No merge by author — autor nie wykonuje merge'u.
+- [ ] Wyniki bez pozornego PASS — `AGENTS.md` ze sprawdzanego HEAD, sekcja „Wyniki i evidence”.
+- [ ] Asercje bez osłabienia — `AGENTS.md` ze sprawdzanego HEAD, sekcja „Konwencje commitów i PR”.
+- [ ] API bez niezatwierdzonych zmian — `AGENTS.md` ze sprawdzanego HEAD, sekcja „Reguły pracy”.
+- [ ] Zgoda właściciela i weryfikacja merge’u — `AGENTS.md` ze sprawdzanego HEAD, sekcja „Merge po zgodzie właściciela”.
+
+<!-- Kiedy ten dokument traci aktualność: po zmianie reguł AGENTS lub wymaganego evidence. Wypełniony opis PR traci aktualność po zmianie head/base, zakresu albo wyników; historyczne wyniki zachowują własny SHA. -->
