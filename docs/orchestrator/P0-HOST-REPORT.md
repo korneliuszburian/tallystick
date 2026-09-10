@@ -4,13 +4,13 @@
 > **Status:** `PARTIAL`; nie jest dowodem S.6 ani enforce
 > **Zakres:** host Codex/OpenCode i efektywne uprawnienia delegowanego childa na checkoutcie Tallysticka
 > **Źródła:** terminalowy przebieg operatora 2026-09-10; komendy podane poniżej
-> **Kiedy traci aktualność:** po zmianie hosta, konta, konfiguracji, repozytorium albo SHA.
+> **Kiedy traci aktualność:** po zmianie hosta, konta albo profilu efektywnych uprawnień; repozytoryjny SHA nie jest częścią tego hostowego pomiaru.
 
 ## Identyfikacja
 
 | Pole | Wynik |
 |---|---|
-| Repo SHA | `a0cc68b85b4b8c948ba81b5c218febea5160725f` podczas pomiaru; wynik odnosi się wyłącznie do hosta, nie do kodu |
+| Profil pomiaru | `codex-default-child-20260910`; wynik odnosi się do hosta/profilu, nie do kodu |
 | Codex | `codex-cli 0.154.0` |
 | OpenCode | `1.18.22` |
 | Node | `v26.2.0` |
@@ -20,8 +20,9 @@
 ## Wyniki
 
 - `codex debug models` reklamuje `gpt-6-astra`, `gpt-5.6-luna` i `gpt-5.6-sol`; to katalog hosta, nie atestacja wykonania inference.
-- Delegacja parent→child jest potwierdzona tożsamością zadania hosta. Dokładny model wykonującego childa pozostaje `UNKNOWN`, bo dostępne metadane sesji go nie ujawniają.
-- Efektywny kontekst delegowanego childa miał `filesystem unrestricted` i `approval_policy=never`. Repozytoryjne TOML z `sandbox_mode=read-only` nie stanowią na tym hoście egzekwowanej granicy: izolacja childa = `FAIL`.
+- Host task identity `/root/host_preflight` zaobserwowała delegację parent→child. Dokładny model wykonującego childa pozostaje `UNKNOWN`, bo dostępne metadane sesji go nie ujawniają.
+- W tym profilu efektywny kontekst delegowanego childa miał `filesystem unrestricted` i `approval_policy=never`. Repozytoryjne TOML z `sandbox_mode=read-only` nie stanowią na tym hoście egzekwowanej granicy: operator-reported isolation = `FAIL`.
+- To jest raport operatora z terminalowego przebiegu sesji, a nie samodzielnie odtwarzalny host trace; statusy wymagają ponownego pomiaru przed enforce.
 - `codex features list` wykazało `multi_agent stable=true`, `multi_agent_v2 stable=false`, `goals stable=true`, `worktrees experimental=false`.
 - OpenCode reklamuje osobne poświadczenie OpenCode Go i model `opencode-go/deepseek-flash`; nie jest to dowód użycia konta Codex Pro.
 
@@ -39,4 +40,4 @@ git rev-parse HEAD
 git status --short --branch
 ```
 
-Nie wykonano instalacji, testów, push, merge, operacji zdalnych ani zapisu do repo podczas pomiaru. Próba utworzenia tymczasowego stderr została zachowana jako nieudana/nieusunięta artefaktowa ścieżka poza repo; nie zawiera danych uwierzytelniających.
+Nie wykonano instalacji, testów, push, merge, operacji zdalnych ani zapisu do repo podczas pomiaru. Ten raport operatora nie jest dowodem aktualnej konfiguracji każdego checkoutu; po zmianie profilu trzeba go powtórzyć. Próba utworzenia tymczasowego stderr została zachowana jako nieudana/nieusunięta artefaktowa ścieżka poza repo; nie zawiera danych uwierzytelniających.

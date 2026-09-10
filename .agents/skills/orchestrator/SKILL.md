@@ -6,13 +6,13 @@ disable-model-invocation: true
 
 # Orchestrator — pilotaż Astra / Luna
 
-**Status: szkic do testów.** Ten wariant służy tylko do odczytu i propozycji. Nie zapewnia enforcementu ani integracji LEDGER-a. Nie zmienia modelu sesji i nie uruchamia klienta provider API.
+**Status: szkic do testów.** Ten wariant służy tylko do odczytu i propozycji. Nie zapewnia enforcementu ani integracji Tallysticka. Nie zmienia modelu sesji i nie uruchamia klienta provider API.
 
 ## Warunki startu
 
 Host musi wcześniej potwierdzić model root, dostępność wybranych ról, efektywne uprawnienia i izolowane repo bez sekretów. Brak tego potwierdzenia: zgłoś BLOCKED i nie deleguj. Nie uznawaj deklaracji modelu za metadane hosta.
 
-Przeczytaj właściwe SPEC.md i AGENTS.md. Ich konflikt wymaga zgłoszenia, nie samodzielnego rozszerzenia kontraktu. Nie modyfikuj polityki, testów odbioru, konfiguracji ani czterech modułów LEDGER-a.
+Przeczytaj właściwe SPEC.md i AGENTS.md. Ich konflikt wymaga zgłoszenia, nie samodzielnego rozszerzenia kontraktu. Nie modyfikuj polityki, testów odbioru, konfiguracji ani czterech modułów Tallysticka.
 
 ## Przebieg
 

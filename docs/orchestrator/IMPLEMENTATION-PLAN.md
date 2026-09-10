@@ -3,12 +3,12 @@
 > **Rola:** plan deweloperskiego harnessu orchestratora
 > **Status:** `DRAFT` — nie jest zatwierdzoną implementacją ani specyfikacją funkcji task queue Tallysticka
 > **Zakres:** pilot Astra → Luna → Sol dla rozwoju repozytorium; bez zmian MVP-0
-> **Źródła:** [SPEC](../../SPEC.md), [AGENTS](../../AGENTS.md), [DESIGN](DESIGN.md), [macierz bezpieczeństwa](SECURITY-TEST-MATRIX.md)
+> **Źródła:** [SPEC](../../SPEC.md), [AGENTS](../../AGENTS.md), [DESIGN](DESIGN.md), [SOURCES](SOURCES.md), [macierz bezpieczeństwa](SECURITY-TEST-MATRIX.md)
 > **Kiedy traci aktualność:** po zmianie hosta, SPEC albo decyzji o osobnej funkcji kolejki zadań Tallysticka.
 
 **Cel:** jawna, ograniczona delegacja w Codexie, najpierw bez zapisów, potem z udowodnioną granicą wykonania.
 **Architektura:** główna sesja Astra lub Sol, wąskie role Luna, deterministyczny host, niezmienione cztery moduły Tallysticka (Event Ledger, Acquisition Adapters, State Twin, Failure Antibody Gate).
-**Technologie:** obecny Codex, Markdown skills, TOML, istniejący TypeScript/Node LEDGER-a. Bez nowej biblioteki agentowej na start.
+**Technologie:** obecny Codex, Markdown skills, TOML, istniejący TypeScript/Node Tallysticka. Bez nowej biblioteki agentowej na start.
 **Projekt:** `DESIGN.md`, status DRAFT. Poniższe kroki są planem, nie wynikiem testów.
 
 ## Ograniczenia globalne
@@ -33,6 +33,7 @@ docs/orchestrator/DESIGN.md
 docs/orchestrator/IMPLEMENTATION-PLAN.md
 docs/orchestrator/SECURITY-TEST-MATRIX.md
 docs/orchestrator/SOURCES.md
+docs/orchestrator/P0-HOST-REPORT.md
 contracts/task.schema.json
 contracts/pressure-tests.json
 ```
@@ -40,7 +41,7 @@ contracts/pressure-tests.json
 Zmianę `.codex/config.toml` przegląda się osobno wobec istniejącej konfiguracji. W paczce jest przykład, nie polecenie nadpisania.
 Pliki pomiarowe hosta, snapshoty, logi i sekrety powstają w osobnym katalogu eksperymentu poza badanym repo. Nie dodajemy ich do Git.
 
-Dalszy klient integracyjny powstaje dopiero po P2, w odrębnym zatwierdzonym workspace `host-integration/`, nie jako `src/orchestrator` LEDGER-a. Jego dokładny transport wybiera się na podstawie wyniku P2; brak odpowiedniej powierzchni kończy etap jako BLOCKED, nie jako implementacja domniemanego hooka.
+Dalszy klient integracyjny powstaje dopiero po P2, w odrębnym zatwierdzonym workspace `host-integration/`, nie jako `src/orchestrator` Tallysticka. Jego dokładny transport wybiera się na podstawie wyniku P2; brak odpowiedniej powierzchni kończy etap jako BLOCKED, nie jako implementacja domniemanego hooka.
 
 ## P0 — potwierdzenie możliwości hosta i konta
 

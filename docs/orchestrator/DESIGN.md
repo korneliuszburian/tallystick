@@ -26,7 +26,7 @@ Nie dopisujemy `src/orchestrator/`, provider adapters ani nowych rodzajów event
 
 **A — rekomendowany start: natywna hierarchia.** Jedna sesja Astra, jawnie delegowane role Luna, świeże konteksty, synteza przez rodzica. Mała powierzchnia integracyjna, ale instrukcje skilla nie są twardym enforcementem [S2].
 
-**B — etap docelowy: ta sama hierarchia + zweryfikowana granica wykonania.** Host ogranicza uprawnienia i wszystkie dozwolone ścieżki efektów; istniejące middleware LEDGER-a obsługuje wspierane żądania wykonania. Konieczny rzeczywisty audyt S.6. To nie zmienia pętli Codexa [R3–R5].
+**B — etap docelowy: ta sama hierarchia + zweryfikowana granica wykonania.** Host ogranicza uprawnienia i wszystkie dozwolone ścieżki efektów; istniejące middleware Tallysticka obsługuje wspierane żądania wykonania. Konieczny rzeczywisty audyt S.6. To nie zmienia pętli Codexa [R3–R5].
 
 **C — odrzucony na start: autonomiczny peer swarm.** Wszyscy rozmawiają ze wszystkimi, wybierają zadania i tworzą następców. Utrudnia przypisanie odpowiedzialności, kontrolę budżetu i odbiór. Nie ma wykazanego zysku dla Tallystick. Framework korzystający z API to ponadto osobny model kosztowy względem wykorzystania konta Pro [S4].
 
@@ -89,7 +89,7 @@ Obecne `createLedgerMiddleware(...).intercept(...)` zwraca `BLOCK`, `UNKNOWN` al
 
 Etap pierwszy rozdziela równoległe rozumowanie od pojedynczego wykonawcy efektów. Kilka instancji middleware, wspólny storage i równolegli writerzy wymagają osobnych testów: poprawność pojedynczej instancji nie dowodzi poprawności wielu rootów i procesów.
 
-ExecutionPermit w LEDGER-ze dotyczy wykonania procesu w obsługiwanym pipeline. Nie zakładamy, że automatycznie ogranicza tworzenie modelowych subagentów, połączenia MCP, modyfikacje plików przez native tools czy pracę zdalnych aplikacji.
+ExecutionPermit w Tallysticku dotyczy wykonania procesu w obsługiwanym pipeline. Nie zakładamy, że automatycznie ogranicza tworzenie modelowych subagentów, połączenia MCP, modyfikacje plików przez native tools czy pracę zdalnych aplikacji.
 
 Natywne hooki są przydatne diagnostycznie, lecz dokumentacja wskazuje wyłączenia pokrycia i przypadki fail-open [S8]. Post-hook nie cofa skutku. Wariant `enforce` wymaga pomiaru wszystkich dozwolonych ścieżek i model-facing admission; brak dowodu blokuje start, a nie uruchamia observer mode [R3].
 
@@ -107,7 +107,7 @@ Sieć narzędzi jest domyślnie wyłączona; połączenie hosta z usługą model
 
 Bezpiecznym odpowiednikiem „message board” jest jawny kanał rodzic–dziecko i kontrolowany rejestr zadań. Autor zadania, zakres, wersja i pochodzenie pozostają widoczne. Nie budujemy anonimowej tablicy, z której dowolny agent może przejąć cele lub uprawnienia.
 
-Z oficjalnego raportu OpenAI i analizy METR bierzemy scenariusze zagrożeń: nieuprawniona komunikacja, przyjmowanie cudzych celów, nacisk na wynik i manipulowanie dowodem [S12, S13]. Nie kopiujemy exploitów, ukrytej persistencji ani self-replication. Uczciwe `BLOCKED` jest poprawnym wynikiem, nie karą skłaniającą do obejścia ograniczeń.
+Z materiałów badawczych zebranych w repozytorium bierzemy scenariusze zagrożeń: nieuprawniona komunikacja, przyjmowanie cudzych celów, nacisk na wynik i manipulowanie dowodem [S12, S13]. Nie traktujemy tego skrótu jako niezależnego dowodu ani nie kopiujemy exploitów, ukrytej persistencji ani self-replication. Uczciwe `BLOCKED` jest poprawnym wynikiem, nie karą skłaniającą do obejścia ograniczeń.
 
 Surowe evidence zapisuje zaufany host poza writable scope workerów. Hash-chain nie dowodzi prawdy wypowiedzi; gwarancje integralności zależą też od ochrony zapisu i kluczy. „Dwie Luny mówią PASS” nie zastępuje rzeczywistego exit code i niezmienionych testów.
 
