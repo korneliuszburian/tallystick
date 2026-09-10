@@ -43,7 +43,7 @@ Niejednoznaczne testy:
 
 - `Third identical failure` i `Concurrent duplicate`: nie wiadomo, czy każdy BLOCK ma poprzedzający trwały proposal;
 - `Crash after intent`: nie wiadomo, czy intent oznacza `tool_proposal`, reservation czy `ALLOW`;
-- crash injection pomiędzy intent, reservation, decyzją i `spawn`.
+- SPEC wymienia crash injection na granicach intent, `spawn`, capture, blob seal i commit, ale nie obejmuje granic reservation ani decyzji.
 
 Możliwe rozstrzygnięcia:
 
@@ -86,18 +86,18 @@ Możliwe rozstrzygnięcia:
 
 1. Dodać jawny rodzaj eventu `receipt` oraz zamrozić jego payload i moment zapisu.
 2. Użyć istniejącego rodzaju eventu oraz jawnie zdefiniować jego payload i relację z raw eventem.
-3. Zachować Receipt wyłącznie w pamięci i `receipt_id === raw_event_id`, usuwając z ADR-010/R.2 obietnicę późniejszego rozdzielenia.
+3. Zachować Receipt wyłącznie w pamięci i `receipt_id === raw_event_id`, a obietnicę późniejszego rozdzielenia z ADR-010/R.2 jawnie zastąpić nową decyzją z zachowaniem historii ADR.
 
 ## Luki kontraktu wymagające decyzji przed naprawą
 
-| Szew kontraktu | Brakujące rozstrzygnięcie | Testy dotknięte |
+| Szew kontraktu | Brakujące rozstrzygnięcie | Powiązane testy, edge cases lub wymagane outcomes |
 |---|---|---|
-| [Revalidation stanu](../SPEC.md#adr-012--state-twin-jest-wiązany-z-ledgerem-przy-konstrukcji) | Kto zapisuje contradiction/freshness, gdy standalone `revalidateMemory()` pozostaje czyste, oraz jak epoch zachowuje zdolność pomiaru po reopen. | File mutation staleness; reopen |
-| [Projekcje Gate](../SPEC.md#adr-013--gate-jest-wiązany-ze-storage-przy-konstrukcji) | Autorytatywne payloady eventów, reducer i jego wersja, moment odbudowy oraz reconciliation failures, reservations i consumed proofs. | Restart gate; replayed proof; reopen storage |
-| [Lease worktree](../SPEC.md#algorytm-computestateepoch) | Właściciel, reentrancy, lifetime od pomiaru wejścia do wyjścia, expiry/recovery i walidacja fencing. | Concurrent duplicate; broker crash |
-| [Epoki digestów](../SPEC.md#test-runner-digest) | Czy `tested_epoch` i `compiled_epoch` oznaczają request-specific precondition epoch, pełną world epoch czy osobny fingerprint wejść execution. | Adapter digests; test-result self-invalidation |
-| [Rodzice eventów](../SPEC.md#typy-wspólne) | Jak niepuste `parent_event_ids` trafiają do `append`, storage i `event_hash`, albo czy pole wypada z MVP-0. | Reopen durability; brak testu lineage w SPEC — wymagany nowy test po rozstrzygnięciu |
-| [Reconciliation UNKNOWN](../SPEC.md#kontrakt-awarii) | Rozdzielenie pre-spawn rejection i post-spawn uncertainty, authority/API reconciliation, payloady eventów i przejścia reservation. | Crash after intent; zero retry after UNKNOWN |
+| [Revalidation stanu](../SPEC.md#adr-012--state-twin-jest-wiązany-z-ledgerem-przy-konstrukcji) i [źródła prawdy](../SPEC.md#źródła-prawdy) | Kto zapisuje contradiction/freshness, gdy standalone `revalidateMemory()` pozostaje czyste, oraz jak epoch zachowuje zdolność pomiaru po reopen. | `File mutation staleness`; `Reopen storage` |
+| [Projekcje Gate](../SPEC.md#adr-013--gate-jest-wiązany-ze-storage-przy-konstrukcji) | Autorytatywne payloady eventów, reducer i jego wersja, moment odbudowy oraz reconciliation failures, reservations i consumed proofs. | `Restart gate` (edge case); `Replayed proof`; `Reopen storage` |
+| [Lease worktree](../SPEC.md#algorytm-computestateepoch) | Właściciel, reentrancy, lifetime od pomiaru wejścia do wyjścia, expiry/recovery i walidacja fencing. | `Concurrent duplicate`; `Kill brokera` |
+| [Epoki testów](../SPEC.md#test-runner-digest) i [kompilacji](../SPEC.md#compiler-digest) | Czy `tested_epoch` i `compiled_epoch` oznaczają request-specific precondition epoch, pełną world epoch czy osobny fingerprint wejść execution. | `Shell digest`; `Test-runner digest`; `Compiler digest`; `Git diff digest`; `Test-result self-invalidation` |
+| [Rodzice eventów](../SPEC.md#typy-wspólne) | Jak niepuste `parent_event_ids` trafiają do `append`, storage i `event_hash`, albo czy pole wypada z MVP-0. | `Reopen durability`; brak testu lineage `parent_event_ids` w SPEC — wymagany nowy test po rozstrzygnięciu |
+| [Reconciliation UNKNOWN](../SPEC.md#kontrakt-awarii) | Rozdzielenie pre-spawn rejection i post-spawn uncertainty, authority/API reconciliation, payloady eventów i przejścia reservation. | `Crash after intent`; outcome S.3 „zero automatycznych retry nieznanych efektów” |
 | [Escape proof w kompozycji](../SPEC.md#escape-proof) | Jak opaque proof trafia do `intercept()` bez ujawnienia signing key albo czy proof pozostaje poza R.5 MVP-0. | Escape proof; replayed proof; E2E |
 
-Kod zależny od tych punktów pozostaje zatrzymany do czasu normatywnego rozstrzygnięcia w SPEC. Dla tego dokumentacyjnego raportu nie uruchomiono testów; odczyt kodu i testów nie jest wynikiem PASS.
+Dalsze zmiany kodu dotyczące tych otwartych szwów pozostają zatrzymane do czasu normatywnego rozstrzygnięcia w SPEC. Istniejący baseline zachowuje osobny, wcześniej zarejestrowany status. Dla tego dokumentacyjnego raportu nie uruchomiono testów; odczyt kodu i testów nie jest wynikiem PASS.
