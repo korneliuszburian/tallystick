@@ -1,4 +1,11 @@
-# MVP-0 — release-baseline
+# Tallystick — baseline MVP-0
+
+[Start](../README.md) · [Kontrakty](../SPEC.md) · [Reguły pracy](../AGENTS.md)
+
+> **Rola:** dowód historyczny i jego ograniczenia · **Status:** PASS BIBLIOTEKI DLA WSKAZANEGO RUNA; nie PASS S.6  
+> **Zakres:** audyt 2026-09-08; commit `0683f1dc006c37d9c05cb69e054e6bf4a5976a45`  
+> **Źródła:** [run 34231830068](https://github.com/korneliuszburian/tallystick/actions/runs/34231830068), [job 102079623149](https://github.com/korneliuszburian/tallystick/actions/runs/34231830068/job/102079623149)  
+> **Kiedy ten dokument traci aktualność:** dokument pozostaje historycznym dowodem; każdy inny SHA, kod, SPEC, lockfile, CI, host lub środowisko wymaga własnej weryfikacji.
 
 ## FACT — zakres i identyfikacja dowodu
 
@@ -31,58 +38,57 @@ Dowody pierwotne: [commit main](https://github.com/korneliuszburian/tallystick/c
 
 **FACT — granica twierdzenia:** w CI wykonano łańcuch pięciu skryptów odpowiadający `test:acceptance`; osobnego literalnego wywołania wrappera `npm run test:acceptance` nie ma w tym logu. `verify` dodany w porządkowym PR nie istniał w tym SHA i nie ma wyniku w historycznym baseline. Wyniki nowego PR należy czytać w jego własnych checkach.
 
-Status release-baseline: deterministyczny vertical slice MVP-0 jest zintegrowany na main i przeszedł repozytoryjną bramkę testową. Nie jest to niezależny formalny dowód braku wszelkich defektów ani potwierdzenie realnej integracji enforce.
+Status release-baseline: deterministyczny vertical slice MVP-0 był zintegrowany na main i przeszedł repozytoryjną bramkę testową tego SHA. Nie jest to niezależny formalny dowód braku wszelkich defektów ani potwierdzenie realnej integracji enforce.
 
 ## Indeks ADR-001–ADR-018
 
-**ADR — ZAMROŻONE.** Poniższe zdania wyłącznie indeksują decyzje z [SPEC.md](../SPEC.md); nie zastępują ich reguł, uzasadnień ani historii.
-
-| ADR | Znaczenie |
-|---|---|
-| ADR-001 | `epoch_id` opisuje wejścia świata, a `state_revision_id` wiedzę; zapis porażki lub wyniku testu nie zmienia epoki eksperymentu. |
-| ADR-002 | Dozwolona ścieżka wykonania omijająca broker uniemożliwia start enforce, bez automatycznego observer fallback. |
-| ADR-003 | Crash po spawn bez zatwierdzonego wyniku oznacza UNKNOWN i reconciliation przed jakimkolwiek retry. |
-| ADR-004 | Blob poprzedza wskazujący go event, a zatwierdzony Evidence Receipt poprzedza admission digestu. |
-| ADR-005 | Hot path czterech modułów pozostaje deterministyczny i nie wywołuje LLM. |
-| ADR-006 | Obowiązuje kolejność Event Ledger → Acquisition Adapters → State Twin → Failure Antibody Gate → E2E, z zieloną bramką przed następnym etapem. |
-| ADR-007 | Kompletność konkretnego capture należy do eventu i nie wynika z samego hasha blobu deduplikowanego przez CAS. |
-| ADR-008 | `changed_artifacts` wynika z lokalnego pomiaru SHA-256 plików przed i po procesie, nie z tekstowej deklaracji procesu. |
-| ADR-009 | `BlobRef.stream` zachowuje tożsamość strumienia, a SourceHandle rozwiązuje się przez zapisane powiązanie eventu, blobu i strumienia. |
-| ADR-010 | Na etapie adapterów `receipt_id` i `raw_event_id` wskazują zatwierdzony `tool_output` z request/reservation, przy zachowaniu rozdzielnych pól kontraktu. |
-| ADR-011 | `epochFor` uwzględnia Git HEAD, fingerprint środowiska i zmierzone zależności requestu, a nie zmiany plików poza dependency set. |
-| ADR-012 | State Twin wiąże Ledger przy konstrukcji, podczas gdy samodzielny `computeStateEpoch` pozostaje czystym pomiarem. |
-| ADR-013 | Gate wiąże storage przy konstrukcji i utrwala historię decyzji w events, z projekcjami pomocniczymi; klauzulę o osobnym połączeniu zmienia ADR-015. |
-| ADR-014 | Escape proof jest jednorazowy, weryfikowalny przez evidence i podpisany HMAC-SHA256 kluczem harnessu niedostępnym modelowi. |
-| ADR-015 | Gate i append używają jednej transakcji BEGIN IMMEDIATE na połączeniu Ledgera, zastępując własne połączenie Gate z ADR-013. |
-| ADR-016 | Middleware składa cztery moduły, zarządza kluczem i zużyciem permit oraz zwraca obwolutę receipt opartą na trwałych składnikach evidence. |
-| ADR-017 | Strumieniowe przekroczenie limitu raw zatrzymuje proces i zachowuje częściowy capture z `RAW_LIMIT_EXCEEDED`. |
-| ADR-018 | Demo kompiluje `src` i `scripts` do `.demo-dist`, następnie uruchamia JavaScript bez nowych loaderów i zmian specyfikatorów `.js`. |
-
-**Historia, nie nowe decyzje:** ADR-010 zawiera również ówczesny plan osobnego zdarzenia receipt; późniejszy ADR-016 opisuje obwolutę w pamięci i brak nowego rodzaju eventu. Historyczna instrukcja uruchamiania source TypeScript w ADR-016 jest zastąpiona sposobem demo z ADR-018 i S.4. Indeks nie usuwa tych wcześniejszych zapisów ani nie upoważnia do zmian API/SPEC.
+Indeks przeniesiono do [decyzji i motywacji](ARCHITECTURE.md#indeks-adr). Wszystkie ADR pozostają w [SPEC](../SPEC.md), bez zmiany treści. Zachowano historię ADR-013/015, ADR-010/016 i ADR-016/018; nie powstaje druga kopia reguł.
 
 ## FACT — granice MVP-0
 
-Normatywne źródła: [SPEC R.0, R.1–R.5, S.1–S.6](../SPEC.md) i [AGENTS.md](../AGENTS.md).
+Normatywne źródła: [SPEC R.0, R.1–R.5, S.1–S.6](../SPEC.md) i [AGENTS](../AGENTS.md).
 
-MVP-0 obejmuje cztery moduły, cztery acquisition adapters oraz middleware, E2E/chaos i demo. Rozdziela transcript, persistent memory, verified world state, tool observations i learned experience; kontrakt `MemoryRecord` do revalidation nie oznacza wdrożenia persistent semantic memory.
+Dowód obejmuje cztery moduły, cztery acquisition adapters oraz middleware, E2E/chaos i demo. `MemoryRecord` do revalidation nie oznacza wdrożenia persistent semantic memory. Rozdzielenie transcript, persistent memory, verified world state, tool observations i learned experience określa R.0.
 
-Poza tym wycinkiem pozostają Context Atlas/pełny Context Assembler, Recovery Engine, persistent semantic memory i jej lifecycle, utility promotion, Compounding Evaluator, pozostałe adaptery file-read/directory/search/HTML i rzeczywisty audyt Codex/MCP. Zawartość designu docelowego nie jest deklaracją implementacji tych elementów.
+Poza tym wycinkiem pozostają Context Atlas/pełny Context Assembler, Recovery Engine, persistent semantic memory i jej lifecycle, utility promotion, Compounding Evaluator, adaptery file-read/directory/search/HTML i rzeczywisty audyt Codex/MCP. [Design docelowy](ARCHITECTURE.md#design-docelowy-a-mvp-0) nie jest deklaracją implementacji.
 
-Nie ma gwarancji wspólnej transakcji exactly-once ani atomowego rollbacku Git, SQLite i zewnętrznych efektów procesu. UNKNOWN nie daje prawa do automatycznego retry.
+Nie ma gwarancji wspólnej transakcji exactly-once ani atomowego rollbacku Git, SQLite i zewnętrznych efektów procesu. UNKNOWN nie daje prawa do automatycznego retry; źródło: [SPEC R.5](../SPEC.md#r5-cienkie-złożenie-w-srcindexts).
 
 ## Ograniczenia, TODO i BLOCKED
 
-| Status | Ograniczenie / dług | Dalsze postępowanie |
+| Status historycznego baseline | Ograniczenie / dług | Dalsze postępowanie |
 |---|---|---|
-| TODO / BLOCKED | S.6 nie ma w tym baseline dowodu z realnego Codexa/MCP. | Wykonać [laptop audit](LAPTOP-INTEGRATION-AUDIT.md); do tego czasu brak deklaracji production enforce. |
-| FACT / TODO | Workflow warunkuje cztery suity istnieniem katalogów; na tym HEAD wszystkie się wykonały, lecz konstrukcja nie wymusza ich obecności. | Odnotować dług; nie zmieniać workflow w porządkowym PR ani traktować nieobecnego katalogu jako PASS. |
-| FACT / TODO | Dowód środowiskowy dotyczy Ubuntu/Node/npm z tabeli; demo używa `rm -rf`, a storage wymaga lokalnego filesystemu i jednego writera. | Zmierzyć laptop, zależności natywne, shell i SQLite używane przez `better-sqlite3`; nie zakładać zgodności innych platform. |
-| FACT / TODO | `.gitignore` baseline obejmuje tylko `.demo-dist/` i `node_modules/`. | Trzymać bazę, CAS, logi audytu i `<databasePath>.harness-key` poza wersjonowanym worktree; nie commitować klucza ani sekretów. |
-| FACT / TODO | `ISSUES.md` opisuje historyczne etapy #1–#5, nie aktualne numery i statusy GitHub Issues. | Traktować go jako plan; stan sprawdzać w GitHub, a kontrakt w SPEC. |
-| FACT / TODO | W logu instalacji wystąpiły ostrzeżenia o `prebuild-install` i skrypcie instalacyjnym `better-sqlite3`, mimo sukcesu `npm ci`. | Sprawdzić instalację i politykę skryptów lokalnie; brak zgody na aktualizacje zależności w porządkowym PR. |
+| TODO / BLOCKED | S.6 nie ma w tym baseline dowodu z realnego Codexa/MCP. | [Kryteria](DESKTOP-INTEGRATION-AUDIT.md) i późniejszy [rejestr](AUDIT-REGISTER.md); brak automatycznego transferu wyników między profilami. |
+| FACT / TODO | Workflow warunkuje cztery suity istnieniem katalogów; na tym HEAD wszystkie się wykonały, lecz konstrukcja nie wymusza ich obecności. | Zachować dług; nie zmieniać workflow w dokumentacyjnym PR. |
+| FACT / TODO | Dowód dotyczy Ubuntu/Node/npm z tabeli; demo używa `rm -rf`, a storage wymaga lokalnego filesystemu i jednego writera. | Zmierzyć środowisko, zależności natywne, shell i SQLite z better-sqlite3. |
+| FACT / TODO | `.gitignore` baseline obejmuje `.demo-dist/` i `node_modules/`. | Baza, CAS, logi i `<databasePath>.harness-key` poza wersjonowanym worktree; bez sekretów w repo. |
+| FACT / TODO | `ISSUES.md` opisuje historyczne etapy #1–#5, nie bieżące GitHub Issues. | [Mapa etapów](../ISSUES.md) odsyła do niezmiennego oryginału i SPEC. |
+| FACT / TODO | W instalacji wystąpiły ostrzeżenia o prebuild-install i skrypcie better-sqlite3 mimo exit 0. | Sprawdzić rzeczywistą instalację oraz politykę skryptów; nie aktualizować zależności w porządkowym PR. |
+
+Źródło ograniczeń: [niezmienny zapis pierwotnego baseline](https://github.com/korneliuszburian/tallystick/blob/ddc81034add54bf47bf63b5a11e48ed1bd64d4d9/docs/MVP-0-STATUS.md). Późniejsze raporty operatora o npm 12 i udanym baseline są w [rejestrze](AUDIT-REGISTER.md); nie przepisują tej historii.
+
+## Historyczny audyt porządku repo
+
+Przeniesione z [REPOSITORY-HYGIENE na SHA ddc81034](https://github.com/korneliuszburian/tallystick/blob/ddc81034add54bf47bf63b5a11e48ed1bd64d4d9/docs/REPOSITORY-HYGIENE.md). To obserwacje z **2026-09-08**, nie nowy odczyt ustawień ani zgoda na usuwanie gałęzi.
+
+W chwili audytu przed porządkowym PR nie było otwartych PR/issues; `main` miało `protected: false`, auto-merge było wyłączone, a `delete_branch_on_merge: false`. Dla main `0683f1dc006c37d9c05cb69e054e6bf4a5976a45` poniższe heads miały `ahead_by=0`. **Nie jest to zapis ich usunięcia.**
+
+| Gałąź | Sprawdzony HEAD | Wynik historyczny |
+|---|---|---|
+| `bootstrap-ledger` | `74a937a5bc68fe1fd2ca6e752fdb9668adddd338` | Zawarta w main. |
+| `ledger/issue-2-spec-conflict-capture` | `d534c2f97ddaec4a9a1178a56ebc3c1b18b9d3e2` | Zawarta w main. |
+| `codex/handle-environment-setup-for-event-ledger` | `4869d74dcb0754d7f0eb2ea0c1b134f15323ae8f` | Zawarta w main. |
+| `codex/implement-acquisition-adapters` | `113cd727c28647a1a6f601d510b4c30c9e38cba9` | Zawarta w main. |
+| `codex/implement-state-twin` | `1afea8e3abdbc5a0c6640d6a063f9e0ff18b33ec` | Zawarta w main. |
+| `codex/implement-failure-antibody-gate` | `a793a4a2f477f9066d8cf127b90ab3d572cdc4eb` | Zawarta w main. |
+| `codex/issue-6-e2e-chaos` | `5756e8283f0c7ec8d9115a00145663f06061bdcd` | Zawarta w main. |
+
+Wyjątek: `codex/implement-event-ledger-according-to-adr-007`, SHA `0acd2177030a16fd7f80fb5988dbacf42538b87d`, PR #15: **2 unikalne commity i 58 commitów opóźnienia**. PR zamknięto bez merge; późniejszy PR #16 nie dowodzi zawarcia tych dwóch commitów.
+
+Historyczna sesja zgłosiła brak operacji usuwania gałęzi w connectorze i podała ścieżkę „GitHub mobile → repo → Branches → Delete”. Zachowujemy tę obserwację z jej datą, nie jako dzisiejszą instrukcję narzędziową. Ówczesne zalecenie właścicielowi włączenia **Automatically delete head branches** nie zostało wykonane przez porządkowy PR. Warunki zmiany branch protection i auto-merge są w [AGENTS](../AGENTS.md#porządek-gałęzi-po-merge).
 
 ## Kiedy dokument przestaje być aktualnym potwierdzeniem
 
-**FACT:** dokument nadal opisuje historyczny SHA wskazany powyżej. Każdy inny HEAD wymaga własnej weryfikacji; nawet merge dokumentacyjny nie otrzymuje automatycznie tych checków. Zmiana kodu, testów, SPEC, lockfile, CI, narzędzi, platformy, konfiguracji hosta lub execution paths unieważnia transfer tego wyniku na nowe warunki.
+Dokument nadal opisuje historyczny SHA. Nowy baseline potrzebuje własnego SHA, runa i odczytanych logów. Zmiana kodu, testów, SPEC, lockfile, CI, narzędzi, platformy, konfiguracji hosta lub execution paths unieważnia transfer wyniku. S.6 dodatkowo wiąże wersję/config Codexa/MCP i zbadany zbiór ścieżek.
 
-**TODO:** dla nowego baseline zapisać nowy SHA, własny CI run i odczytane logi; nie przepisywać historycznego dowodu jako wyniku nowej rewizji. Wynik S.6 musi ponadto identyfikować wersję/config Codexa/MCP i zbadany zestaw ścieżek. **BLOCKED:** niedostępny dowód lub nieobserwowalna granica nigdy nie stają się PASS na podstawie tego dokumentu.
+Niedostępny dowód lub nieobserwowalna granica nie stają się PASS na podstawie tego dokumentu. Zasady klasyfikacji: [AGENTS](../AGENTS.md#wyniki-i-evidence).

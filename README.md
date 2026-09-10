@@ -1,63 +1,44 @@
-# Tallystick / LEDGER
+# Tallystick
 
-Deterministyczny **transaction/control plane dla coding agents**, projektowany wokół istniejącego runtime'u Codexa. LEDGER utrwala dowody wykonania, kontroluje dopuszczenie wyników do kontekstu, mierzy stan repozytorium i blokuje równoważne znane porażki przed uruchomieniem procesu.
+Transaction/control plane wokół runtime’u Codexa. [Granica systemu](SPEC.md#cel-i-granica-systemu) określa odpowiedzialności i zakres MVP-0; implementacja jest w [src/](src/), a jej testy w [test/](test/).
 
-## What it is
+[Kod](src/) · [Testy](test/) · [Kontrakty i ADR](SPEC.md) · [Reguły pracy](AGENTS.md) · [Motywacje](docs/ARCHITECTURE.md)
 
-Cztery moduły oraz ich cienka kompozycja w `src/index.ts`:
+## Mapa rdzenia
 
-| Element MVP-0 | Odpowiedzialność |
+| Moduł / kontrakt | Typy | Implementacja | Testy |
+|---|---|---|---|
+| [Event Ledger · R.1](SPEC.md#r1-event-ledger) | [types.ts](src/ledger/types.ts) | [ledger/](src/ledger/) | [ledger/](test/ledger/) |
+| [Acquisition Adapters · R.2](SPEC.md#r2-acquisition-adapters) | [types.ts](src/adapters/types.ts) | [adapters/](src/adapters/) | [adapters/](test/adapters/) |
+| [State Twin · R.3](SPEC.md#r3-state-twin) | [types.ts](src/state/types.ts) | [state/](src/state/) | [state/](test/state/) |
+| [Failure Antibody Gate · R.4](SPEC.md#r4-failure-antibody-gate) | [types.ts](src/guards/types.ts) | [guards/](src/guards/) | [guards/](test/guards/) |
+| [Kompozycja · R.5](SPEC.md#r5-cienkie-złożenie-w-srcindexts) | [Publiczne wejście](src/index.ts) | [src/index.ts](src/index.ts) | [integration/](test/integration/) |
+
+## Od czego zacząć
+
+| Potrzeba | Źródło |
 |---|---|
-| Event Ledger | Append-only events i content-addressable storage odzyskiwalnego raw evidence. |
-| Acquisition Adapters | Shell, test-runner, compiler i git-diff: przechwycenie raw oraz bounded typed digest. |
-| State Twin | Pomiary plików, Git i środowiska; epoki preconditions i revalidation. |
-| Failure Antibody Gate | Deterministyczny preflight, reservations, permits i blokowanie równoważnych porażek. |
-| Middleware + E2E/chaos/demo | Kompozycja czterech modułów i sprawdzenie całej ścieżki; **nie piąty moduł**. |
+| Uruchomić weryfikację | [Skrypty](package.json), [demo](scripts/demo.ts), [przygotowanie i zapis evidence](docs/DESKTOP-INTEGRATION-AUDIT.md#2-przygotowanie-lokalne--todo). |
+| Zrozumieć język domeny i powody decyzji | [Rozróżnienia, kill-round i indeks ADR](docs/ARCHITECTURE.md). |
+| Sprawdzić ustalenie audytu | [A01–A24 i F01–F15](docs/AUDIT-REGISTER.md); [korekty SD/SR](docs/RESEARCH.md#syntezy-z-10-września-2026). |
+| Przygotować konkretny eksperyment | [Research i źródła](docs/RESEARCH.md); [odrębne numeracje DR](docs/RESEARCH.md#dwie-kampanie-dr). |
+| Wprowadzić zmianę | [AGENTS](AGENTS.md) i [formularz PR](.github/pull_request_template.md). |
+| Sprawdzić historyczny podział pracy / porządek gałęzi | [ISSUES](ISSUES.md), [checklista po merge](docs/REPOSITORY-HYGIENE.md). |
 
-```text
-proposal -> guard -> execution -> raw evidence -> typed digest -> State Twin
-```
+## Status bez skrótów
 
-Diagram skraca pipeline R.5: przed guardem wykonywany jest pomiar preconditions; zatwierdzone intent/reservation poprzedzają spawn, raw blob poprzedza event, a zatwierdzony receipt i aktualizacja stanu poprzedzają admission wyniku. Model-facing odpowiedź to bounded digest albo BLOCK, nie pełny raw output.
+| Pytanie | Właściwy dowód lub kryterium |
+|---|---|
+| Co wykazał historyczny CI? | [Baseline z SHA, runem i ograniczeniami](docs/MVP-0-STATUS.md). Nie jest wynikiem dowolnego HEAD. |
+| Co zmierzono w hoście? | [Raporty operatora](docs/AUDIT-REGISTER.md#raporty-operatora--oddzielna-klasa-dowodu), [kryteria S.6](docs/DESKTOP-INTEGRATION-AUDIT.md), [issue #22](https://github.com/korneliuszburian/tallystick/issues/22). |
+| Co jest dopiero designem? | [Design docelowy a MVP-0](docs/ARCHITECTURE.md#design-docelowy-a-mvp-0). |
 
-Raw truth, derived memory, verified world state i assembled context nie są tym samym. Raw evidence dowodzi zaobserwowanych bajtów, nie prawdziwości każdej wypowiedzi narzędzia. Jest to transakcyjność stanu epistemicznego, nie atomowy rollback procesu, SQLite i Git.
+Zgodność rdzenia, kwalifikacja hosta i wartość produktu mają [trzy osobne bramki](docs/RESEARCH.md#trzy-bramki-dalszej-pracy). Zielony baseline nie jest certyfikatem całego profilu enforce.
 
-## What it is not
+## Nazwa i źródła prawdy
 
-LEDGER nie jest chatbotem, RAG systemem, vector-memory-only, własnym agent runtime'em, wrapperem na provider API ani nową pętlą inference. Sesja, reasoning i model/tool loop pozostają odpowiedzialnością hosta. Hot path LEDGER-a nie wywołuje LLM. MVP-0 nie dostarcza Context Atlas, Recovery Engine, persistent semantic memory ani Compounding Evaluator.
+Tallystick to nazwa produktu; LEDGER pozostaje historycznym aliasem i częścią nazw technicznych. [Nazewnictwo](AGENTS.md#nazewnictwo) · [Kod, wymagania i dowody](AGENTS.md#kod-wymagania-i-dowody).
 
-## Status MVP-0
+---
 
-**FACT — baseline lokalnej biblioteki zweryfikowany w CI main:** commit `0683f1dc006c37d9c05cb69e054e6bf4a5976a45`, 8 września 2026 r.; 93 testy w pięciu suitach, typecheck i wszystkie trzy scenariusze demo PASS. Źródło: [CI main, run 34231830068](https://github.com/korneliuszburian/tallystick/actions/runs/34231830068) oraz [release-baseline z granicami dowodu](docs/MVP-0-STATUS.md).
-
-Ten wynik nie przenosi się automatycznie na nowszy HEAD ani na inne środowisko. Status konkretnego checkoutu wymaga jego własnych wyników.
-
-### Uruchomienie
-
-Zweryfikowany baseline CI: Ubuntu 24.04, Node 24.20.0, npm 11.19.0. Wymagany jest Git i lokalny storage; wymagania normatywne podaje SPEC R.0. Poniższe polecenia uruchamiaj w katalogu repozytorium:
-
-```sh
-npm ci
-npm run test:acceptance
-npm run demo
-```
-
-**FACT:** log baseline potwierdza literalne `npm ci`, wszystkie pięć suit w kolejności skryptu `test:acceptance` i literalne `npm run demo` uruchomione w teście E2E. CI nie wywołało osobno wrappera `npm run test:acceptance`; nie przedstawiamy tego jako dodatkowego wykonania.
-
-`npm run demo` kompiluje `src/` i `scripts/` przez `tsc -p tsconfig.demo.json`, następnie uruchamia wyemitowany JavaScript w `.demo-dist/` zgodnie z ADR-018; nie wymaga nowego loadera ani zmiany specyfikatorów `.js` w źródłach.
-
-Dodatkowy skrót `npm run verify` wykonuje `npm run test:acceptance && npm run demo`. Nie instaluje zależności i nie zastępuje oddzielnego `npx --no-install tsc --noEmit`. Jego obecność w `package.json` nie jest dowodem wykonania tego polecenia.
-
-## Not production enforce yet
-
-**TODO — laptop-only integration audit zgodny z SPEC S.6.** **BLOCKED — deklaracja production enforce / Codex-integrated do czasu zebrania dowodu z rzeczywistego hosta.** Zielona biblioteka i demo nie dowodzą podłączenia do Codexa/MCP.
-
-Należy zmierzyć broker coverage wszystkich dozwolonych execution paths, guard przed spawn, raw-output admission boundary, model-facing bounded typed digest i brak native-tool bypass. Znany dozwolony bypass oznacza odmowę startu profilu enforce, nie observer mode (ADR-002).
-
-Pełny plan pomiaru, evidence i kryteria PASS / FAIL / BLOCKED: [Laptop integration audit](docs/LAPTOP-INTEGRATION-AUDIT.md).
-
-## Dokumentacja i źródła prawdy
-
-[ SPEC.md ](SPEC.md) określa kontrakty i ADR; [AGENTS.md](AGENTS.md) określa reguły pracy. [ISSUES.md](ISSUES.md) jest historycznym podziałem etapów, nie bieżącą listą GitHub Issues. Aktualne refs, kod, PR, issues i CI w GitHub mają pierwszeństwo przed historycznymi opisami projektu.
-
-Katalog [docs/](docs/) zawiera [MVP-0 status](docs/MVP-0-STATUS.md), [laptop audit](docs/LAPTOP-INTEGRATION-AUDIT.md) i [repository hygiene](docs/REPOSITORY-HYGIENE.md).
+**Rola:** mapa. **Kiedy ten dokument traci aktualność:** po zmianie granicy produktu, struktury repo lub wskazanych źródeł; statusy wykonania zawsze wymagają własnego SHA i evidence.

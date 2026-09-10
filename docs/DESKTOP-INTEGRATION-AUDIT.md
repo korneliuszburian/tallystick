@@ -1,27 +1,34 @@
-# Laptop integration audit — Tallystick / Codex / MCP
+# Tallystick — kryteria audytu integracji
+
+[Start](../README.md) · [Kontrakty](../SPEC.md) · [Reguły pracy](../AGENTS.md)
+
+> **Rola:** kryteria testu i wymagane evidence · **Status:** S.6 — DO OCENY DLA KONKRETNEGO PROFILU  
+> **Zakres:** jeden SHA, wersja hosta, transport i zestaw dozwolonych ścieżek  
+> **Źródła:** [SPEC S.6](../SPEC.md#s6-dodatkowa-bramka-wdrożenia--poza-mvp-0); wyniki w [rejestrze](AUDIT-REGISTER.md)  
+> **Kiedy ten dokument traci aktualność:** zmiana SHA, wersji/config hosta, transportu, narzędzi lub admission wymaga ponownej walidacji dotkniętych granic.
 
 ## Cel i status
 
 **FACT — kontrakt:** [SPEC.md S.6](../SPEC.md) wymaga sprawdzenia rzeczywistego hosta po testach biblioteki; ADR-002, ADR-003, ADR-004, R.0, R.2, R.4 i R.5 określają granice wykonania i admission. [MVP-0 baseline](MVP-0-STATUS.md) potwierdza testy lokalnego wycinka, nie to połączenie.
 
-**TODO:** wykonać poniższy laptop-only audit i zebrać dowody. **BLOCKED:** na etapie publikacji checklisty brak pomiarów z laptopa, więc nie wolno deklarować `production-ready`, `enforce-ready` ani `Codex-integrated`.
+**Status checklisty:** kryteria do oceny konkretnego profilu, nie raport wykonania. Przy publikacji pierwotnej wersji brakowało pomiarów hosta; późniejsze [raporty operatora](AUDIT-REGISTER.md#raporty-operatora--oddzielna-klasa-dowodu) są osobną klasą dowodu. Pola poniżej nie są automatycznie zaliczane wynikami z różnych konfiguracji. Całe S.6 pozostaje bez deklaracji PASS.
 
-Checklistę wykonuje człowiek na małym, izolowanym worktree. Ten dokument nie uruchamia Codexa ani nie zleca jego uruchomienia z Chat/Work; nie dodaje nowego runtime'u, provider loop ani funkcji LEDGER-a. Nie zakłada nieudokumentowanych hooków, flag lub vendor-internal behavior.
+Checklistę wykonuje człowiek na małym, izolowanym worktree. Ten dokument nie uruchamia Codexa ani nie zleca jego uruchomienia z Chat/Work; nie dodaje nowego runtime'u, provider loop ani funkcji Tallystick. Nie zakłada nieudokumentowanych hooków, flag lub vendor-internal behavior.
 
-## 1. Prerequisites — TODO
+## 1. Wymagania wstępne — TODO
 
-- [ ] Dostęp do `korneliuszburian/tallystick`, Git, Node i npm; zapisane wersje i system operacyjny. Punkt odniesienia z CI: Node 24.20.0, npm 11.19.0, Ubuntu 24.04, nie gwarancja kompatybilności laptopa.
+- [ ] Dostęp do `korneliuszburian/tallystick`, Git, Node i npm; zapisane wersje i system operacyjny. Środowisko referencyjne i granice transferu wyniku: [baseline CI](MVP-0-STATUS.md#fact--zakres-i-identyfikacja-dowodu); nie jest to gwarancja kompatybilności środowiska desktopowego.
 - [ ] Zainstalowany, dostępny lokalnie Codex CLI lub SDK, oraz konfiguracja MCP, jeżeli wybrana ścieżka go używa; zapisane dokładne wersje i źródło informacji o dostępnych interfejsach.
 - [ ] Czysty checkout konkretnego commitu; brak równoległego writera badanego worktree; lokalny filesystem dla SQLite/CAS, nie NFS.
-- [ ] Działające `npm ci`, wszystkie pięć suit, typecheck i demo na laptopie; rzeczywiste exit codes, nie wyłącznie obecność komend.
+- [ ] Działające `npm ci`, wszystkie pięć suit, typecheck i demo na desktopie; rzeczywiste exit codes, nie wyłącznie obecność komend.
 - [ ] SQLite >= 3.51.3 zmierzone przez połączenie `better-sqlite3`; wersja systemowego `sqlite3` nie jest dowodem tej zależności.
 - [ ] Możliwość obserwacji granicy proposal/guard/spawn oraz faktycznych model-facing tool results przed admission; ekran czatu lub końcowe podsumowanie modelu nie wystarczają.
 
 Brak narzędzia, uprawnień albo obserwowalności daje BLOCKED dla odpowiedniego punktu. Zarejestrowane naruszenie daje FAIL, nie BLOCKED.
 
-## 2. Setup lokalny — TODO
+## 2. Przygotowanie lokalne — TODO
 
-W nowym katalogu sklonuj repo; istniejącego checkoutu nie resetuj ani nie czyść destrukcyjnie. Ustal testowany commit i zachowaj jego SHA. Poniższy setup wymaga Bash; polecenia są planem audytu, nie twierdzeniem o wykonaniu na laptopie.
+W nowym katalogu sklonuj repo; istniejącego checkoutu nie resetuj ani nie czyść destrukcyjnie. Ustal testowany commit i zachowaj jego SHA. Poniższy setup wymaga Bash; polecenia są planem audytu, nie twierdzeniem o wykonaniu na desktopie.
 
 ```bash
 git clone https://github.com/korneliuszburian/tallystick.git
@@ -94,7 +101,7 @@ Wyłączenie native tool wymaga dowodu faktycznej niedostępności, a nie instru
 
 ## 5. Testy S.6 i granic kontraktu — TODO
 
-### A. Wszystkie dozwolone execution paths przechodzą przez broker
+### A. Wszystkie dozwolone ścieżki wykonania przechodzą przez broker
 
 - [ ] Dla każdego wiersza macierzy wywołaj inertną próbę przez realny host i skoreluj proposal/request, decyzję guarda, permit/reservation, wykonanie i evidence.
 - [ ] Wykonaj próbę negatywną bez dostępnego brokera lub bez ważnego permit w izolowanym środowisku; brak procesu/efektu ma wynikać z granicy kontrolnej, nie z prośby do modelu.
@@ -102,7 +109,7 @@ Wyłączenie native tool wymaga dowodu faktycznej niedostępności, a nie instru
 
 **PASS:** pełny inwentarz i dowód dla każdej dozwolonej ścieżki; żadna nie wykonuje efektu poza brokerem. **FAIL:** zaobserwowany dozwolony bypass. **BLOCKED:** niepełny inwentarz, brak hooka albo brak obserwowalności.
 
-### B. Failure Gate działa przed spawn
+### B. Failure Gate działa przed uruchomieniem procesu
 
 - [ ] Przez host uruchom kontrolowane polecenie kończące się rozpoznawalną porażką; zapisz actual exit code, raw event i failure record.
 - [ ] Zaproponuj drugą i trzecią równoważną próbę bez escape proof, przy niezmienionych argv, środowisku, Git HEAD i `dependencyPaths`.
@@ -112,7 +119,7 @@ Wyłączenie native tool wymaga dowodu faktycznej niedostępności, a nie instru
 
 **PASS:** zatwierdzona decyzja poprzedza spawn, a zablokowane próby nie powodują procesu ani efektu. **FAIL:** BLOCK następuje dopiero po spawn lub równoważny retry wykonał się. **BLOCKED:** dostępne są wyłącznie post-execution notifications albo nie można wykazać kolejności i liczby uruchomień.
 
-### C. Raw output nie dociera do modelu przed filtrem
+### C. Surowy wynik nie dociera do modelu przed filtrem
 
 - [ ] Wygeneruj fixture z co najmniej 100 KiB inertnego raw outputu oraz rozpoznawalnym znacznikiem; nie umieszczaj pełnej treści fixture w promptach.
 - [ ] Zarejestruj raw na granicy brokera, źródłowe bloby/event i rzeczywisty payload przekazywany przez host do model-facing admission.
@@ -122,7 +129,7 @@ Wyłączenie native tool wymaga dowodu faktycznej niedostępności, a nie instru
 
 **PASS:** dowód z granicy hosta potwierdza admission dopiero po filtrze i zatwierdzonym evidence, bez pełnego raw; brak źródła blokuje wynik. **FAIL:** raw dociera przed filtrem lub wynik bez dowodu jest admitted. **BLOCKED:** host nie udostępnia obserwacji tej granicy; deklaracja modelu nie zastępuje pomiaru.
 
-### D. Model-facing wynik jest bounded typed digest
+### D. Wynik przekazywany modelowi jest ograniczonym typed digestem
 
 - [ ] Zapisz rzeczywisty serializowany tool result z hosta, nie tylko obiekt zwrócony przez demo lub middleware w izolacji.
 - [ ] Zmierz bajty UTF-8 części digestu po serializacji i sprawdź limit skonfigurowany w harnessie (domyślnie 4096 B); oddzielnie zapisz rozmiar i pola transportowej obwoluty hosta.
@@ -132,7 +139,7 @@ Wyłączenie native tool wymaga dowodu faktycznej niedostępności, a nie instru
 
 **PASS:** rzeczywista granica model-facing zachowuje ograniczony typed digest albo BLOCK i wymagane evidence, bez przemycenia raw przez inne pola. **FAIL:** przekroczony limit digestu, pełny raw, fałszywa kompletność lub brak źródła przy admission. **BLOCKED:** można zmierzyć tylko wynik biblioteki, nie hosta. Nie wymyślaj sposobu serializacji hosta; zmierz go.
 
-### E. Native bypass oznacza fail-closed, nie observer mode
+### E. Natywne obejście oznacza fail-closed, bez observer mode
 
 - [ ] Podejmij kontrolowane próby wykorzystania rzeczywiście dostępnych native execution paths z macierzy, w tym ścieżek alternatywnych wobec MCP.
 - [ ] Zapisz observed bypasses, dokładną konfigurację i najmniejszą reprodukcję; nie uznawaj braku przypadkowego użycia native tool za dowód jego wyłączenia.
@@ -140,7 +147,7 @@ Wyłączenie native tool wymaga dowodu faktycznej niedostępności, a nie instru
 
 **PASS testu fail-closed:** konfiguracja z wykrytym bypassem odmawia enforce. **FAIL testu fail-closed:** enforce startuje mimo bypassu lub cicho przechodzi w obserwację. **BLOCKED:** brak możliwości pomiaru. Sam PASS odmowy startu nie oznacza PASS integracji: profil z nierozwiązanym dozwolonym bypassem nadal nie spełnia A i nie jest enforce-ready.
 
-## 6. Evidence wymagane dla każdego testu
+## 6. Dowody wymagane dla każdego testu
 
 - [ ] SHA Tallystick i fixture repo, status worktree, wersje narzędzi, data UTC, system, wybrany host/transport i rzeczywista konfiguracja dozwolonych ścieżek.
 - [ ] Komendy z argumentami, exit codes, pełny output w prywatnym archive, logi przed spawn i z admission oraz identyfikatory proposal/guard/reservation/raw event/receipt umożliwiające korelację.
@@ -159,6 +166,6 @@ Nie publikuj harness key, tokenów, haseł ani wrażliwego raw. Oryginały przec
 
 Jeżeli występują jednocześnie FAIL i BLOCKED, wynik całości to FAIL, a blokady pozostają zapisane osobno. UNKNOWN execution oznacza zero automatycznych retry i reconciliation procesu, worktree i skutków przed kontynuacją; nie jest usprawiedliwieniem ponownego wykonania.
 
-Użyj jednego issue **„Laptop integration audit: validate Tallystick enforce path with Codex/MCP”** po osobnym zatwierdzeniu jego utworzenia; przed utworzeniem sprawdź, czy już istnieje. Kolejne wyniki dopisuj do tego issue zamiast produkować duplikaty. Każda proponowana zmiana architektury musi wskazać naruszony ADR i uzyskać jawną decyzję supersedującą; nie edytuj historii ani API po cichu. Brak konieczności zmiany kontraktu nie wymaga sztucznego nowego ADR, lecz wymaga wskazania obowiązujących decyzji w wyniku audytu.
+Użyj istniejącego [issue #22 — Desktop integration audit: validate Tallystick enforce path with Codex/MCP](https://github.com/korneliuszburian/tallystick/issues/22), zamiast tworzyć drugi tracker. Kolejne wyniki dopisuj do tego issue zamiast produkować duplikaty. Każda proponowana zmiana architektury musi wskazać naruszony ADR i uzyskać jawną decyzję supersedującą; nie edytuj historii ani API po cichu. Brak konieczności zmiany kontraktu nie wymaga sztucznego nowego ADR, lecz wymaga wskazania obowiązujących decyzji w wyniku audytu.
 
 Zmiana SHA, wersji/config Codexa/MCP, transportu, dozwolonych narzędzi lub sposobu admission wymaga ponownej walidacji dotkniętych granic. PASS jednego profilu nie jest uniwersalnym certyfikatem produkcyjnym.
