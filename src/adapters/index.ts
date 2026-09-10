@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { spawn } from "node:child_process";
 import type { Readable } from "node:stream";
 import type { BlobReceipt, EventLedger, Json } from "../ledger/index.js";
+import { rawByteLimitFor } from "../ledger/internal.js";
 import { compilerDigest } from "./compiler.js";
 import { gitDiffDigest } from "./git-diff.js";
 import { measureDependencies, shellDigest } from "./shell.js";
@@ -140,20 +141,45 @@ function enforceDigestLimit(digest: TypedDigest, limit: number, process: Capture
   throw new Error("digest exceeds configured byte limit");
 }
 
-function liveChunks(stream: Readable, onConsumerStop: () => void): AsyncIterable<Uint8Array> {
+class SharedRawBudget {
+  private remaining: number;
+
+  constructor(limit: number) { this.remaining = limit; }
+
+  take(chunk: Uint8Array): { accepted: Uint8Array; overflow: boolean } {
+    const acceptedLength = Math.min(this.remaining, chunk.byteLength);
+    const accepted = chunk.subarray(0, acceptedLength);
+    this.remaining -= acceptedLength;
+    return { accepted, overflow: chunk.byteLength > acceptedLength };
+  }
+}
+
+function liveChunks(stream: Readable, onConsumerStop: () => void, budget?: SharedRawBudget): AsyncIterable<Uint8Array> {
   return (async function* () {
     let ended = false;
     let errored = false;
     try {
-      for await (const chunk of stream) yield new Uint8Array(Buffer.from(chunk));
+      for await (const chunk of stream) {
+        const bytes = new Uint8Array(Buffer.from(chunk));
+        if (budget === undefined) {
+          yield bytes;
+          continue;
+        }
+        const { accepted, overflow } = budget.take(bytes);
+        if (accepted.byteLength > 0) yield accepted;
+        if (overflow) {
+          onConsumerStop();
+          throw new Error("raw execution limit exceeded");
+        }
+      }
       ended = true;
     } catch (error) {
       errored = true;
       throw error;
     } finally {
-      // ledger.archive closes the iterator as soon as its configured raw cap is
-      // reached. That close happens while the child is still running, so the
-      // adapter can enforce ADR-017 without a second copy of the configured cap.
+      // Stop the process while the child is still running when the shared
+      // execution budget rejects a chunk. The ledger owns the bounded spool;
+      // this wrapper only coordinates stdout and stderr against one budget.
       if (!ended && !errored) onConsumerStop();
     }
   })();
@@ -257,8 +283,10 @@ async function runAndCapture(request: ExecutionRequest, ledger: EventLedger): Pr
     terminateChild();
   }, request.timeoutMs);
 
-  const stdoutPromise = ledger.archive(liveChunks(child.stdout, stopForRawLimit));
-  const stderrPromise = ledger.archive(liveChunks(child.stderr, stopForRawLimit));
+  const budgetLimit = rawByteLimitFor(ledger);
+  const budget = budgetLimit === undefined ? undefined : new SharedRawBudget(budgetLimit);
+  const stdoutPromise = ledger.archive(liveChunks(child.stdout, stopForRawLimit, budget));
+  const stderrPromise = ledger.archive(liveChunks(child.stderr, stopForRawLimit, budget));
 
   try {
     const [{ code, signal, forced }, stdoutReceipt, stderrReceipt] = await Promise.all([
