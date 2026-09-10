@@ -3,13 +3,15 @@
 [Start](../README.md) · [Kontrakty](../SPEC.md) · [Reguły pracy](../AGENTS.md)
 
 > **Rola:** kryteria reprodukcji i ewidencja dowodów · **Status:** OTWARTE — nie certyfikat S.6  
-> **Zakres:** kod `ddc81034add54bf47bf63b5a11e48ed1bd64d4d9`; research 2026-09-09; aktualizacja redakcyjna 2026-09-10  
+> **Zakres:** kod `ddc81034add54bf47bf63b5a11e48ed1bd64d4d9`; research 2026-09-09; aktualizacja redakcyjna 2026-09-10, Europe/Warsaw (UTC+02:00)  
 > **Źródła:** [S-RESEARCH i manifest źródeł](RESEARCH.md#pochodzenie-materiałów), rejestr F dostarczony przez właściciela  
 > **Kiedy ten dokument traci aktualność:** po zmianie właściwego kodu, kontraktu, profilu lub nowym rozstrzygającym teście; każda pozycja wymaga własnej rewalidacji.
 
 ## Jak czytać wynik
 
 A01–A24 zachowują treść i status źródłowego researchu. F01–F15 pozostają identyfikatorami osobnego rejestru; mapa poniżej nie zamienia ich w nowe numery ADR. Priorytet „wysoki” nie oznacza patologii P1–P10. Statyczna obserwacja i proponowana reprodukcja nie są wynikiem wykonanego testu.
+
+Czytaj ten historyczny rejestr razem z [korektami interpretacji K01–K11](RESEARCH.md#korekty-interpretacji-materiału) oraz [mapą odrębnych numeracji SD/SR](RESEARCH.md#identyfikatory-zawsze-z-pochodzeniem). Dotyczy to również F02/A12 (K05) i A14 (K06). Oryginalne ustalenia pozostają poniżej bez zmian; opis statusu PR w A23 dotyczy daty źródła, nie bieżącego GitHub.
 
 **Nie są defektami MVP-0 same w sobie:** brak pełnego Context Atlas, semantic memory lifecycle, Recovery Engine, Claim Publisher i Compounding Evaluator. To granica [R.0](../SPEC.md#r0-zakres-środowisko-i-struktura). Receipt w pamięci jest dopuszczony przez [ADR-016](../SPEC.md#adr-016--kompozycja-middleware-zużycie-permit-klucz-i-obwoluta-receipt); historyczny plan ADR-010 nie upoważnia do żądania nowego eventu receipt.
 
