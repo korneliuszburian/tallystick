@@ -1,63 +1,90 @@
 # Tallystick — zatrzymanie diagnostyczne SPEC
 
-> **Rola:** decyzja · raport konfliktu kontraktu
+> **Rola:** raport konfliktu kontraktu
 > **Status:** `NEEDS_DECISION`
 > **Zakres:** audyt implementacji na `ddc81034add54bf47bf63b5a11e48ed1bd64d4d9`; middleware MVP-0 i składane przez niego kontrakty
-> **Źródła:** [SPEC](../SPEC.md), [reguła STOP](../AGENTS.md#sprzeczności-i-brak-rozstrzygnięcia), read-only source review oraz [PR #25](https://github.com/korneliuszburian/tallystick/pull/25)
+> **Źródła:** [SPEC](../SPEC.md), [reguła STOP](../AGENTS.md#sprzeczności-i-brak-rozstrzygnięcia), [PR #25](https://github.com/korneliuszburian/tallystick/pull/25)
 > **Kiedy ten dokument traci aktualność:** po normatywnym rozstrzygnięciu wszystkich poniższych punktów albo zmianie dotkniętych kontraktów SPEC.
 
-This report records one direct procedural conflict and the adjacent contract gaps discovered while auditing the current implementation. It does not change the specification or select a resolution.
+Raport rejestruje dwa bezpośrednie konflikty i sąsiadujące luki kontraktu. Nie zmienia SPEC ani nie wybiera rozwiązania.
 
-## Konflikt bezpośredni: kolejność proposal, preflight i commitu reservation
+## Konflikt 1: kolejność proposal, preflight i commitu reservation
 
-The central invariant requires every executed action to have an approved, durable intent before execution (`SPEC.md`, “Cel i granica systemu”). R.4 requires `FailureGate.preflight()` to create its reservation and persist the `ALLOW` `guard_decision` atomically before returning. R.5, however, orders the pipeline as:
+Centralny invariant w [celu systemu](../SPEC.md#cel-i-granica-systemu) wymaga:
 
-1. compute the input state and preconditions;
-2. call `preflight`;
-3. commit intent and reservation;
-4. spawn only after permit verification.
+> „Każda wykonana akcja ma uprzednio zatwierdzony zapis zamiaru […]”.
 
-The reservation cannot both be committed inside `preflight()` and be committed as a later R.5 step. R.5 also requires the final receipt to contain a durable `proposal_id`, but does not say whether a blocked proposal must already have a `tool_proposal` event.
+Algorytm [R.4 preflight](../SPEC.md#algorytm-preflight) umieszcza zapis decyzji i reservation wewnątrz `preflight()`:
 
-Affected contract:
+> „create reservation with fencing token → append ALLOW event → COMMIT → return permit”
 
-- `FailureGate.preflight()` and ADR-015 atomicity;
-- the pre-spawn intent invariant;
-- `tool_proposal` and `guard_decision` ordering;
-- reservation and permit lifecycle;
-- `proposal_id` in the R.5 receipt.
+Pipeline [R.5](../SPEC.md#r5-cienkie-złożenie-w-srcindexts) określa natomiast kolejność:
 
-Acceptance cases that cannot be implemented unambiguously:
+> „→ preflight → commit intent i reservation → wykonanie z permit”
 
-- `Third identical failure` and `Concurrent duplicate`: whether every BLOCK has a preceding durable proposal;
-- `Crash after intent`: whether “intent” means `tool_proposal`, reservation, or `ALLOW`;
-- crash injection between intent, reservation, decision, and spawn.
+Ta sama reservation nie może być commitowana jednocześnie wewnątrz `preflight()` i w późniejszym kroku R.5. R.5 wymaga też trwałego `proposal_id` w receipt, lecz nie określa, czy zablokowana propozycja ma już event `tool_proposal`.
 
-Decision options:
+Dotknięte API i inwarianty:
 
-1. Persist `tool_proposal` before `preflight`; keep reservation and `ALLOW` atomic inside `preflight`; remove the later duplicate reservation commit from the R.5 sequence.
-2. Make `preflight` a pure decision and commit proposal, reservation, and `ALLOW` later in one operation. This changes ADR-015/R.4 and the current public contract.
-3. Define the R.5 “commit intent and reservation” step as a description of effects already completed by `preflight`, while separately fixing the required order and payload of `tool_proposal` for ALLOW and BLOCK.
+- `FailureGate.preflight()` i atomowość ADR-015;
+- zapis intent przed `spawn`;
+- kolejność `tool_proposal` oraz `guard_decision`;
+- cykl życia reservation i permit;
+- `proposal_id` w receipt R.5.
 
-No middleware ordering change should be implemented until one option is accepted in `SPEC.md`.
+Niejednoznaczne testy:
 
-## Decyzje kontraktowe wymagane przed późniejszą naprawą
+- `Third identical failure` i `Concurrent duplicate`: nie wiadomo, czy każdy BLOCK ma poprzedzający trwały proposal;
+- `Crash after intent`: nie wiadomo, czy intent oznacza `tool_proposal`, reservation czy `ALLOW`;
+- crash injection pomiędzy intent, reservation, decyzją i `spawn`.
 
-These are not all logical contradictions, but the current public API or persistence model does not determine a single implementation.
+Możliwe rozstrzygnięcia:
 
-| Contract seam | Missing decision | Acceptance affected |
+1. Zapisać `tool_proposal` przed `preflight`; zachować atomowy zapis reservation i `ALLOW` wewnątrz `preflight`; usunąć z R.5 późniejszy, duplikujący commit reservation.
+2. Uczynić `preflight` czystym obliczeniem decyzji, a proposal, reservation i `ALLOW` zapisywać później atomowo. Wymaga to zmiany ADR-015 i R.4.
+3. Zdefiniować krok R.5 „commit intent i reservation” jako opis skutków już wykonanych przez `preflight`, a osobno zamrozić moment i payload `tool_proposal` dla ALLOW i BLOCK.
+
+## Konflikt 2: tożsamość receipt w ADR-010 i ADR-016
+
+[ADR-010](../SPEC.md#adr-010--receipt_id-wskazuje-zatwierdzone-zdarzenie-evidence-w-ledgerze) obiecuje rozdzielenie identyfikatorów w R.5:
+
+> „wtedy `receipt_id` wskaże nowe zdarzenie receipt, a `raw_event_id` pozostanie przy raw”.
+
+[ADR-016](../SPEC.md#adr-016--kompozycja-middleware-zużycie-permit-klucz-i-obwoluta-receipt) określa inny kształt:
+
+> „Receipt to obwoluta w pamięci zwracana z intercept() […] Nie powstaje nowy rodzaj zdarzenia.”
+
+ADR-016 odwołuje się przy tym do ADR-010, ale go jawnie nie zastępuje. `EventRecord.kind` nie definiuje rodzaju `receipt`, a SPEC nie wskazuje innego rodzaju eventu, jego payloadu ani momentu commitu. Nie wiadomo więc, jak po R.5 i reopen spełnić obietnicę osobnego `receipt_id`.
+
+Dotknięte API i inwarianty:
+
+- `DigestMeta.receipt_id` i `raw_event_id`;
+- Evidence Receipt zwracany przez middleware;
+- admission dopiero po zatwierdzonym evidence zgodnie z ADR-004;
+- możliwość odtworzenia receipt po reopen.
+
+Niejednoznaczne testy:
+
+- `Missing blob`: nie określa, do którego eventu rozwiązuje się `receipt_id`;
+- `zero false success receipts`: nie określa trwałej reprezentacji poprawnego receipt;
+- reopen storage: nie określa sposobu rekonstrukcji obwoluty.
+
+Możliwe rozstrzygnięcia:
+
+1. Dodać jawny rodzaj eventu `receipt` oraz zamrozić jego payload i moment zapisu.
+2. Użyć istniejącego rodzaju eventu oraz jawnie zdefiniować jego payload i relację z raw eventem.
+3. Zachować Receipt wyłącznie w pamięci i `receipt_id === raw_event_id`, usuwając z ADR-010/R.2 obietnicę późniejszego rozdzielenia.
+
+## Luki kontraktu wymagające decyzji przed naprawą
+
+| Szew kontraktu | Brakujące rozstrzygnięcie | Testy dotknięte |
 |---|---|---|
-| Receipt identity | ADR-010 says identifiers separate in R.5; ADR-016 defines an in-memory wrapper and forbids a new event kind. Define the event, payload, commit point, and reopen semantics, or retain `receipt_id === raw_event_id` explicitly. | Missing blob; zero false-success receipts |
-| State revalidation | Define who persists contradiction/freshness evidence while standalone `revalidateMemory()` remains pure, and how an epoch retains measurement capability after reopen. | File mutation staleness; reopen |
-| Gate projections | Define authoritative event payloads, reducer/version, rebuild trigger, and reconciliation for failures, reservation states, and consumed proofs. | Restart gate; replayed proof; reopen storage |
-| Worktree lease | Define owner, reentrancy, lifetime from input measurement through output measurement, expiry/recovery, and fencing validation. | Concurrent duplicate; broker crash |
-| Digest epochs | Define whether `tested_epoch` and `compiled_epoch` equal the request-specific precondition epoch, full world epoch, or another execution-input fingerprint. | Adapter digests; test-result self-invalidation |
-| Event parents | Define how non-empty `parent_event_ids` enter `append`, persist, and participate in `event_hash`, or remove the field from MVP-0. | Reopen durability; receipt lineage |
-| UNKNOWN reconciliation | Define pre-spawn rejection separately from post-spawn uncertainty, the reconciliation authority/API, event payloads, and reservation transitions. | Crash after intent; zero retry after UNKNOWN |
-| Escape proof composition | Define how an opaque proof reaches middleware `intercept()` without exposing the signing key, or explicitly keep proofs outside R.5 MVP-0. | Escape proof; replayed proof; E2E |
+| Revalidation stanu | Kto zapisuje contradiction/freshness, gdy standalone `revalidateMemory()` pozostaje czyste, oraz jak epoch zachowuje zdolność pomiaru po reopen. | File mutation staleness; reopen |
+| Projekcje Gate | Autorytatywne payloady eventów, reducer i jego wersja, moment odbudowy oraz reconciliation failures, reservations i consumed proofs. | Restart gate; replayed proof; reopen storage |
+| Lease worktree | Właściciel, reentrancy, lifetime od pomiaru wejścia do wyjścia, expiry/recovery i walidacja fencing. | Concurrent duplicate; broker crash |
+| Epoki digestów | Czy `tested_epoch` i `compiled_epoch` oznaczają request-specific precondition epoch, pełną world epoch czy osobny fingerprint wejść execution. | Adapter digests; test-result self-invalidation |
+| Rodzice eventów | Jak niepuste `parent_event_ids` trafiają do `append`, storage i `event_hash`, albo czy pole wypada z MVP-0. | Reopen durability; receipt lineage |
+| Reconciliation UNKNOWN | Rozdzielenie pre-spawn rejection i post-spawn uncertainty, authority/API reconciliation, payloady eventów i przejścia reservation. | Crash after intent; zero retry after UNKNOWN |
+| Escape proof w kompozycji | Jak opaque proof trafia do `intercept()` bez ujawnienia signing key albo czy proof pozostaje poza R.5 MVP-0. | Escape proof; replayed proof; E2E |
 
-## Ustalenia implementacyjne zatrzymane przez konflikt
-
-The current implementation has independently evidenced defects in permit-to-request binding, UNKNOWN classification, shared raw limits, child termination, whole-output buffering, epoch provenance, lease coverage, projection rebuild, bounded lookup, fixture provenance, chaos tests, and CI gating. Those defects should be repaired in the frozen module order after the relevant decisions above are incorporated into the normative specification.
-
-No tests were run for this documentation-only diagnostic. Reading tests and source code is not a passing test result.
+Kod zależny od tych punktów pozostaje zatrzymany do czasu normatywnego rozstrzygnięcia w SPEC. Dla tego dokumentacyjnego raportu nie uruchomiono testów; odczyt kodu i testów nie jest wynikiem PASS.
