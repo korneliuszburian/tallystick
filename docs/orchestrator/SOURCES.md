@@ -21,7 +21,7 @@ Identyfikatory `R*` wskazują sekcje bieżącego repozytorium; `S*` wskazują wy
 | S3 | Limity dzieci i delegacji | Propozycja harnessu — prompt/organizational policy, nie host enforcement |
 | S4 | Konto Pro i brak założenia o API quota | [Raport operatora P0](P0-HOST-REPORT.md) — OpenCode credential jest osobne; brak utożsamienia z Codex Pro |
 | S5 | Koszt i benchmark | `DESIGN.md` §11 oraz plan P5 — NOT_RUN |
-| S6 | Audyt ścieżki desktop | `docs/DESKTOP-INTEGRATION-AUDIT.md`, `SPEC.md` S.6 — P2 NOT_RUN/BLOCKED |
+| S6 | Audyt ścieżki desktop | `docs/DESKTOP-INTEGRATION-AUDIT.md`, `SPEC.md` S.6 — P1 BLOCKED; P2 BLOCKED/NOT_RUN |
 | S7 | Integracja App Server/MCP | `docs/DESKTOP-INTEGRATION-AUDIT.md` — wymaga odrębnego audytu |
 | S8 | Hooki i granice pokrycia | `docs/DESKTOP-INTEGRATION-AUDIT.md` — zakres audytu; konkretne zachowanie hosta NOT_AVAILABLE |
 | S9 | Worktree/sandbox i sekrety | `AGENTS.md`, macierz bezpieczeństwa i [raport P0](P0-HOST-REPORT.md) — operator-reported child sandbox FAIL (zaobserwowany brak read-only); zakres modelu/coverage BLOCKED |
