@@ -14,7 +14,7 @@ Data opracowania: 2026-09-10.
 
 Celem jest uzyskać więcej poprawnych, zweryfikowanych rezultatów z konta Pro 5×, bez poszerzania niekontrolowanych uprawnień. Liczba agentów, długość logu, zgodność opinii modeli i liczba wygenerowanych linii kodu nie są miernikami sukcesu.
 
-Hipoteza: Astra jest użyteczna do rozkładu problemu i integracji, Luna do wąskich kontraktów; Sol jest wariantem porównawczym koordynatora i opcjonalnym recenzentem. Dokumentacja potwierdza identyfikatory modeli, nie rozstrzyga ich przewagi w tym repozytorium [S1]. Dostępność na konkretnym koncie musi zostać zmierzona.
+Hipoteza: Astra jest użyteczna do rozkładu problemu i integracji, Luna do wąskich kontraktów; Sol jest wariantem porównawczym koordynatora i opcjonalnym recenzentem. Konfiguracja zawiera kandydackie identyfikatory ról; sama dokumentacja nie potwierdza, że child rzeczywiście uruchomił się z danym modelem [S1]. Dostępność na konkretnym koncie i tożsamość wykonania muszą zostać zmierzone.
 
 ## 2. Nienaruszalna granica odpowiedzialności
 
