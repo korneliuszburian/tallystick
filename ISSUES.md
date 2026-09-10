@@ -9,15 +9,15 @@
 
 ## Etapy i źródła wymagań
 
-| Dawny etap | Cel | Kontrakt kanoniczny |
-|---|---|---|
-| #1 · `module:ledger` | Event Ledger | [R.1](SPEC.md#r1-event-ledger) |
-| #2 · `module:adapters` | Acquisition Adapters | [R.2](SPEC.md#r2-acquisition-adapters) |
-| #3 · `module:state` | State Twin | [R.3](SPEC.md#r3-state-twin) |
-| #4 · `module:guards` | Failure Antibody Gate | [R.4](SPEC.md#r4-failure-antibody-gate) |
-| #5 · `type:e2e` | Kompozycja, E2E i chaos | [R.5](SPEC.md#r5-cienkie-złożenie-w-srcindexts), [S](SPEC.md#s-mvp-0-acceptance-tests) |
+| Dawny etap | Cel | Zależność | Kontrakt kanoniczny |
+|---|---|---|---|
+| #1 · `module:ledger` | Event Ledger | Brak | [R.1](SPEC.md#r1-event-ledger) |
+| #2 · `module:adapters` | Acquisition Adapters | Zielona bramka #1 | [R.2](SPEC.md#r2-acquisition-adapters) |
+| #3 · `module:state` | State Twin | Zielone bramki #1–#2 | [R.3](SPEC.md#r3-state-twin) |
+| #4 · `module:guards` | Failure Antibody Gate | Zielone bramki #1–#3 | [R.4](SPEC.md#r4-failure-antibody-gate) |
+| #5 · `type:e2e` | Kompozycja, E2E i chaos | Zielone bramki #1–#4 | [R.5](SPEC.md#r5-cienkie-złożenie-w-srcindexts), [S](SPEC.md#s-mvp-0-acceptance-tests) |
 
-Kolejność i warunki przejścia określa [ADR-006](SPEC.md#adr-006--kolejność-implementacji-jest-zamrożona). Pierwotne zakresy, zależności, tabele asercji, `state_observations` i komendy zachowano w podlinkowanym archiwum; nie są drugą aktywną kopią kontraktu.
+Kolejność i warunki przejścia określa [ADR-006](SPEC.md#adr-006--kolejność-implementacji-jest-zamrożona). Pierwotne zakresy, tabele asercji, `state_observations` i komendy zachowano w podlinkowanym archiwum; nie są drugą aktywną kopią kontraktu.
 
 ## Granica użycia
 

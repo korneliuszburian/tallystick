@@ -15,7 +15,7 @@
 
 Checklistę wykonuje człowiek na małym, izolowanym worktree. Ten dokument nie uruchamia Codexa ani nie zleca jego uruchomienia z Chat/Work; nie dodaje nowego runtime'u, provider loop ani funkcji Tallystick. Nie zakłada nieudokumentowanych hooków, flag lub vendor-internal behavior.
 
-## 1. Prerequisites — TODO
+## 1. Wymagania wstępne — TODO
 
 - [ ] Dostęp do `korneliuszburian/tallystick`, Git, Node i npm; zapisane wersje i system operacyjny. Środowisko referencyjne i granice transferu wyniku: [baseline CI](MVP-0-STATUS.md#fact--zakres-i-identyfikacja-dowodu); nie jest to gwarancja kompatybilności laptopa.
 - [ ] Zainstalowany, dostępny lokalnie Codex CLI lub SDK, oraz konfiguracja MCP, jeżeli wybrana ścieżka go używa; zapisane dokładne wersje i źródło informacji o dostępnych interfejsach.
@@ -26,7 +26,7 @@ Checklistę wykonuje człowiek na małym, izolowanym worktree. Ten dokument nie 
 
 Brak narzędzia, uprawnień albo obserwowalności daje BLOCKED dla odpowiedniego punktu. Zarejestrowane naruszenie daje FAIL, nie BLOCKED.
 
-## 2. Setup lokalny — TODO
+## 2. Przygotowanie lokalne — TODO
 
 W nowym katalogu sklonuj repo; istniejącego checkoutu nie resetuj ani nie czyść destrukcyjnie. Ustal testowany commit i zachowaj jego SHA. Poniższy setup wymaga Bash; polecenia są planem audytu, nie twierdzeniem o wykonaniu na laptopie.
 
@@ -101,7 +101,7 @@ Wyłączenie native tool wymaga dowodu faktycznej niedostępności, a nie instru
 
 ## 5. Testy S.6 i granic kontraktu — TODO
 
-### A. Wszystkie dozwolone execution paths przechodzą przez broker
+### A. Wszystkie dozwolone ścieżki wykonania przechodzą przez broker
 
 - [ ] Dla każdego wiersza macierzy wywołaj inertną próbę przez realny host i skoreluj proposal/request, decyzję guarda, permit/reservation, wykonanie i evidence.
 - [ ] Wykonaj próbę negatywną bez dostępnego brokera lub bez ważnego permit w izolowanym środowisku; brak procesu/efektu ma wynikać z granicy kontrolnej, nie z prośby do modelu.
@@ -109,7 +109,7 @@ Wyłączenie native tool wymaga dowodu faktycznej niedostępności, a nie instru
 
 **PASS:** pełny inwentarz i dowód dla każdej dozwolonej ścieżki; żadna nie wykonuje efektu poza brokerem. **FAIL:** zaobserwowany dozwolony bypass. **BLOCKED:** niepełny inwentarz, brak hooka albo brak obserwowalności.
 
-### B. Failure Gate działa przed spawn
+### B. Failure Gate działa przed uruchomieniem procesu
 
 - [ ] Przez host uruchom kontrolowane polecenie kończące się rozpoznawalną porażką; zapisz actual exit code, raw event i failure record.
 - [ ] Zaproponuj drugą i trzecią równoważną próbę bez escape proof, przy niezmienionych argv, środowisku, Git HEAD i `dependencyPaths`.
@@ -119,7 +119,7 @@ Wyłączenie native tool wymaga dowodu faktycznej niedostępności, a nie instru
 
 **PASS:** zatwierdzona decyzja poprzedza spawn, a zablokowane próby nie powodują procesu ani efektu. **FAIL:** BLOCK następuje dopiero po spawn lub równoważny retry wykonał się. **BLOCKED:** dostępne są wyłącznie post-execution notifications albo nie można wykazać kolejności i liczby uruchomień.
 
-### C. Raw output nie dociera do modelu przed filtrem
+### C. Surowy wynik nie dociera do modelu przed filtrem
 
 - [ ] Wygeneruj fixture z co najmniej 100 KiB inertnego raw outputu oraz rozpoznawalnym znacznikiem; nie umieszczaj pełnej treści fixture w promptach.
 - [ ] Zarejestruj raw na granicy brokera, źródłowe bloby/event i rzeczywisty payload przekazywany przez host do model-facing admission.
@@ -129,7 +129,7 @@ Wyłączenie native tool wymaga dowodu faktycznej niedostępności, a nie instru
 
 **PASS:** dowód z granicy hosta potwierdza admission dopiero po filtrze i zatwierdzonym evidence, bez pełnego raw; brak źródła blokuje wynik. **FAIL:** raw dociera przed filtrem lub wynik bez dowodu jest admitted. **BLOCKED:** host nie udostępnia obserwacji tej granicy; deklaracja modelu nie zastępuje pomiaru.
 
-### D. Model-facing wynik jest bounded typed digest
+### D. Wynik przekazywany modelowi jest ograniczonym typed digestem
 
 - [ ] Zapisz rzeczywisty serializowany tool result z hosta, nie tylko obiekt zwrócony przez demo lub middleware w izolacji.
 - [ ] Zmierz bajty UTF-8 części digestu po serializacji i sprawdź limit skonfigurowany w harnessie (domyślnie 4096 B); oddzielnie zapisz rozmiar i pola transportowej obwoluty hosta.
@@ -139,7 +139,7 @@ Wyłączenie native tool wymaga dowodu faktycznej niedostępności, a nie instru
 
 **PASS:** rzeczywista granica model-facing zachowuje ograniczony typed digest albo BLOCK i wymagane evidence, bez przemycenia raw przez inne pola. **FAIL:** przekroczony limit digestu, pełny raw, fałszywa kompletność lub brak źródła przy admission. **BLOCKED:** można zmierzyć tylko wynik biblioteki, nie hosta. Nie wymyślaj sposobu serializacji hosta; zmierz go.
 
-### E. Native bypass oznacza fail-closed, nie observer mode
+### E. Natywne obejście oznacza fail-closed, bez observer mode
 
 - [ ] Podejmij kontrolowane próby wykorzystania rzeczywiście dostępnych native execution paths z macierzy, w tym ścieżek alternatywnych wobec MCP.
 - [ ] Zapisz observed bypasses, dokładną konfigurację i najmniejszą reprodukcję; nie uznawaj braku przypadkowego użycia native tool za dowód jego wyłączenia.
@@ -147,7 +147,7 @@ Wyłączenie native tool wymaga dowodu faktycznej niedostępności, a nie instru
 
 **PASS testu fail-closed:** konfiguracja z wykrytym bypassem odmawia enforce. **FAIL testu fail-closed:** enforce startuje mimo bypassu lub cicho przechodzi w obserwację. **BLOCKED:** brak możliwości pomiaru. Sam PASS odmowy startu nie oznacza PASS integracji: profil z nierozwiązanym dozwolonym bypassem nadal nie spełnia A i nie jest enforce-ready.
 
-## 6. Evidence wymagane dla każdego testu
+## 6. Dowody wymagane dla każdego testu
 
 - [ ] SHA Tallystick i fixture repo, status worktree, wersje narzędzi, data UTC, system, wybrany host/transport i rzeczywista konfiguracja dozwolonych ścieżek.
 - [ ] Komendy z argumentami, exit codes, pełny output w prywatnym archive, logi przed spawn i z admission oraz identyfikatory proposal/guard/reservation/raw event/receipt umożliwiające korelację.
