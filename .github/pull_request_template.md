@@ -40,6 +40,6 @@ Tak / nie. Przy konflikcie: cytaty i linki, invariant/API i test-case według [p
 - [ ] [Wyniki bez pozornego PASS](https://github.com/korneliuszburian/tallystick/blob/main/AGENTS.md#wyniki-i-evidence).
 - [ ] [Asercje bez osłabienia](https://github.com/korneliuszburian/tallystick/blob/main/AGENTS.md#konwencje-commitów-i-pr).
 - [ ] [API bez niezatwierdzonych zmian](https://github.com/korneliuszburian/tallystick/blob/main/AGENTS.md#reguły-pracy).
-- [ ] [Bez merge’u przez autora](https://github.com/korneliuszburian/tallystick/blob/main/AGENTS.md#konwencje-commitów-i-pr).
+- [ ] [Zgoda właściciela i weryfikacja merge’u](https://github.com/korneliuszburian/tallystick/blob/main/AGENTS.md#merge-po-zgodzie-właściciela).
 
 <!-- Kiedy ten dokument traci aktualność: po zmianie reguł AGENTS lub wymaganego evidence. Wypełniony opis PR traci aktualność po zmianie head/base, zakresu albo wyników; historyczne wyniki zachowują własny SHA. Linki do main są nawigacją — przy ocenie PR czytaj AGENTS ze sprawdzanego checkoutu. -->
