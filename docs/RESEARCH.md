@@ -2,9 +2,10 @@
 
 [Start](../README.md) · [Kontrakty](../SPEC.md) · [Reguły pracy](../AGENTS.md)
 
-> **Rola:** kryteria badań · **Status:** REKOMENDACJA — NIEZAMROŻONE  
-> **Zakres:** pakiet z 9 września i syntezy z 10 września 2026; cutoff raportów: 9 września; nie plan implementacji  
-> **Źródła:** [pochodzenie materiałów](#pochodzenie-materiałów), [rejestr audytu](AUDIT-REGISTER.md)  
+> **Rola:** kryteria badań · **Status:** REKOMENDACJA — NIEZAMROŻONE
+> **Właściciel:** maintainer researchu · **Konsument:** właściciel decyzji i implementer eksperymentu
+> **Zakres:** pakiet z 9 września i syntezy z 10 września 2026; cutoff raportów: 9 września; nie plan implementacji
+> **Źródła:** [pochodzenie materiałów](#pochodzenie-materiałów), [rejestr audytu](AUDIT-REGISTER.md)
 > **Kiedy ten dokument traci aktualność:** po nowej rewizji kodu, źródła zewnętrznego lub nowym pomiarze; dawne wnioski zachowują datę i zakres.
 
 ## Cel
@@ -389,7 +390,7 @@ Przygotuj wykonalny plan S.6 dla dostępnej wersji Codexa i konfiguracji MCP. Zi
 <summary>Pytanie, kontrprzykłady i wymagany wynik</summary>
 
 ```text
-Zweryfikuj w aktualnej dokumentacji dynamicTools i przepływ item/tool/call oraz required MCP startup. Oddziel request, który rzeczywiście czeka na wykonawcę, od notification, które raportuje już wykonane działanie. Porównaj zwykły MCP executor i klienta App Server sterującego istniejącym Codex runtime. Wynik: sequence diagrams, wersje/experimental status, lista gwarancji i niewiadomych oraz najmniejszy inertny eksperyment laptopowy. Ustal, które native tools pozostają poza badanym punktem. Nie przedstawiaj dynamicTools ani required=true jako automatycznego spełnienia ADR-002.
+Zweryfikuj w aktualnej dokumentacji dynamicTools i przepływ item/tool/call oraz required MCP startup. Oddziel request, który rzeczywiście czeka na wykonawcę, od notification, które raportuje już wykonane działanie. Porównaj zwykły MCP executor i klienta App Server sterującego istniejącym Codex runtime. Wynik: sequence diagrams, wersje/experimental status, lista gwarancji i niewiadomych oraz najmniejszy inertny eksperyment desktopowy. Ustal, które native tools pozostają poza badanym punktem. Nie przedstawiaj dynamicTools ani required=true jako automatycznego spełnienia ADR-002.
 ```
 
 </details>
@@ -543,11 +544,6 @@ https://github.com/korneliuszburian/tallystick/blob/ddc81034add54bf47bf63b5a11e4
 **R-DESKTOP — Bieżące kryteria desktopowego audytu integracji S.6**
 
 [docs/DESKTOP-INTEGRATION-AUDIT.md](DESKTOP-INTEGRATION-AUDIT.md)
-
-<a id="r-laptop"></a>
-**R-LAPTOP — Historyczny identyfikator źródła z błędnym zawężeniem nazwy**
-
-https://github.com/korneliuszburian/tallystick/blob/ddc81034add54bf47bf63b5a11e48ed1bd64d4d9/docs/LAPTOP-INTEGRATION-AUDIT.md
 
 <a id="o-astra"></a>
 **O-ASTRA — OpenAI — Using GPT-6 Astra / Model guidance**

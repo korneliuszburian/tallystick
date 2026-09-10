@@ -92,7 +92,10 @@ Wynik wiąż z SHA, środowiskiem, profilem i źródłem. Nie przenoś wyników 
 
 - Dokument w docs/ istnieje tylko, jeśli koduje decyzję, kryterium testu, dowód albo mapę prowadzącą do tych źródeł. Dokument procesowy lub mapa są krótkie i linkują źródła normatywne zamiast je kopiować.
 - Jedna reguła = jedno kanoniczne miejsce. SPEC.md jest jedyną kopią kontraktów; AGENTS.md jedyną kopią reguł pracy.
-- Każdy fakt w dokumencie ma dowód (plik, run, commit, sekcja SPEC). Dokument bez linii utraty aktualności nie może wejść do docs/.
+- Każdy plik w `docs/` ma jedną rolę, jednego właściciela i nazwanego konsumenta. Jego nagłówek podaje rolę, status, zakres, źródła i warunek utraty aktualności; brak któregoś z tych pól zatrzymuje publikację. `README.md`, `AGENTS.md`, `SPEC.md` i `ISSUES.md` mają własne kontrakty i nie dziedziczą tego szablonu.
+- Każdy fakt w dokumencie ma dowód (plik, run, commit, sekcja SPEC) przypięty do stałego punktu: rewizji, środowiska, profilu i daty. Dokument bez linii utraty aktualności nie może wejść do docs/.
+- Research jest skompilowaną pamięcią decyzji, nie notatnikiem, transcriptem ani dziennikiem przebiegu. Nowe evidence aktualizuje kanoniczną stronę i oznacza poprzedni wniosek jako superseded; nie tworzymy drugiego bieżącego podsumowania tego samego tematu.
+- Promocja z `.krn/runs/` do `docs/` wymaga przyszłego konsumenta, kanonicznego miejsca, pochodzenia i reguły usunięcia albo supersesji. Raw, prompty, odpowiedzi modeli i logi pozostają poza Git. Temat bez konsumenta usuwamy z drzewa, zachowując historię Git.
 - PR dokumentacyjny wykazuje w opisie, którym elementem filtra zarabia każdy nowy lub zmieniony plik.
 - Nie dodawaj dokumentacji, która opowiada to, co egzekwuje kod lub test.
 
@@ -107,6 +110,8 @@ Wspólna jest struktura informacji, nie obowiązek wypełniania pustych rozdzia�
 
 > **Rola:** decyzja / kryterium / dowód / mapa
 > **Status:** status decyzji lub wynik o jawnym zakresie
+> **Właściciel:** osoba lub workflow odpowiedzialny za aktualność
+> **Konsument:** konkretna decyzja, komenda, issue albo workflow używający dokumentu
 > **Zakres:** data, rewizja, profil albo obszar obowiązywania
 > **Źródła:** kanoniczne dokumenty i dowody
 > **Kiedy ten dokument traci aktualność:** konkretny warunek

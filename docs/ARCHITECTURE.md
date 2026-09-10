@@ -2,9 +2,10 @@
 
 [Start](../README.md) · [Kontrakty](../SPEC.md) · [Reguły pracy](../AGENTS.md)
 
-> **Rola:** uzasadnienia decyzji i indeks ADR · **Status:** ADR — ZAMROŻONE w SPEC; design docelowy oznaczony osobno  
-> **Zakres:** motywacje projektu; nie bieżący stan implementacji  
-> **Źródła:** [SPEC](../SPEC.md), S-ANALIZA §§1–2, 8–18, 19–30, 42–46 z [manifestu źródeł](RESEARCH.md#pochodzenie-materiałów)  
+> **Rola:** uzasadnienia decyzji i indeks ADR · **Status:** ADR — ZAMROŻONE w SPEC; design docelowy oznaczony osobno
+> **Właściciel:** maintainer architektury · **Konsument:** implementer i reviewer potrzebujący motywacji decyzji
+> **Zakres:** motywacje projektu; nie bieżący stan implementacji
+> **Źródła:** [SPEC](../SPEC.md), S-ANALIZA §§1–2, 8–18, 19–30, 42–46 z [manifestu źródeł](RESEARCH.md#pochodzenie-materiałów)
 > **Kiedy ten dokument traci aktualność:** po jawnej zmianie decyzji; historycznych motywacji nie przepisujemy, a stan implementacji sprawdzamy oddzielnie.
 
 ## Problem i granica produktu

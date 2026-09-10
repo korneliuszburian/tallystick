@@ -2,9 +2,10 @@
 
 [Start](../README.md) · [Kontrakty](../SPEC.md) · [Reguły pracy](../AGENTS.md)
 
-> **Rola:** dowód historyczny i jego ograniczenia · **Status:** PASS BIBLIOTEKI DLA WSKAZANEGO RUNA; nie PASS S.6  
-> **Zakres:** audyt 2026-09-08; commit `0683f1dc006c37d9c05cb69e054e6bf4a5976a45`  
-> **Źródła:** [run 34231830068](https://github.com/korneliuszburian/tallystick/actions/runs/34231830068), [job 102079623149](https://github.com/korneliuszburian/tallystick/actions/runs/34231830068/job/102079623149)  
+> **Rola:** dowód historyczny i jego ograniczenia · **Status:** PASS BIBLIOTEKI DLA WSKAZANEGO RUNA; nie PASS S.6
+> **Właściciel:** maintainer baseline’u · **Konsument:** operator odczytujący historyczne evidence
+> **Zakres:** audyt 2026-09-08; commit `0683f1dc006c37d9c05cb69e054e6bf4a5976a45`
+> **Źródła:** [run 34231830068](https://github.com/korneliuszburian/tallystick/actions/runs/34231830068), [job 102079623149](https://github.com/korneliuszburian/tallystick/actions/runs/34231830068/job/102079623149)
 > **Kiedy ten dokument traci aktualność:** dokument pozostaje historycznym dowodem; każdy inny SHA, kod, SPEC, lockfile, CI, host lub środowisko wymaga własnej weryfikacji.
 
 ## FACT — zakres i identyfikacja dowodu
@@ -59,7 +60,7 @@ Nie ma gwarancji wspólnej transakcji exactly-once ani atomowego rollbacku Git, 
 | Status historycznego baseline | Ograniczenie / dług | Dalsze postępowanie |
 |---|---|---|
 | TODO / BLOCKED | S.6 nie ma w tym baseline dowodu z realnego Codexa/MCP. | [Kryteria](DESKTOP-INTEGRATION-AUDIT.md) i późniejszy [rejestr](AUDIT-REGISTER.md); brak automatycznego transferu wyników między profilami. |
-| FACT / RESOLVED | PR #28 usunął warunkowe pomijanie suit: CI uruchamia pięć suit, `demo` i typecheck bez warunków; brak katalogu lub fixture kończy check błędem. | Utrzymywać wymagany check `ledger-acceptance`; zmiany workflow wymagają osobnego PR. |
+| FACT / RESOLVED | PR #28 (`merge 1f22a3604313b7c86cbeaee513ba58805b32c000`, head `37234a979a42d509203cc3d12c9e6f32c1d1de10`) usunął warunkowe pomijanie suit: CI uruchamia pięć suit, `demo` i typecheck bez warunków; brak katalogu lub fixture kończy check błędem. Check `ledger-acceptance` dla tego PR: run `34473967108`, job `102860178621`. | Utrzymywać wymagany check `ledger-acceptance`; zmiany workflow wymagają osobnego PR. |
 | FACT / TODO | Dowód dotyczy Ubuntu/Node/npm z tabeli; demo używa `rm -rf`, a storage wymaga lokalnego filesystemu i jednego writera. | Zmierzyć środowisko, zależności natywne, shell i SQLite z better-sqlite3. |
 | FACT / TODO | `.gitignore` baseline obejmuje `.demo-dist/` i `node_modules/`. | Baza, CAS, logi i `<databasePath>.harness-key` poza wersjonowanym worktree; bez sekretów w repo. |
 | FACT / TODO | `ISSUES.md` opisuje historyczne etapy #1–#5, nie bieżące GitHub Issues. | [Mapa etapów](../ISSUES.md) odsyła do niezmiennego oryginału i SPEC. |

@@ -2,16 +2,17 @@
 
 [Start](../README.md) · [Kontrakty](../SPEC.md) · [Reguły pracy](../AGENTS.md)
 
-> **Rola:** kryteria testu i wymagane evidence · **Status:** S.6 — DO OCENY DLA KONKRETNEGO PROFILU  
-> **Zakres:** jeden SHA, wersja hosta, transport i zestaw dozwolonych ścieżek  
-> **Źródła:** [SPEC S.6](../SPEC.md#s6-dodatkowa-bramka-wdrożenia--poza-mvp-0); wyniki w [rejestrze](AUDIT-REGISTER.md)  
+> **Rola:** kryteria testu i wymagane evidence · **Status:** S.6 — DO OCENY DLA KONKRETNEGO PROFILU
+> **Właściciel:** operator audytu hosta · **Konsument:** wykonawca S.6 i właściciel issue #22
+> **Zakres:** jeden SHA, wersja hosta, transport i zestaw dozwolonych ścieżek
+> **Źródła:** [SPEC S.6](../SPEC.md#s6-dodatkowa-bramka-wdrożenia--poza-mvp-0); wyniki w [rejestrze](AUDIT-REGISTER.md)
 > **Kiedy ten dokument traci aktualność:** zmiana SHA, wersji/config hosta, transportu, narzędzi lub admission wymaga ponownej walidacji dotkniętych granic.
 
 ## Cel i status
 
 **FACT — kontrakt:** [SPEC.md S.6](../SPEC.md) wymaga sprawdzenia rzeczywistego hosta po testach biblioteki; ADR-002, ADR-003, ADR-004, R.0, R.2, R.4 i R.5 określają granice wykonania i admission. [MVP-0 baseline](MVP-0-STATUS.md) potwierdza testy lokalnego wycinka, nie to połączenie.
 
-**Status checklisty:** kryteria do oceny konkretnego profilu, nie raport wykonania. Przy publikacji pierwotnej wersji brakowało pomiarów hosta; późniejsze [raporty operatora](AUDIT-REGISTER.md#raporty-operatora--oddzielna-klasa-dowodu) są osobną klasą dowodu. Pola poniżej nie są automatycznie zaliczane wynikami z różnych konfiguracji. Całe S.6 pozostaje bez deklaracji PASS.
+**Status checklisty:** kryteria do oceny konkretnego profilu, nie raport wykonania. Przy publikacji pierwotnej wersji brakowało pomiarów hosta; późniejsze [raporty operatora](AUDIT-REGISTER.md#raporty-operatora--oddzielna-klasa-dowodu), w tym [P0 hosta](orchestrator/P0-HOST-REPORT.md), są osobną klasą dowodu i nie zamykają S.6. Pola poniżej nie są automatycznie zaliczane wynikami z różnych konfiguracji. Całe S.6 pozostaje bez deklaracji PASS.
 
 Checklistę wykonuje człowiek na małym, izolowanym worktree. Ten dokument nie uruchamia Codexa ani nie zleca jego uruchomienia z Chat/Work; nie dodaje nowego runtime'u, provider loop ani funkcji Tallystick. Nie zakłada nieudokumentowanych hooków, flag lub vendor-internal behavior.
 

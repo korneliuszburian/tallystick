@@ -2,11 +2,12 @@
 
 > **Rola:** macierz zagrożeń dla deweloperskiego harnessu orchestratora
 > **Status:** `DRAFT`; przypadki są planem testów, nie wynikami
+> **Właściciel:** reviewer bezpieczeństwa orchestratora · **Konsument:** operator testów P0–P3
 > **Zakres:** hostowa delegacja i single-writer pipeline; bez task queue Tallysticka i bez zmian MVP-0
 > **Źródła:** [SPEC](../../SPEC.md), [AGENTS](../../AGENTS.md), [DESIGN](DESIGN.md)
 > **Kiedy traci aktualność:** po zmianie hosta, SPEC albo granicy harnessu.
 
-Wszystkie próby wykonuje się wyłącznie na inertnych fixture'ach i własnym, izolowanym środowisku. Dowód zbiera zaufany host poza writable scope workerów. Niedostępny pomiar oznacza BLOCKED; zaobserwowane naruszenie oznacza FAIL. Żaden test nie wymaga kontaktu z Hugging Face, publiczną wiki ani obcą infrastrukturą.
+Kryteria normatywne i klasyfikacja wyników pochodzą z [SPEC S.6](../../SPEC.md#s6-dodatkowa-bramka-wdrożenia--poza-mvp-0) oraz [DESKTOP-INTEGRATION-AUDIT.md](../DESKTOP-INTEGRATION-AUDIT.md); poniższe wiersze mapują scenariusze harnessu do tych źródeł i nie tworzą drugiego kontraktu. Wszystkie próby wykonuje się wyłącznie na inertnych fixture'ach i własnym, izolowanym środowisku. Dowód zbiera zaufany host poza writable scope workerów. Niedostępny pomiar oznacza BLOCKED; zaobserwowane naruszenie oznacza FAIL. Żaden test nie wymaga kontaktu z Hugging Face, publiczną wiki ani obcą infrastrukturą.
 
 | ID | Scenariusz | Oczekiwany rezultat | Dowód spoza deklaracji modelu |
 |---|---|---|---|

@@ -2,6 +2,7 @@
 
 > **Rola:** indeks źródeł dla deweloperskiego harnessu orchestratora
 > **Status:** `DRAFT`; nie jest źródłem normatywnym
+> **Właściciel:** maintainer orchestratora · **Konsument:** reviewer DESIGN i IMPLEMENTATION-PLAN
 > **Zakres:** identyfikatory użyte w `DESIGN.md`; funkcja task queue Tallysticka jest poza zakresem
 > **Źródła normatywne:** [SPEC](../../SPEC.md), [AGENTS](../../AGENTS.md)
 > **Kiedy traci aktualność:** po zmianie hosta, SPEC albo zakresu harnessu.
