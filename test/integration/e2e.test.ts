@@ -133,7 +133,9 @@ describe("S.3 chaos and recovery boundaries", () => {
   });
 
   it("disk-full style storage failure is fail-closed and emits no success receipt", async () => {
-    if (process.platform === "win32") return;
+    if (process.platform === "win32") {
+      throw new Error("BLOCKED: disk-full falsifier requires a platform-specific ENOSPC fixture");
+    }
     const base = root(); repoAt(base); const blocked = join(base, "blocked"); mkdirSync(blocked); chmodSync(blocked, 0o500);
     let ledger: EventLedger | undefined;
     try {
