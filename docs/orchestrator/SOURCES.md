@@ -11,7 +11,7 @@ Identyfikatory `R*` wskazują sekcje bieżącego repozytorium; `S*` wskazują wy
 | ID | Znaczenie | Źródło / status |
 |---|---|---|
 | R1 | Codex jako runtime, bez provider loop | `SPEC.md` cel i granica systemu — normatywne |
-| R2 | Cztery moduły MVP-0 i brak LLM hot path | `SPEC.md` ADR-001 i ADR-005/sekcja modułów — normatywne |
+| R2 | Cztery moduły MVP-0 i brak LLM hot path | `SPEC.md` R.0, ADR-005 i ADR-006 — normatywne |
 | R3 | Granica middleware przed spawn | `SPEC.md` R.5, S.6 — normatywne; host enforce niezweryfikowany |
 | R4 | Evidence przed admission | `SPEC.md` ADR-004, R.1/R.5 — normatywne |
 | R5 | Statusy BLOCK/UNKNOWN/EXECUTED i receipt | `SPEC.md` R.5 oraz bieżące API `src/index.ts` — implementacja do weryfikacji |
@@ -22,10 +22,10 @@ Identyfikatory `R*` wskazują sekcje bieżącego repozytorium; `S*` wskazują wy
 | S5 | Koszt i benchmark | `DESIGN.md` §11 oraz plan P5 — NOT_RUN |
 | S6 | Audyt ścieżki desktop | `docs/DESKTOP-INTEGRATION-AUDIT.md`, `SPEC.md` S.6 — P2 NOT_RUN/BLOCKED |
 | S7 | Integracja App Server/MCP | `docs/DESKTOP-INTEGRATION-AUDIT.md` — wymaga odrębnego audytu |
-| S8 | Hooki i fail-open | `docs/DESKTOP-INTEGRATION-AUDIT.md` — obserwacja, nie enforcement |
+| S8 | Hooki i granice pokrycia | `docs/DESKTOP-INTEGRATION-AUDIT.md` — zakres audytu; konkretne zachowanie hosta NOT_AVAILABLE |
 | S9 | Worktree/sandbox i sekrety | `AGENTS.md`, macierz bezpieczeństwa i [raport P0](P0-HOST-REPORT.md) — operator-reported child sandbox FAIL (zaobserwowany brak read-only); zakres modelu/coverage BLOCKED |
 | S10 | Rejestr postępu | Kontrakt harnessu — NOT_IMPLEMENTED |
 | S11 | Jedyny writer | Plan P3 — BLOCKED do czasu P2 |
-| S12 | Zagrożenia komunikacji agentów | Materiał badawczy zapisany w `docs/RESEARCH.md` — kontekst, nie norma |
-| S13 | Zagrożenia presji na wynik | Materiał badawczy zapisany w `docs/RESEARCH.md` — kontekst, nie norma |
+| S12 | Zagrożenia komunikacji agentów | NOT_AVAILABLE w tym repozytorium; scenariusz do przyszłego źródła i pomiaru |
+| S13 | Zagrożenia presji na wynik | NOT_AVAILABLE w tym repozytorium; scenariusz do przyszłego źródła i pomiaru |
 | S14 | Benchmark wariantów | Plan P5 — NOT_RUN |

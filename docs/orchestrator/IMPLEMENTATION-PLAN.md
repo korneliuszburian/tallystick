@@ -38,7 +38,7 @@ contracts/task.schema.json
 contracts/pressure-tests.json
 ```
 
-Zmianę `.codex/config.toml` przegląda się osobno wobec istniejącej konfiguracji. W paczce jest przykład, nie polecenie nadpisania.
+Zmianę `.codex/config.toml` przegląda się osobno wobec istniejącej konfiguracji. Paczka nie zawiera przykładowego `config.toml`; obecne TOML-e ograniczają się do definicji ról.
 Pliki pomiarowe hosta, snapshoty, logi i sekrety powstają w osobnym katalogu eksperymentu poza badanym repo. Nie dodajemy ich do Git.
 
 Dalszy klient integracyjny powstaje dopiero po P2, w odrębnym zatwierdzonym workspace `host-integration/`, nie jako `src/orchestrator` Tallysticka. Jego dokładny transport wybiera się na podstawie wyniku P2; brak odpowiedniej powierzchni kończy etap jako BLOCKED, nie jako implementacja domniemanego hooka.

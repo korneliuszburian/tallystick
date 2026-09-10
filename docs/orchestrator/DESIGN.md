@@ -57,7 +57,7 @@ Astra nie zatwierdza sobie rozszerzenia uprawnień. Recenzent nie podpisuje perm
 
 ## 5. Reguły delegowania
 
-Start: root + maksymalnie 3 otwarte wątki potomne; zwykle 2 równoległe analizy i recenzja po ich zamknięciu. Konfiguracja natywna ogranicza otwarte child threads, nie liczbę wszystkich zadań ani procesów w systemie [S3]. Proponowany limit logiczny wynosi 6 delegacji na run; bez hostowego licznika jest instrukcją, nie twardą gwarancją.
+Start: root + maksymalnie 3 otwarte wątki potomne; zwykle 2 równoległe analizy i recenzja po ich zamknięciu. Limit trzech otwartych child threads i sześciu delegacji na run jest propozycją harnessu; [S3] oznacza politykę promptu/organizacyjną, a P0 nie zmierzył hostowego licznika. Nie opisujemy tego jako natywnego ograniczenia ani twardej gwarancji.
 
 Wyłączamy narzędzia delegacji w konfiguracji liści i testujemy efektywny wynik po dziedziczeniu. Nie zakładamy istnienia opcji `max_depth`. Niezależny limit całego drzewa wymaga kontroli po stronie hosta przed uruchomieniem potomka; sam `SubagentStart` nie jest dowodem odmowy startu.
 
@@ -91,7 +91,7 @@ Etap pierwszy rozdziela równoległe rozumowanie od pojedynczego wykonawcy efekt
 
 ExecutionPermit w Tallysticku dotyczy wykonania procesu w obsługiwanym pipeline. Nie zakładamy, że automatycznie ogranicza tworzenie modelowych subagentów, połączenia MCP, modyfikacje plików przez native tools czy pracę zdalnych aplikacji.
 
-Natywne hooki są przydatne diagnostycznie, lecz dokumentacja wskazuje wyłączenia pokrycia i przypadki fail-open [S8]. Post-hook nie cofa skutku. Wariant `enforce` wymaga pomiaru wszystkich dozwolonych ścieżek i model-facing admission; brak dowodu blokuje start, a nie uruchamia observer mode [R3].
+Natywne hooki są przydatne diagnostycznie, lecz ich zachowanie i pokrycie nie zostały w tym repozytorium potwierdzone [S8]. Post-hook nie cofa skutku. Wariant `enforce` wymaga pomiaru wszystkich dozwolonych ścieżek i model-facing admission; brak dowodu blokuje start, a nie uruchamia observer mode [R3].
 
 ## 9. Izolacja i niedestrukcyjność
 
@@ -107,7 +107,7 @@ Sieć narzędzi jest domyślnie wyłączona; połączenie hosta z usługą model
 
 Bezpiecznym odpowiednikiem „message board” jest jawny kanał rodzic–dziecko i kontrolowany rejestr zadań. Autor zadania, zakres, wersja i pochodzenie pozostają widoczne. Nie budujemy anonimowej tablicy, z której dowolny agent może przejąć cele lub uprawnienia.
 
-Z materiałów badawczych zebranych w repozytorium bierzemy scenariusze zagrożeń: nieuprawniona komunikacja, przyjmowanie cudzych celów, nacisk na wynik i manipulowanie dowodem [S12, S13]. Nie traktujemy tego skrótu jako niezależnego dowodu ani nie kopiujemy exploitów, ukrytej persistencji ani self-replication. Uczciwe `BLOCKED` jest poprawnym wynikiem, nie karą skłaniającą do obejścia ograniczeń.
+Scenariusze nieuprawnionej komunikacji, przyjmowania cudzych celów, nacisku na wynik i manipulowania dowodem pozostają hipotezami do zewnętrznego źródła i pomiaru; repozytorium nie przedstawia ich jako zebranych dowodów [S12, S13]. Nie kopiujemy exploitów, ukrytej persistencji ani self-replication. Uczciwe `BLOCKED` jest poprawnym wynikiem, nie karą skłaniającą do obejścia ograniczeń.
 
 Surowe evidence zapisuje zaufany host poza writable scope workerów. Hash-chain nie dowodzi prawdy wypowiedzi; gwarancje integralności zależą też od ochrony zapisu i kluczy. „Dwie Luny mówią PASS” nie zastępuje rzeczywistego exit code i niezmienionych testów.
 
