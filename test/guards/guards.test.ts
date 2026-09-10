@@ -89,6 +89,15 @@ describe("Failure Antibody Gate", () => {
     ledger.close();
   });
 
+  it("rejects timeout values that Node would clamp", () => {
+    const { ledger, gate } = fixture();
+    const result = gate.preflight({ request: request({ timeoutMs: 2_147_483_648 }), preconditionEpoch: "epoch" });
+    expect(result.decision).toBe("BLOCK");
+    if (result.decision !== "BLOCK") throw new Error("expected BLOCK");
+    expect(result.reason).toMatch(/timeoutMs/);
+    ledger.close();
+  });
+
   it("atomically records the first ALLOW reservation and guard_decision", () => {
     const { ledger, gate } = fixture();
     const result = gate.preflight({ request: request(), preconditionEpoch: "epoch-1" });
@@ -194,6 +203,26 @@ describe("Failure Antibody Gate", () => {
       sourceTimestamp: "2026-09-07T20:00:00.000Z", payload: { actionKey: first.permit.requestHash }, blobs: [],
     });
     const retry = gate.preflight({ request: request({ requestId: "after-unknown" }), preconditionEpoch: "epoch" });
+    expect(retry.decision).toBe("BLOCK");
+    expect(retry.decision === "BLOCK" ? retry.reason : "").toMatch(/UNKNOWN|reconciliation/);
+    ledger.close();
+  });
+
+  it("finds an UNKNOWN execution beyond the first real ledger page", () => {
+    const { ledger, gate } = fixture(); const req = request({ requestId: "paged-unknown" });
+    const first = gate.preflight({ request: req, preconditionEpoch: "epoch" });
+    expect(first.decision).toBe("ALLOW"); if (first.decision !== "ALLOW") throw new Error("expected ALLOW");
+    for (let index = 0; index < 1000; index += 1) {
+      ledger.append({
+        eventId: `unknown-${index}`, sessionId: "session", correlationId: "goal", kind: "execution_unknown",
+        sourceTimestamp: "2026-09-07T20:00:00.000Z", payload: { actionKey: `other-${index}` }, blobs: [],
+      });
+    }
+    ledger.append({
+      eventId: "unknown-target", sessionId: "session", correlationId: "goal", kind: "execution_unknown",
+      sourceTimestamp: "2026-09-07T20:00:00.000Z", payload: { actionKey: first.permit.requestHash }, blobs: [],
+    });
+    const retry = gate.preflight({ request: request({ requestId: "paged-retry" }), preconditionEpoch: "epoch" });
     expect(retry.decision).toBe("BLOCK");
     expect(retry.decision === "BLOCK" ? retry.reason : "").toMatch(/UNKNOWN|reconciliation/);
     ledger.close();

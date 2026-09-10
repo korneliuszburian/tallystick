@@ -26,6 +26,8 @@ interface Database {
 interface DatabaseConstructor { new(path: string): Database; }
 const Database = createRequire(import.meta.url)("better-sqlite3") as DatabaseConstructor;
 
+class InvalidArchiveChunkError extends TypeError {}
+
 const SCHEMA_VERSION = 1;
 const MINIMUM_SQLITE = [3, 51, 3] as const;
 
@@ -195,36 +197,50 @@ export function openLedger(options: LedgerOptions): EventLedger {
       const hash = createHash("sha256");
       let bytes = 0;
       let complete = true;
+      let localWriteFailed = false;
       try {
         try {
           for await (const chunk of chunks) {
-            if (!(chunk instanceof Uint8Array)) throw new TypeError("archive chunks must be Uint8Array");
+            if (!(chunk instanceof Uint8Array)) throw new InvalidArchiveChunkError("archive chunks must be Uint8Array");
             const remaining = options.maxRawBytesPerExecution - bytes;
             if (chunk.byteLength > remaining) {
               if (remaining > 0) {
                 const accepted = chunk.subarray(0, remaining);
-                writeAll(descriptor, accepted); hash.update(accepted); bytes += accepted.byteLength;
+                try { writeAll(descriptor, accepted); } catch (error) { localWriteFailed = true; throw error; }
+                hash.update(accepted); bytes += accepted.byteLength;
               }
               complete = false;
               break;
             }
-            writeAll(descriptor, chunk); hash.update(chunk); bytes += chunk.byteLength;
+            try { writeAll(descriptor, chunk); } catch (error) { localWriteFailed = true; throw error; }
+            hash.update(chunk); bytes += chunk.byteLength;
           }
-        } catch {
+        } catch (error) {
+          if (error instanceof InvalidArchiveChunkError || localWriteFailed) throw error;
           complete = false;
         }
         fsyncSync(descriptor);
       } catch (error) {
         closeSync(descriptor); rmSync(spool, { force: true }); throw error;
       }
-      closeSync(descriptor);
-      const digest = hash.digest("hex");
-      const destination = blobPath(digest);
-      if (existsSync(destination)) rmSync(spool);
-      else renameSync(spool, destination);
-      database.prepare("INSERT OR IGNORE INTO blobs(hash,byte_length,storage_key,created_at) VALUES (?,?,?,?)")
-        .run(digest, bytes, digest, new Date().toISOString());
-      return { hash: digest, bytes, complete };
+      let descriptorClosed = false;
+      let destination: string | undefined;
+      try {
+        closeSync(descriptor); descriptorClosed = true;
+        const digest = hash.digest("hex");
+        destination = blobPath(digest);
+        if (existsSync(destination)) rmSync(spool);
+        else renameSync(spool, destination);
+        database.prepare("INSERT OR IGNORE INTO blobs(hash,byte_length,storage_key,created_at) VALUES (?,?,?,?)")
+          .run(digest, bytes, digest, new Date().toISOString());
+        return { hash: digest, bytes, complete };
+      } catch (error) {
+        if (!descriptorClosed) { try { closeSync(descriptor); } catch { /* preserve original failure */ } }
+        rmSync(spool, { force: true });
+        // A renamed CAS object is valid evidence even if indexing it fails. Leave
+        // it as an orphan so a concurrent writer cannot lose a referenced blob.
+        throw error;
+      }
     },
     readBlob,
     async readFragment(handle: SourceHandle) {

@@ -1,5 +1,6 @@
 import { createHash, createHmac, randomUUID, timingSafeEqual } from "node:crypto";
 import type { DatabaseHandle } from "../ledger/types.js";
+import { scanAll } from "../ledger/scan.js";
 import type {
   EscapeProof, FailureGate, FailureGateOptions, FailureRecord, Hash, Json,
   PreflightResult, ExecutionPermit, ExecutionRequest,
@@ -124,7 +125,7 @@ function validateRequest(request: ExecutionRequest, preconditionEpoch: Hash): st
   }
   if (!Array.isArray(request.argv) || !request.argv.every(value => typeof value === "string")) return "invalid argv";
   if (!Array.isArray(request.dependencyPaths) || !request.dependencyPaths.every(value => typeof value === "string")) return "invalid dependencyPaths";
-  if (!Number.isSafeInteger(request.timeoutMs) || request.timeoutMs < 0) return "invalid timeoutMs";
+  if (!Number.isSafeInteger(request.timeoutMs) || request.timeoutMs < 0 || request.timeoutMs > 2_147_483_647) return "invalid timeoutMs";
   for (const value of Object.values(request.environment)) if (typeof value !== "string") return "invalid environment";
   return null;
 }
@@ -140,7 +141,7 @@ function latestFailure(db: DatabaseHandle, key: Hash): FailureRecord | undefined
 
 function proofRetryAlreadyUsed(ledger: FailureGateOptions["ledger"], failure: FailureRecord): boolean {
   if (failure.unchanged_retry_count >= 1) return true;
-  for (const event of ledger.scan({ kind: "guard_decision", limit: 100000 })) {
+  for (const event of scanAll(ledger, "guard_decision")) {
     const payload = event.payload;
     if (payload === null || Array.isArray(payload) || typeof payload !== "object") continue;
     const record = payload as Readonly<Record<string, Json>>;
@@ -150,7 +151,7 @@ function proofRetryAlreadyUsed(ledger: FailureGateOptions["ledger"], failure: Fa
 }
 
 function hasUnknownExecution(ledger: FailureGateOptions["ledger"], key: Hash): boolean {
-  for (const event of ledger.scan({ kind: "execution_unknown", limit: 100000 })) {
+  for (const event of scanAll(ledger, "execution_unknown")) {
     const payload = event.payload;
     if (payload === null || Array.isArray(payload) || typeof payload !== "object") continue;
     if ((payload as Readonly<Record<string, Json>>).actionKey === key) return true;

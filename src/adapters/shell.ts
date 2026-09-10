@@ -7,7 +7,13 @@ const VERSION = "shell/v1";
 export function sha256(value: string | Uint8Array): string { return createHash("sha256").update(value).digest("hex"); }
 export function commandPreview(request: ExecutionRequest): string {
   const text = [request.executable, ...request.argv].join(" ");
-  return Buffer.byteLength(text, "utf8") <= 512 ? text : Buffer.from(text, "utf8").subarray(0, 509).toString("utf8") + "...";
+  if (Buffer.byteLength(text, "utf8") <= 512) return text;
+  const bytes = Buffer.from(text, "utf8");
+  for (let end = Math.min(509, bytes.byteLength); end >= 0; end -= 1) {
+    try { return new TextDecoder("utf8", { fatal: true }).decode(bytes.subarray(0, end)) + "..."; }
+    catch { /* back up to a complete UTF-8 sequence */ }
+  }
+  return "...";
 }
 export function argsHash(request: ExecutionRequest): string {
   return sha256(JSON.stringify({ executable: request.executable, argv: request.argv }));
@@ -24,33 +30,56 @@ function handle(process: CapturedProcess, stream: "stdout" | "stderr", start: nu
   const receipt = stream === "stdout" ? process.stdoutReceipt : process.stderrReceipt;
   return { event_id: process.rawEventId, blob_hash: receipt.hash, stream, byte_start: start, byte_end: end } as const;
 }
+function* rawLines(bytes: Uint8Array): Generator<{ text: string; start: number; end: number }> {
+  let start = 0;
+  for (let index = 0; index < bytes.byteLength; index += 1) {
+    if (bytes[index] !== 0x0a) continue;
+    const end = index + 1;
+    yield { text: Buffer.from(bytes.subarray(start, end)).toString("utf8"), start, end };
+    start = end;
+  }
+  if (start < bytes.byteLength) yield { text: Buffer.from(bytes.subarray(start)).toString("utf8"), start, end: bytes.byteLength };
+}
 export function shellDigest(process: CapturedProcess, before: Readonly<Record<string, string | "MISSING">>, after: Readonly<Record<string, string | "MISSING">>): ShellDigest {
-  const stderrText = Buffer.from(process.stderr).toString("utf8");
-  const stdoutText = Buffer.from(process.stdout).toString("utf8");
-  const candidates: { text: string; stream: "stdout" | "stderr"; offset: number }[] = [];
-  for (const [text, stream] of [[stderrText, "stderr"], [stdoutText, "stdout"]] as const) {
-    let charOffset = 0;
-    for (const line of text.split(/(?<=\n)/)) {
-      const clean = line.replace(/\x1b\[[0-?]*[ -/]*[@-~]/g, "").trimEnd();
-      if (/\b(error|fatal|failed|exception)\b/i.test(clean)) {
-        candidates.push({ text: clean.slice(0, 512), stream, offset: Buffer.byteLength(text.slice(0, charOffset), "utf8") });
+  const candidates: { text: string; stream: "stdout" | "stderr"; offset: number; rawLength: number }[] = [];
+  const warningMatches: { signature: string }[] = [];
+  let errorRank = 0;
+  let warningRank = 0;
+  let omitted_count = 0;
+  for (const [bytes, stream] of [[process.stderr, "stderr"], [process.stdout, "stdout"]] as const) {
+    for (const line of rawLines(bytes)) {
+      const text = line.text;
+      const clean = text.replace(/\x1b\[[0-?]*[ -/]*[@-~]/g, "").trimEnd();
+      const isError = /\b(error|fatal|failed|exception)\b/i.test(clean);
+      const isWarning = stream === "stderr" && /\bwarning\b/i.test(text);
+      if (isError) {
+        errorRank += 1;
+        if (errorRank <= 8) candidates.push({ text: clean.slice(0, 512), stream, offset: line.start, rawLength: line.end - line.start });
       }
-      charOffset += line.length;
-      if (candidates.length >= 8) break;
+      if (isWarning) {
+        warningRank += 1;
+        if (warningMatches.length < 8) warningMatches.push({ signature: sha256(text.trimEnd()) });
+      }
+      // Count distinct raw lines omitted from both views. A line retained by
+      // either view is represented, even when it matches both patterns.
+      const retained = (isError && errorRank <= 8) || (isWarning && warningRank <= 8);
+      if ((isError || isWarning) && !retained) omitted_count += 1;
     }
   }
   const salient_errors = candidates.map((item) => {
-    const bytes = Buffer.byteLength(item.text, "utf8");
-    return { signature: sha256(item.text), code: null, excerpt: item.text, source: handle(process, item.stream, item.offset, item.offset + bytes) };
+    // Keep the handle over the original raw line. The excerpt is cleaned for
+    // context, while ANSI escapes and multibyte text make its byte span differ
+    // from the raw source span.
+    return { signature: sha256(item.text), code: null, excerpt: item.text, source: handle(process, item.stream, item.offset, item.offset + item.rawLength) };
   });
-  const warning_signatures = [...stderrText.matchAll(/^.*\bwarning\b.*$/gim)].slice(0, 8).map((match) => sha256(match[0]));
+  const warning_signatures = warningMatches.map(match => match.signature);
   const changed_artifacts = process.request.dependencyPaths.flatMap((path) => before[path] !== after[path]
     ? [{ path, before: before[path] ?? "MISSING", after: after[path] ?? "MISSING" }]
     : []);
   return {
     kind: "shell", adapter_version: VERSION, raw_event_id: process.rawEventId, receipt_id: process.rawEventId,
     capture_complete: process.stdoutReceipt.complete && process.stderrReceipt.complete,
-    parser_status: "recognized", omitted_count: 0, truncated: false, unknown_fragment: null,
+    parser_status: "recognized", omitted_count, truncated: omitted_count > 0, unknown_fragment: null,
     command: commandPreview(process.request), normalized_args_hash: argsHash(process.request),
     exit_code: process.exitCode, termination_signal: process.signal, duration_ms: process.durationMs,
     stdout_bytes: process.stdoutReceipt.bytes, stderr_bytes: process.stderrReceipt.bytes,

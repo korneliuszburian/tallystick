@@ -121,8 +121,8 @@ it("R.0/R.1 raw overflow terminates a real child without waiting for its timeout
       capture_complete: result.digest.capture_complete,
       termination_signal: result.digest.termination_signal,
     }));
-    expect(result.digest.termination_signal, "raw overflow must stop the child, not the fallback timeout").not.toBe("TIMEOUT");
-    expect(result.digest.termination_signal).not.toBeNull();
+    expect(result.digest.termination_signal).toBe("RAW_LIMIT_EXCEEDED");
+    expect(result.digest.duration_ms).toBeLessThan(request.timeoutMs / 2);
   } finally {
     try { ledger?.close(); }
     finally { rmSync(root, { recursive: true, force: true }); }
