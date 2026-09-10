@@ -2,6 +2,8 @@
 
 > **Rola:** raport konfliktu kontraktu
 > **Status:** `NEEDS_DECISION`
+> **Właściciel:** właściciel SPEC
+> **Konsument:** implementer zatrzymany przez konflikt
 > **Zakres:** audyt implementacji na `ddc81034add54bf47bf63b5a11e48ed1bd64d4d9`, ponownie zweryfikowany względem SPEC i implementacji na bazie PR `0f0b600c157c8881f887717d9d9dbf5515eeb04f`; middleware MVP-0 i składane przez niego kontrakty
 > **Źródła:** [SPEC](../SPEC.md), [reguła STOP](../AGENTS.md#sprzeczności-i-brak-rozstrzygnięcia), [PR #25](https://github.com/korneliuszburian/tallystick/pull/25)
 > **Kiedy ten dokument traci aktualność:** po normatywnym rozstrzygnięciu wszystkich poniższych punktów albo zmianie dotkniętych kontraktów SPEC.

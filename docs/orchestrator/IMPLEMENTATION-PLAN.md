@@ -2,6 +2,7 @@
 
 > **Rola:** plan deweloperskiego harnessu orchestratora
 > **Status:** `DRAFT` — nie jest zatwierdzoną implementacją ani specyfikacją funkcji task queue Tallysticka
+> **Właściciel:** maintainer orchestratora · **Konsument:** wykonawca zatwierdzonego etapu P0–P5
 > **Zakres:** pilot Astra → Luna → Sol dla rozwoju repozytorium; bez zmian MVP-0
 > **Źródła:** [SPEC](../../SPEC.md), [AGENTS](../../AGENTS.md), [DESIGN](DESIGN.md), [SOURCES](SOURCES.md), [macierz bezpieczeństwa](SECURITY-TEST-MATRIX.md)
 > **Kiedy traci aktualność:** po zmianie hosta, SPEC albo decyzji o osobnej funkcji kolejki zadań Tallysticka.
@@ -50,7 +51,7 @@ Dalszy klient integracyjny powstaje dopiero po P2, w odrębnym zatwierdzonym wor
 **Wyjście:** przypięta wersja i konfiguracja, zmierzone modele, właściwości delegacji i narzędzi. Brak zmiany kodu.
 
 - [ ] Odczytać wersję hosta jego faktycznym interfejsem pomocy; zapisać OS, wersje, repo SHA i stan checkoutu.
-- [ ] Odczytać listę dostępnych modeli przez `/model` albo App Server `model/list`. Zanotować Astra/Sol/Luna i dozwolony reasoning effort; brak modelu daje BLOCKED dla danego wariantu, bez zgadywania aliasu.
+- [ ] Odczytać listę dostępnych modeli przez faktycznie udokumentowany interfejs bieżącego hosta (np. `/model` albo App Server `model/list`, wyłącznie jeśli są obsługiwane). Zanotować Astra/Sol/Luna i dozwolony reasoning effort; brak modelu daje BLOCKED dla danego wariantu, bez zgadywania aliasu.
 - [ ] Sprawdzić, że uwierzytelnienie używa zamierzonego konta, a nie odziedziczonego API key. Nie kopiować tokenów do workspace ani raportów.
 - [ ] Zinwentaryzować narzędzia głównej sesji i dziecka, ustawienia dziedziczone, MCP, aplikacje, hooki, shell, patch, code mode, sieć i kontrolę procesów. Zarejestrować, co rzeczywiście można wyłączyć.
 - [ ] Na inertnym zadaniu utworzyć jednego potomka i potwierdzić model w metadanych hosta, nie na podstawie deklaracji „jestem Luna”.

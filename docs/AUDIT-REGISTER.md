@@ -2,9 +2,10 @@
 
 [Start](../README.md) · [Kontrakty](../SPEC.md) · [Reguły pracy](../AGENTS.md)
 
-> **Rola:** kryteria reprodukcji i ewidencja dowodów · **Status:** OTWARTE — nie certyfikat S.6  
-> **Zakres:** kod `ddc81034add54bf47bf63b5a11e48ed1bd64d4d9`; research 2026-09-09; aktualizacja redakcyjna 2026-09-10, Europe/Warsaw (UTC+02:00)  
-> **Źródła:** [S-RESEARCH i manifest źródeł](RESEARCH.md#pochodzenie-materiałów), rejestr F dostarczony przez właściciela  
+> **Rola:** kryteria reprodukcji i ewidencja dowodów · **Status:** OTWARTE — nie certyfikat S.6
+> **Właściciel:** maintainer audytu · **Konsument:** kolejny audytor i właściciel issue #22
+> **Zakres:** historyczny kod `ddc81034add54bf47bf63b5a11e48ed1bd64d4d9`; research 2026-09-09; bieżąca rewalidacja poniżej na `ec9829d42441ffb026fa4131b5077177d943a25a`; aktualizacja redakcyjna 2026-09-10, Europe/Warsaw (UTC+02:00)
+> **Źródła:** [S-RESEARCH i manifest źródeł](RESEARCH.md#pochodzenie-materiałów), rejestr F dostarczony przez właściciela
 > **Kiedy ten dokument traci aktualność:** po zmianie właściwego kodu, kontraktu, profilu lub nowym rozstrzygającym teście; każda pozycja wymaga własnej rewalidacji.
 
 ## Jak czytać wynik
@@ -14,6 +15,22 @@ A01–A24 zachowują treść i status źródłowego researchu. F01–F15 pozosta
 Czytaj ten historyczny rejestr razem z [korektami interpretacji K01–K11](RESEARCH.md#korekty-interpretacji-materiału) oraz [mapą odrębnych numeracji SD/SR](RESEARCH.md#identyfikatory-zawsze-z-pochodzeniem). Dotyczy to również F02/A12 (K05) i A14 (K06). Oryginalne ustalenia pozostają poniżej bez zmian; opis statusu PR w A23 dotyczy daty źródła, nie bieżącego GitHub.
 
 **Nie są defektami MVP-0 same w sobie:** brak pełnego Context Atlas, semantic memory lifecycle, Recovery Engine, Claim Publisher i Compounding Evaluator. To granica [R.0](../SPEC.md#r0-zakres-środowisko-i-struktura). Receipt w pamięci jest dopuszczony przez [ADR-016](../SPEC.md#adr-016--kompozycja-middleware-zużycie-permit-klucz-i-obwoluta-receipt); historyczny plan ADR-010 nie upoważnia do żądania nowego eventu receipt.
+
+## Rewalidacja bieżącej rewizji
+
+Poniższa tabela jest aktualną dyspozycją dla wskazanych historycznych ustaleń. Oryginalne A01–A24 i F01–F15 pozostają niezmienione jako evidence z własnego SHA; ten dopisek nie przenosi ich zakresu na inne rewizje.
+
+| Ustalenie | Dyspozycja na `ec9829d42441ffb026fa4131b5077177d943a25a` | Dowód lokalny |
+|---|---|---|
+| A07 / permit–request binding | `RESOLVED` dla verifiera adapters i jego użycia przez middleware; test negatywny pokrywa równoważny verifier wstrzyknięty do adapters | `src/index.ts:124-145`; inspekcja ścieżki middleware; `test/integration/e2e.test.ts:102-115` |
+| A13 / eskalacja i reap procesu | `RESOLVED` dla ścieżek timeout/capture objętych testami POSIX; power-loss pozostaje poza dowodem | `src/adapters/index.ts:229-247`; `test/adapters/adapters.test.ts:240-254,256-290,393-400` |
+| A14 / bounded digest | `RESOLVED` dla pól i kolekcji objętych reducerem; brak ogólnego claimu o wszystkich przyszłych digestach | `src/adapters/index.ts:80-141`; `test/adapters/adapters.test.ts:338-363,387-391` |
+| A18 / paginacja skanów | `RESOLVED` przez wspólny `scanAll`; test poza pierwszą stroną dotyczy UNKNOWN, pozostałe ścieżki mają dowód inspekcji kodu | `src/ledger/scan.ts:1-15`; `src/index.ts:155-165`; `src/guards/index.ts:142-160`; `test/guards/guards.test.ts:211-229` |
+| A12 / wspólny limit raw | `OPEN` — dwa strumienie nadal archiwizują niezależnie | `src/adapters/index.ts:249-267`; [historyczny wpis A12](#a12-limit-raw-na-strumień-zamiast-na-wykonanie) |
+| A15 / git-diff parser | `OPEN` — exit 0 może nadal oznaczyć nierozpoznany, niepusty output jako `recognized`, a refs są wyprowadzane z argv | `src/adapters/git-diff.ts:3-6,61-74` |
+| A17 / błąd odczytu pliku | `OPEN` — każdy wyjątek fileHash nadal daje `MISSING` | `src/adapters/shell.ts:21-24` |
+
+Nie traktuj `OPEN` jako nowego ADR ani jako zgody na zmianę SPEC; pozycje wymagające decyzji pozostają w sekcjach poniżej.
 
 ## Ustalenia A01–A24
 
@@ -283,7 +300,7 @@ Poniższe obserwacje pochodzą z odczytu przypiętego kodu. Podane testy są pro
 
 ## Raporty operatora — oddzielna klasa dowodu
 
-Źródło: raporty przekazane w rozmowie przez właściciela. Poniżej identyfikatory i skróty wyników, **nie niezależny odczyt prywatnych logów**. Nie publikujemy lokalnych ścieżek użytkownika, raw trace, kluczy ani konfiguracji. SHA-256 identyfikuje raport właściciela i pozwala sprawdzić dostarczony później oryginał; sam hash nie potwierdza prawdziwości pomiaru. Powiązanie z publicznymi dowodami powinno trafić do [issue #22](https://github.com/korneliuszburian/tallystick/issues/22), które pozostaje otwarte.
+Źródło: raporty przekazane w rozmowie przez właściciela. Poniżej identyfikatory i skróty wyników, **nie niezależny odczyt prywatnych logów**. Bieżący raport hosta znajduje się w [P0-HOST-REPORT.md](orchestrator/P0-HOST-REPORT.md); jest raportem operatora, nie dowodem S.6. Nie publikujemy lokalnych ścieżek użytkownika, raw trace, kluczy ani konfiguracji. SHA-256 identyfikuje raport właściciela i pozwala sprawdzić dostarczony później oryginał; sam hash nie potwierdza prawdziwości pomiaru. Powiązanie z publicznymi dowodami powinno trafić do [issue #22](https://github.com/korneliuszburian/tallystick/issues/22), które pozostaje otwarte.
 
 Wszystkie poniższe raporty wskazują bazowy SHA tego rejestru i Codex 0.149.1; profile zmieniały się między próbami. Nie łączymy ich wyników w globalny PASS. Datę raportów zachowano z oznaczeń operatora: 2026-09-09.
 

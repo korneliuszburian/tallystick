@@ -2,6 +2,7 @@
 
 > **Rola:** zapis pomiaru możliwości hosta dla deweloperskiego harnessu
 > **Status:** `PARTIAL`; nie jest dowodem S.6 ani enforce
+> **Właściciel:** operator preflightu hosta · **Konsument:** właściciel decyzji P1/P2
 > **Zakres:** host Codex/OpenCode i efektywne uprawnienia delegowanego childa na checkoutcie Tallysticka
 > **Źródła:** terminalowy przebieg operatora 2026-09-10; komendy podane poniżej
 > **Kiedy traci aktualność:** po zmianie hosta, konta albo profilu efektywnych uprawnień; repozytoryjny SHA nie jest częścią tego hostowego pomiaru.

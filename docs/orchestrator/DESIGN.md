@@ -2,12 +2,13 @@
 
 > **Rola:** projekt deweloperskiego harnessu orchestratora
 > **Status:** `DRAFT`; propozycja do przeglądu, nie wdrożona architektura
+> **Właściciel:** maintainer orchestratora · **Konsument:** operator rozwijający Tallystick
 > **Zakres:** rozwój repozytorium Tallysticka; bez produktowej task queue i bez zmian MVP-0
 > **Źródła:** [SOURCES](SOURCES.md), [SPEC](../../SPEC.md), [AGENTS](../../AGENTS.md)
 > **Kiedy traci aktualność:** po zmianie hosta, SPEC albo granicy harnessu.
 
 Data opracowania: 2026-09-10.
-**Repozytorium:** korneliuszburian/tallystick @ SHA przypięty w konkretnym przebiegu; `ddc81034add54bf47bf63b5a11e48ed1bd64d4d9` pozostaje wyłącznie historycznym punktem odniesienia.
+**Repozytorium:** korneliuszburian/tallystick @ `ec9829d42441ffb026fa4131b5077177d943a25a` (stały punkt tego audytu); `ddc81034add54bf47bf63b5a11e48ed1bd64d4d9` pozostaje wyłącznie historycznym punktem odniesienia.
 Źródła: identyfikatory S1–S14 oraz R1–R5 opisano w `SOURCES.md`.
 
 ## 1. Cel i miernik sukcesu
@@ -105,7 +106,7 @@ Sieć narzędzi jest domyślnie wyłączona; połączenie hosta z usługą model
 
 ## 10. Wspólna tablica i lekcje z incydentów
 
-Bezpiecznym odpowiednikiem „message board” jest jawny kanał rodzic–dziecko i kontrolowany rejestr zadań. Autor zadania, zakres, wersja i pochodzenie pozostają widoczne. Nie budujemy anonimowej tablicy, z której dowolny agent może przejąć cele lub uprawnienia.
+Bezpiecznym odpowiednikiem „message board” jest jawny kanał rodzic–dziecko i proponowany hostowy rejestr zadań. Trwały rejestr nie jest zaimplementowany w tym repozytorium (S10). Autor zadania, zakres, wersja i pochodzenie pozostają widoczne. Nie budujemy anonimowej tablicy, z której dowolny agent może przejąć cele lub uprawnienia.
 
 Scenariusze nieuprawnionej komunikacji, przyjmowania cudzych celów, nacisku na wynik i manipulowania dowodem pozostają hipotezami do zewnętrznego źródła i pomiaru; repozytorium nie przedstawia ich jako zebranych dowodów [S12, S13]. Nie kopiujemy exploitów, ukrytej persistencji ani self-replication. Uczciwe `BLOCKED` jest poprawnym wynikiem, nie karą skłaniającą do obejścia ograniczeń.
 
