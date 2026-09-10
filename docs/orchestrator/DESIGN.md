@@ -77,7 +77,7 @@ Proponowane stany hostowe:
 `PLANNED → READY → RUNNING → REPORTED → REVIEWED → VERIFIED → PROPOSED`.
 Osobne wyjścia: `BLOCKED`, `NEEDS_DECISION`, `UNKNOWN`, `CANCELLED`.
 
-`REPORTED` jest deklaracją pracownika. `VERIFIED` wymaga zewnętrznej kontroli kryteriów. Brak odpowiedzi nie oznacza porażki bez efektu. Utrata sesji, crash po spawn lub niepewność po timeout prowadzą do `UNKNOWN`; zero automatycznych ponowień do reconciliation [R1, R2].
+`REPORTED` jest deklaracją pracownika. `VERIFIED` wymaga zewnętrznej kontroli kryteriów. Brak odpowiedzi nie oznacza porażki bez efektu. Utrata sesji, crash po spawn lub niepewność po timeout prowadzą do `UNKNOWN`; zero automatycznych ponowień do reconciliation [R5].
 
 Wygaśnięcie lease nie dowodzi, że poprzedni proces przestał działać. Przejęcie zadania wymaga odcięcia jego uprawnień i sprawdzenia stanu. Idempotencja dispatchu nie zapewnia exactly-once skutków dowolnej komendy.
 
