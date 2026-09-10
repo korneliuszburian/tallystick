@@ -16,7 +16,14 @@ Centralny invariant w [celu systemu](../SPEC.md#cel-i-granica-systemu) wymaga:
 
 Algorytm [R.4 preflight](../SPEC.md#algorytm-preflight) umieszcza zapis decyzji i reservation wewnątrz `preflight()`:
 
-> „create reservation with fencing token → append ALLOW event → COMMIT → return permit”
+```text
+create reservation with fencing token
+consume proof if present
+append ALLOW event
+
+COMMIT
+return permit
+```
 
 Pipeline [R.5](../SPEC.md#r5-cienkie-złożenie-w-srcindexts) określa natomiast kolejność:
 
@@ -52,7 +59,13 @@ Możliwe rozstrzygnięcia:
 
 [ADR-016](../SPEC.md#adr-016--kompozycja-middleware-zużycie-permit-klucz-i-obwoluta-receipt) określa inny kształt:
 
-> „Receipt to obwoluta w pamięci zwracana z intercept() […] Nie powstaje nowy rodzaj zdarzenia.”
+```text
+Receipt to obwoluta w pamięci zwracana z intercept(): wiąże
+proposal_id, guard_decision_id, execution_id (raw event), input_epoch,
+output_epoch, digest_hash, capture_completeness. Jej składowe są trwałymi
+zdarzeniami/blobami w ledgerze; receipt_id/raw_event_id zgodnie z ADR-010.
+Nie powstaje nowy rodzaj zdarzenia.
+```
 
 ADR-016 odwołuje się przy tym do ADR-010, ale go jawnie nie zastępuje. `EventRecord.kind` nie definiuje rodzaju `receipt`, a SPEC nie wskazuje innego rodzaju eventu, jego payloadu ani momentu commitu. Nie wiadomo więc, jak po R.5 i reopen spełnić obietnicę osobnego `receipt_id`.
 
