@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tallystick.local/orchestrator/task.schema.json",
+  "title": "Tallystick developer harness task contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["run_id", "task_id", "attempt", "base_sha", "role", "goal", "dependencies", "read_scope", "write_scope", "protected_paths", "acceptance", "status", "input_epoch"],
+  "properties": {
+    "run_id": { "type": "string", "minLength": 1 },
+    "task_id": { "type": "string", "minLength": 1 },
+    "attempt": { "type": "integer", "minimum": 1 },
+    "base_sha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "role": { "enum": ["astra", "luna_mapper", "luna_test_analyst", "luna_patch_author", "sol_reviewer"] },
+    "goal": { "type": "string", "minLength": 1 },
+    "dependencies": { "type": "array", "items": { "type": "string" } },
+    "read_scope": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "write_scope": { "type": "array", "items": { "type": "string" } },
+    "protected_paths": { "type": "array", "items": { "type": "string", "minLength": 1 }, "minItems": 1 },
+    "acceptance": { "type": "array", "items": { "type": "string", "minLength": 1 }, "minItems": 1 },
+    "status": { "enum": ["PLANNED", "READY", "RUNNING", "REPORTED", "REVIEWED", "VERIFIED", "PROPOSED", "BLOCKED", "NEEDS_DECISION", "UNKNOWN", "CANCELLED"] },
+    "input_epoch": { "type": ["string", "null"] }
+  }
+}

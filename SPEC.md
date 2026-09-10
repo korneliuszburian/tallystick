@@ -1,4 +1,4 @@
-# LEDGER — SPEC.md
+# Tallystick — SPEC.md
 
 ## DECYZJE NIEPODLEGĄCE NEGOCJACJI
 
@@ -151,7 +151,7 @@ demo dodatkowo weryfikuje, że pakiet emituje się poprawnie.
 
 ## Cel i granica systemu
 
-LEDGER jest zewnętrzną warstwą transaction/control plane otaczającą istniejący runtime Codexa.
+Tallystick jest zewnętrzną warstwą transaction/control plane otaczającą istniejący runtime Codexa. Historyczny alias LEDGER pozostaje w nazwach technicznych modułów i API.
 
 Codex pozostaje odpowiedzialny za sesję, reasoning, interakcję z modelem, tool calling i execution loop.
 
