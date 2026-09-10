@@ -18,7 +18,7 @@ Nazwa produktu w nowej dokumentacji: **Tallystick**; repo, ścieżki i slug: `ta
 
 Implementuj DOKŁADNIE [SPEC.md](SPEC.md). Aktualne refs, kod, PR, issues i CI sprawdzaj w GitHub; `main` jest bazą, nie dowodem statusu lokalnego checkoutu. [ISSUES.md](ISSUES.md) jest historyczną mapą etapów. [Baseline](docs/MVP-0-STATUS.md) potwierdza własny SHA.
 
-Przed zadaniem przeczytaj [ADR](SPEC.md#decyzje-niepodlegące-negocjacji), właściwy moduł w [R](SPEC.md#r-mvp-0-implementation-spec), kryteria w [S](SPEC.md#s-mvp-0-acceptance-tests) i zależności etapu. Przy rozbieżności implementacyjnej repo wygrywa; motywacyjnej nie naprawiaj przez przepisywanie historii. Research i raport operatora nie są nowym ADR ani niezależną weryfikacją repo.
+Przed zadaniem przeczytaj [ADR](SPEC.md#decyzje-niepodlegące-negocjacji), właściwy moduł w [R](SPEC.md#r-mvp-0-implementation-spec), kryteria w [S](SPEC.md#s-mvp-0-acceptance-tests) i zależności etapu. Przy rozbieżności opisu implementacji z kodem kod opisuje stan faktyczny, ale SPEC nadal określa wymagane zachowanie. Rozbieżności motywacyjnej nie naprawiaj przez przepisywanie historii. Research i raport operatora nie są nowym ADR ani niezależną weryfikacją repo.
 
 ## Kod, wymagania i dowody
 
@@ -90,7 +90,7 @@ Wynik wiąż z SHA, środowiskiem, profilem i źródłem. Nie przenoś wyników 
 
 ## Dokumentacja
 
-- Dokument w docs/ istnieje tylko, jeśli koduje decyzję, kryterium testu albo dowód. Dokument procesowy jest krótki i linkuje źródła normatywne zamiast je kopiować.
+- Dokument w docs/ istnieje tylko, jeśli koduje decyzję, kryterium testu, dowód albo mapę prowadzącą do tych źródeł. Dokument procesowy lub mapa są krótkie i linkują źródła normatywne zamiast je kopiować.
 - Jedna reguła = jedno kanoniczne miejsce. SPEC.md jest jedyną kopią kontraktów; AGENTS.md jedyną kopią reguł pracy.
 - Każdy fakt w dokumencie ma dowód (plik, run, commit, sekcja SPEC). Dokument bez linii utraty aktualności nie może wejść do docs/.
 - PR dokumentacyjny wykazuje w opisie, którym elementem filtra zarabia każdy nowy lub zmieniony plik.
