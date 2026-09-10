@@ -1,53 +1,43 @@
 # Tallystick
 
-**Kontrolowane działania. Odzyskiwalne dowody. Jawne granice wiedzy.**
+Transaction/control plane wokół runtime’u Codexa. [Granica systemu](SPEC.md#cel-i-granica-systemu) określa odpowiedzialności i zakres MVP-0; implementacja jest w [src/](src/), a jej testy w [test/](test/).
 
-Transaction/control plane wokół runtime’u Codexa. Cztery moduły MVP-0 łączą trwały zapis obserwacji, deterministyczne digesty, pomiar stanu i kontrolę powtórek. Codex zachowuje sesję i pętlę model–narzędzia. [Granica systemu →](SPEC.md#cel-i-granica-systemu)
-
-[Kontrakty](SPEC.md) · [Dlaczego ta architektura](docs/ARCHITECTURE.md) · [Dowody MVP-0](docs/MVP-0-STATUS.md) · [Audyt integracji](docs/LAPTOP-INTEGRATION-AUDIT.md) · [Research](docs/RESEARCH.md)
-
----
-
-## Status bez skrótów
-
-| Warstwa | Gdzie sprawdzić stan |
-|---|---|
-| **Lokalna biblioteka MVP-0** | [Baseline: SHA, CI, wyniki i ograniczenia](docs/MVP-0-STATUS.md). Wynik dotyczy wskazanego wykonania, nie dowolnego HEAD. |
-| **Rzeczywisty host** | [Rejestr audytu i raportów operatora](docs/AUDIT-REGISTER.md). Pomiary poszczególnych scenariuszy nie są PASS całego S.6. |
-| **Docelowa pamięć i kontekst** | [Granica designu i MVP-0](docs/ARCHITECTURE.md#design-docelowy-a-mvp-0). Obecność w designie nie oznacza implementacji. |
-
-Zielone istniejące testy nie domykają wszystkich kontraktów rdzenia. [Syntezy z 10 września: zgodność rdzenia, kwalifikacja hosta i wartość produktu](docs/RESEARCH.md#trzy-bramki-dalszej-pracy) to osobne bramki, bez deklaracji naprawy ustaleń.
-
-> **Enforce pozostaje niedopuszczony bez dowodu całego profilu.** Kryteria oceny są w [S.6](SPEC.md#s6-dodatkowa-bramka-wdrożenia--poza-mvp-0); otwarty proces pomiarowy prowadzi [issue #22](https://github.com/korneliuszburian/tallystick/issues/22).
+[Kod](src/) · [Testy](test/) · [Kontrakty i ADR](SPEC.md) · [Reguły pracy](AGENTS.md) · [Motywacje](docs/ARCHITECTURE.md)
 
 ## Mapa rdzenia
 
-| Moduł | Kontrakt | Kod |
-|---|---|---|
-| Event Ledger | [R.1 — trwałe źródła](SPEC.md#r1-event-ledger) | [src/ledger/](src/ledger/) |
-| Acquisition Adapters | [R.2 — kontrolowane obserwacje](SPEC.md#r2-acquisition-adapters) | [src/adapters/](src/adapters/) |
-| State Twin | [R.3 — pomiary i zależności](SPEC.md#r3-state-twin) | [src/state/](src/state/) |
-| Failure Antibody Gate | [R.4 — dopuszczenie powtórek](SPEC.md#r4-failure-antibody-gate) | [src/guards/](src/guards/) |
-
-Kompozycja: [R.5](SPEC.md#r5-cienkie-złożenie-w-srcindexts) · [src/index.ts](src/index.ts). Nie jest piątym modułem.
+| Moduł / kontrakt | Typy | Implementacja | Testy |
+|---|---|---|---|
+| [Event Ledger · R.1](SPEC.md#r1-event-ledger) | [types.ts](src/ledger/types.ts) | [ledger/](src/ledger/) | [ledger/](test/ledger/) |
+| [Acquisition Adapters · R.2](SPEC.md#r2-acquisition-adapters) | [types.ts](src/adapters/types.ts) | [adapters/](src/adapters/) | [adapters/](test/adapters/) |
+| [State Twin · R.3](SPEC.md#r3-state-twin) | [types.ts](src/state/types.ts) | [state/](src/state/) | [state/](test/state/) |
+| [Failure Antibody Gate · R.4](SPEC.md#r4-failure-antibody-gate) | [types.ts](src/guards/types.ts) | [guards/](src/guards/) | [guards/](test/guards/) |
+| [Kompozycja · R.5](SPEC.md#r5-cienkie-złożenie-w-srcindexts) | [Publiczne wejście](src/index.ts) | [src/index.ts](src/index.ts) | [integration/](test/integration/) |
 
 ## Od czego zacząć
 
-| Cel | Właściwe miejsce |
+| Potrzeba | Źródło |
 |---|---|
-| Uruchomić lokalną weryfikację | [Setup, komendy i zapis evidence](docs/LAPTOP-INTEGRATION-AUDIT.md#2-setup-lokalny--todo); definicje skryptów w [package.json](package.json). |
-| Zrozumieć decyzje i odrzucone alternatywy | [Motywacje, kill-round i indeks ADR](docs/ARCHITECTURE.md). |
-| Sprawdzić ryzyka zamiast liczyć zielone testy | [Rejestr A01–A24 i mapowanie F01–F15](docs/AUDIT-REGISTER.md) oraz [syntezy SD/SR i korekty](docs/RESEARCH.md#syntezy-z-10-września-2026). |
-| Przygotować eksperyment, nie nowy moduł | [Pytania DR-01–DR-20 i źródła](docs/RESEARCH.md); [odrębna numeracja kampanii SR](docs/RESEARCH.md#dwie-kampanie-dr). |
-| Wprowadzić zmianę | [AGENTS.md](AGENTS.md) i [szablon PR](.github/pull_request_template.md). |
-| Odczytać dawny podział pracy | [Historyczna mapa etapów](ISSUES.md), nie aktualny tracker. |
-| Uporządkować gałąź po merge | [Checklista operacyjna](docs/REPOSITORY-HYGIENE.md). |
+| Uruchomić weryfikację | [Skrypty](package.json), [demo](scripts/demo.ts), [setup i zapis evidence](docs/LAPTOP-INTEGRATION-AUDIT.md#2-setup-lokalny--todo). |
+| Zrozumieć język domeny i powody decyzji | [Rozróżnienia, kill-round i indeks ADR](docs/ARCHITECTURE.md). |
+| Sprawdzić ustalenie audytu | [A01–A24 i F01–F15](docs/AUDIT-REGISTER.md); [korekty SD/SR](docs/RESEARCH.md#syntezy-z-10-września-2026). |
+| Przygotować konkretny eksperyment | [Research i źródła](docs/RESEARCH.md); [odrębne numeracje DR](docs/RESEARCH.md#dwie-kampanie-dr). |
+| Wprowadzić zmianę | [AGENTS](AGENTS.md) i [formularz PR](.github/pull_request_template.md). |
+| Sprawdzić historyczny podział pracy / porządek gałęzi | [ISSUES](ISSUES.md), [checklista po merge](docs/REPOSITORY-HYGIENE.md). |
+
+## Status bez skrótów
+
+| Pytanie | Właściwy dowód lub kryterium |
+|---|---|
+| Co wykazał historyczny CI? | [Baseline z SHA, runem i ograniczeniami](docs/MVP-0-STATUS.md). Nie jest wynikiem dowolnego HEAD. |
+| Co zmierzono w hoście? | [Raporty operatora](docs/AUDIT-REGISTER.md#raporty-operatora--oddzielna-klasa-dowodu), [kryteria S.6](docs/LAPTOP-INTEGRATION-AUDIT.md), [issue #22](https://github.com/korneliuszburian/tallystick/issues/22). |
+| Co jest dopiero designem? | [Design docelowy a MVP-0](docs/ARCHITECTURE.md#design-docelowy-a-mvp-0). |
+
+Zgodność rdzenia, kwalifikacja hosta i wartość produktu mają [trzy osobne bramki](docs/RESEARCH.md#trzy-bramki-dalszej-pracy). Zielony baseline nie jest certyfikatem całego profilu enforce.
 
 ## Nazwa i źródła prawdy
 
-**Tallystick** to nazwa produktu, `tallystick` — nazwa repozytorium. **LEDGER** jest historyczną nazwą tego samego designu, zachowaną w SPEC, źródłach i identyfikatorach technicznych. Nie oznacza drugiego produktu. [Zasada nazewnictwa →](AGENTS.md#nazewnictwo)
-
-Kontrakty i ADR mają jedno miejsce: [SPEC.md](SPEC.md). Reguły pracy i format dokumentacji: [AGENTS.md](AGENTS.md). Aktualny kod, refs, PR i CI sprawdzamy w repozytorium; dokumentacja wskazuje dowody, nie zastępuje ich.
+Tallystick to nazwa produktu; LEDGER pozostaje historycznym aliasem i częścią nazw technicznych. [Nazewnictwo](AGENTS.md#nazewnictwo) · [Kod, wymagania i dowody](AGENTS.md#kod-wymagania-i-dowody).
 
 ---
 

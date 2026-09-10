@@ -20,6 +20,16 @@ Implementuj DOKŁADNIE [SPEC.md](SPEC.md). Aktualne refs, kod, PR, issues i CI s
 
 Przed zadaniem przeczytaj [ADR](SPEC.md#decyzje-niepodlegące-negocjacji), właściwy moduł w [R](SPEC.md#r-mvp-0-implementation-spec), kryteria w [S](SPEC.md#s-mvp-0-acceptance-tests) i zależności etapu. Przy rozbieżności implementacyjnej repo wygrywa; motywacyjnej nie naprawiaj przez przepisywanie historii. Research i raport operatora nie są nowym ADR ani niezależną weryfikacją repo.
 
+## Kod, wymagania i dowody
+
+Kod na wskazanym SHA pokazuje, co jest zaimplementowane; rzeczywisty run pokazuje, co wykonano i sprawdzono. SPEC/ADR określają wymagane zachowanie, nie poświadczają jego realizacji. Opis implementacji sprzeczny z kodem wymaga korekty opisu; kod sprzeczny z kontraktem wymaga testu i naprawy w zatwierdzonym zakresie, nie przepisania SPEC pod istniejący błąd. Sprzeczność samych wymagań podlega procedurze STOP poniżej.
+
+Po odczytaniu właściwych wymagań przejdź do typów, implementacji, wywołań i testów danego modułu — [mapa kodu](README.md#mapa-rdzenia). Docs czytaj selektywnie dla uzasadnień decyzji, odrzuconych alternatyw, języka domeny, kryteriów i dowodów. Nie ładuj całego researchu jako obowiązkowego wprowadzenia do każdej zmiany.
+
+Czytelność utrzymuj w kodzie: jednoznaczne nazwy, spójne formatowanie, małe jednostki odpowiedzialności i istniejący podział typów oraz implementacji. Nie przykrywaj niezrozumiałego kodu opisującym go Markdownem ani komentarzem powtarzającym instrukcje. To nie zgoda na niezlecony refaktor lub zmianę API.
+
+Rejestr badawczy jest indeksem hipotez i prób: ustalenie wiąż ze źródłem, SHA i reprodukcją. Przy kolizji identyfikatorów zachowaj prefiks źródła (np. SD:F01, SR:F16); zmiana dokumentacji nie oznacza naprawy ani zamknięcia ustalenia.
+
 ## Reguły pracy
 
 - Nie zmieniaj architektury, API, nazw modułów ani plików bez jawnej zgody; nie edytuj po cichu historii ADR, a nowa decyzja supersedująca zachowuje wcześniejszy zapis — [SPEC](SPEC.md#decyzje-niepodlegące-negocjacji).
