@@ -1,8 +1,12 @@
 import type { CapturedProcess, GitDiffDigest } from "./types.js";
 
 function refs(argv: readonly string[]): { base: string; head: string } {
-  const values = argv.filter((value) => !value.startsWith("-") && value !== "diff");
-  return { base: values.at(-2) ?? "", head: values.at(-1) ?? "" };
+  const diffIndex = argv.indexOf("diff");
+  const args = diffIndex >= 0 ? argv.slice(diffIndex + 1) : argv;
+  const separator = args.indexOf("--");
+  const revisionArgs = separator >= 0 ? args.slice(0, separator) : args;
+  const values = revisionArgs.filter((value) => !value.startsWith("-"));
+  return values.length === 2 ? { base: values[0]!, head: values[1]! } : { base: "", head: "" };
 }
 
 function patchHandle(process: CapturedProcess) {

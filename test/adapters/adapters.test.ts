@@ -387,6 +387,17 @@ describe("Acquisition adapters", () => {
     const handle = result.digest.file_summaries[0]!.patch_source; expect((await ledger.readFragment(handle)).byteLength).toBeGreaterThan(0); ledger.close();
   });
 
+  it("does not treat a pathspec after -- as the git-diff head ref", async () => {
+    const base = root(); const ledger = ledgerAt(base); const api = adapters(ledger);
+    const output = "1\t0\t123-pathspec.txt\0";
+    const argv = ["diff", "--raw", "--numstat", "-z", "HEAD~1", "HEAD", "--", "123-pathspec.txt"];
+    const result = await api.execute(req(base, "git-diff", process.execPath, ["-e", `process.stdout.write(${JSON.stringify(output)})`, ...argv], "diff-pathspec"), permit("diff-pathspec"));
+    if (result.digest.kind !== "git-diff") throw new Error("wrong digest");
+    expect(result.digest.base).toBe("HEAD~1");
+    expect(result.digest.head).toBe("HEAD");
+    ledger.close();
+  });
+
   it("marks overflowing git numstat counts partial", async () => {
     const base = root(); const ledger = ledgerAt(base); const api = adapters(ledger);
     const huge = "9".repeat(400);
