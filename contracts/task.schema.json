@@ -4,7 +4,7 @@
   "title": "Tallystick developer harness task contract",
   "type": "object",
   "additionalProperties": false,
-  "required": ["run_id", "task_id", "attempt", "base_sha", "role", "goal", "dependencies", "read_scope", "write_scope", "protected_paths", "acceptance", "status", "outcome", "input_epoch"],
+  "required": ["run_id", "task_id", "attempt", "base_sha", "role", "goal", "dependencies", "read_scope", "write_scope", "protected_paths", "acceptance", "status", "input_epoch"],
   "properties": {
     "run_id": { "type": "string", "minLength": 1 },
     "task_id": { "type": "string", "minLength": 1 },
@@ -18,7 +18,7 @@
     "protected_paths": { "type": "array", "items": { "type": "string", "minLength": 1 }, "minItems": 1 },
     "acceptance": { "type": "array", "items": { "type": "string", "minLength": 1 }, "minItems": 1 },
     "status": { "enum": ["PLANNED", "READY", "RUNNING", "REPORTED", "REVIEWED", "VERIFIED", "PROPOSED", "BLOCKED", "NEEDS_DECISION", "UNKNOWN", "CANCELLED"] },
-    "outcome": { "enum": ["PASS", "FAIL", "BLOCKED", "NOT_RUN"] },
+    "outcome": { "type": ["string", "null"], "enum": ["PASS", "FAIL", "BLOCKED", "NOT_RUN", null], "description": "measured terminal outcome; null or absent before review and for UNKNOWN" },
     "input_epoch": { "type": ["string", "null"], "description": "verified epoch identifier, or null only when measurement was explicitly unavailable" },
     "matrix_ids": { "type": "array", "items": { "type": "string", "pattern": "^T[0-9]{2}$" } }
   },
