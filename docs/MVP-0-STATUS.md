@@ -59,7 +59,7 @@ Nie ma gwarancji wspólnej transakcji exactly-once ani atomowego rollbacku Git, 
 | Status historycznego baseline | Ograniczenie / dług | Dalsze postępowanie |
 |---|---|---|
 | TODO / BLOCKED | S.6 nie ma w tym baseline dowodu z realnego Codexa/MCP. | [Kryteria](DESKTOP-INTEGRATION-AUDIT.md) i późniejszy [rejestr](AUDIT-REGISTER.md); brak automatycznego transferu wyników między profilami. |
-| FACT / TODO | Workflow warunkuje cztery suity istnieniem katalogów; na tym HEAD wszystkie się wykonały, lecz konstrukcja nie wymusza ich obecności. | Zachować dług; nie zmieniać workflow w dokumentacyjnym PR. |
+| FACT / RESOLVED | PR #28 usunął warunkowe pomijanie suit: CI uruchamia pięć suit, `demo` i typecheck bez warunków; brak katalogu lub fixture kończy check błędem. | Utrzymywać wymagany check `ledger-acceptance`; zmiany workflow wymagają osobnego PR. |
 | FACT / TODO | Dowód dotyczy Ubuntu/Node/npm z tabeli; demo używa `rm -rf`, a storage wymaga lokalnego filesystemu i jednego writera. | Zmierzyć środowisko, zależności natywne, shell i SQLite z better-sqlite3. |
 | FACT / TODO | `.gitignore` baseline obejmuje `.demo-dist/` i `node_modules/`. | Baza, CAS, logi i `<databasePath>.harness-key` poza wersjonowanym worktree; bez sekretów w repo. |
 | FACT / TODO | `ISSUES.md` opisuje historyczne etapy #1–#5, nie bieżące GitHub Issues. | [Mapa etapów](../ISSUES.md) odsyła do niezmiennego oryginału i SPEC. |
@@ -71,7 +71,7 @@ Nie ma gwarancji wspólnej transakcji exactly-once ani atomowego rollbacku Git, 
 
 Przeniesione z [REPOSITORY-HYGIENE na SHA ddc81034](https://github.com/korneliuszburian/tallystick/blob/ddc81034add54bf47bf63b5a11e48ed1bd64d4d9/docs/REPOSITORY-HYGIENE.md). To obserwacje z **2026-09-08**, nie nowy odczyt ustawień ani zgoda na usuwanie gałęzi.
 
-W chwili audytu przed porządkowym PR nie było otwartych PR/issues; `main` miało `protected: false`, auto-merge było wyłączone, a `delete_branch_on_merge: false`. Dla main `0683f1dc006c37d9c05cb69e054e6bf4a5976a45` poniższe heads miały `ahead_by=0`. **Nie jest to zapis ich usunięcia.**
+W chwili audytu przed porządkowym PR nie było otwartych PR/issues; `main` miało `protected: false`, auto-merge było wyłączone, a `delete_branch_on_merge: false`. Dla main `0683f1dc006c37d9c05cb69e054e6bf4a5976a45` poniższe heads miały `ahead_by=0`. To zapis historyczny, nie aktualny stan refów.
 
 | Gałąź | Sprawdzony HEAD | Wynik historyczny |
 |---|---|---|
@@ -85,7 +85,7 @@ W chwili audytu przed porządkowym PR nie było otwartych PR/issues; `main` mia�
 
 Wyjątek: `codex/implement-event-ledger-according-to-adr-007`, SHA `0acd2177030a16fd7f80fb5988dbacf42538b87d`, PR #15: **2 unikalne commity i 58 commitów opóźnienia**. PR zamknięto bez merge; późniejszy PR #16 nie dowodzi zawarcia tych dwóch commitów.
 
-Historyczna sesja zgłosiła brak operacji usuwania gałęzi w connectorze i podała ścieżkę „GitHub mobile → repo → Branches → Delete”. Zachowujemy tę obserwację z jej datą, nie jako dzisiejszą instrukcję narzędziową. Ówczesne zalecenie właścicielowi włączenia **Automatically delete head branches** nie zostało wykonane przez porządkowy PR. Warunki zmiany branch protection i auto-merge są w [AGENTS](../AGENTS.md#porządek-gałęzi-po-merge).
+Historyczna sesja zgłosiła brak operacji usuwania gałęzi w connectorze i podała ścieżkę „GitHub mobile → repo → Branches → Delete”. Zachowujemy tę obserwację z jej datą, nie jako dzisiejszą instrukcję narzędziową. Późniejsze PR #27 i #28 usunęły scalone oraz zastąpione refy; po PR #28 `main` ma wymagany check `ledger-acceptance`, a `delete_branch_on_merge` jest włączone. Aktualny stan należy sprawdzać w GitHub, nie przepisywać z tej tabeli.
 
 ## Kiedy dokument przestaje być aktualnym potwierdzeniem
 

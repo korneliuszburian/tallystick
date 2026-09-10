@@ -20,8 +20,8 @@ Zapisać wykonanie kontroli po merge. Reguły dopuszczenia operacji są wyłącz
 
 | PR / gałąź | SHA main / head | Dowód porównania | Zgoda i czynność | Wynik |
 |---|---|---|---|---|
-| Do wypełnienia dla jednej operacji | — | — | Nie wykonano | TODO |
+| PR #27/#28 · `chore/repository-hygiene`, `ci/strict-acceptance-gates` | `main=1f22a36`, heady `8508e9d` / `37234a9` | Oba heady scalone exact-head; zamknięte, zastąpione refy #15/#24 usunięte po porównaniu | Zgoda właściciela; usunięto zdalne i lokalne gałęzie bez aktywnego worktree | WYKONANO |
 
 ## Dowody historyczne
 
-Tabela heads, wyjątek PR #15 i obserwacje ustawień z 8 września 2026 są w [baseline](MVP-0-STATUS.md#historyczny-audyt-porządku-repo). Nie są aktualną listą gałęzi do usunięcia. Zmian ustawień repo ta checklista nie wykonuje.
+Tabela heads, wyjątek PR #15 i obserwacje ustawień z 8 września 2026 są w [baseline](MVP-0-STATUS.md#historyczny-audyt-porządku-repo). Nie są aktualną listą gałęzi do usunięcia. Bieżący odczyt po operacji: `origin/main=1f22a36`, jeden worktree, brak dodatkowych refów; `delete_branch_on_merge=true`, ochrona `main` wymaga `ledger-acceptance`.
