@@ -389,7 +389,7 @@ Przygotuj wykonalny plan S.6 dla dostępnej wersji Codexa i konfiguracji MCP. Zi
 <summary>Pytanie, kontrprzykłady i wymagany wynik</summary>
 
 ```text
-Zweryfikuj w aktualnej dokumentacji dynamicTools i przepływ item/tool/call oraz required MCP startup. Oddziel request, który rzeczywiście czeka na wykonawcę, od notification, które raportuje już wykonane działanie. Porównaj zwykły MCP executor i klienta App Server sterującego istniejącym Codex runtime. Wynik: sequence diagrams, wersje/experimental status, lista gwarancji i niewiadomych oraz najmniejszy inertny eksperyment desktopowy. Ustal, które native tools pozostają poza badanym punktem. Nie przedstawiaj dynamicTools ani required=true jako automatycznego spełnienia ADR-002.
+Zweryfikuj w aktualnej dokumentacji dynamicTools i przepływ item/tool/call oraz required MCP startup. Oddziel request, który rzeczywiście czeka na wykonawcę, od notification, które raportuje już wykonane działanie. Porównaj zwykły MCP executor i klienta App Server sterującego istniejącym Codex runtime. Wynik: sequence diagrams, wersje/experimental status, lista gwarancji i niewiadomych oraz najmniejszy inertny eksperyment laptopowy. Ustal, które native tools pozostają poza badanym punktem. Nie przedstawiaj dynamicTools ani required=true jako automatycznego spełnienia ADR-002.
 ```
 
 </details>
@@ -540,9 +540,14 @@ https://github.com/korneliuszburian/tallystick/blob/ddc81034add54bf47bf63b5a11e4
 https://github.com/korneliuszburian/tallystick/blob/ddc81034add54bf47bf63b5a11e48ed1bd64d4d9/docs/MVP-0-STATUS.md
 
 <a id="r-desktop"></a>
-**R-DESKTOP — Kryteria audytu integracji S.6**
+**R-DESKTOP — Bieżące kryteria desktopowego audytu integracji S.6**
 
-https://github.com/korneliuszburian/tallystick/blob/ddc81034add54bf47bf63b5a11e48ed1bd64d4d9/docs/DESKTOP-INTEGRATION-AUDIT.md
+[docs/DESKTOP-INTEGRATION-AUDIT.md](DESKTOP-INTEGRATION-AUDIT.md)
+
+<a id="r-laptop"></a>
+**R-LAPTOP — Historyczny identyfikator źródła z błędnym zawężeniem nazwy**
+
+https://github.com/korneliuszburian/tallystick/blob/ddc81034add54bf47bf63b5a11e48ed1bd64d4d9/docs/LAPTOP-INTEGRATION-AUDIT.md
 
 <a id="o-astra"></a>
 **O-ASTRA — OpenAI — Using GPT-6 Astra / Model guidance**
