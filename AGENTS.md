@@ -58,11 +58,21 @@ Kolejność i warunek rozpoczęcia kolejnego modułu: [ADR-006](SPEC.md#adr-006-
 
 - Twórz atomowe commity per test-case; opis: `module: co i dlaczego`.
 - Podaj powiązane issue, zmieniony test-case i rzeczywiste wyniki; użyj [szablonu PR](.github/pull_request_template.md).
-- Bez push do `main`; zmiany przez PR, bez merge’u wykonywanego przez autora.
+- Bez bezpośredniego push do `main`; zmiany przez PR. Merge podlega [autoryzacji właściciela](#merge-po-zgodzie-właściciela).
 - Nie obchodź branch protection/required checks ani nie włączaj auto-merge dla ukrycia czerwonego wyniku.
 - Bez `continue-on-error`, pomijania suit i osłabiania asercji w celu uzyskania pozornego sukcesu.
 
 PR dokumentacyjny opisuje decyzje, kryteria lub dowody; convenience script wymaga jawnego zakresu. Implementacyjny realizuje konkretne zlecenie i SPEC z testami oraz regresją. Diagnostic STOP stosuje procedurę powyżej. Żaden typ nie upoważnia do niezatwierdzonej zmiany ADR/API.
+
+### Merge po zgodzie właściciela
+
+Jawne polecenie lub zgoda właściciela upoważnia agenta do merge wskazanego PR, również autorstwa agenta. Zapisz źródło zgody w PR; nie pytaj ponownie o tę samą zgodę przy niezmienionym zakresie. Nowy zakres lub konflikt wymaga odrębnego rozstrzygnięcia, a zmiana head/base — ponownej weryfikacji.
+
+Przed scaleniem odczytaj aktualne head/base, wykonaj re-review dokładnego diffu, potwierdź wymagane checks dla aktualnej rewizji i rozlicz blokujące uwagi. Własny re-review nie zastępuje wymaganego niezależnego review. Brak zgody, wymaganych dowodów albo pozytywnych checków oznacza brak merge’u; nie obchodź zabezpieczeń repo.
+
+Użyj obsługiwanej operacji merge PR z kontrolą oczekiwanego head SHA, bez force-push lub administracyjnego bypassu. Po operacji odczytaj stan PR, merge commit i main. Przy nieznanym wyniku najpierw odczytaj stan zamiast ponawiać operację w ciemno. Zgoda na merge nie obejmuje usuwania gałęzi ani zmiany ustawień repo.
+
+Ta reguła określa zgodę w repozytorium; nie zmienia uprawnień narzędzi ani instrukcji i ustawień hosta. Ich ograniczenia należy zgłosić, nie obchodzić.
 
 ## Porządek gałęzi po merge
 
