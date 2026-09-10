@@ -18,7 +18,7 @@ Transaction/control plane wokół runtime’u Codexa. [Granica systemu](SPEC.md#
 
 | Potrzeba | Źródło |
 |---|---|
-| Uruchomić weryfikację | [Skrypty](package.json), [demo](scripts/demo.ts), [setup i zapis evidence](docs/LAPTOP-INTEGRATION-AUDIT.md#2-setup-lokalny--todo). |
+| Uruchomić weryfikację | [Skrypty](package.json), [demo](scripts/demo.ts), [przygotowanie i zapis evidence](docs/LAPTOP-INTEGRATION-AUDIT.md#2-przygotowanie-lokalne--todo). |
 | Zrozumieć język domeny i powody decyzji | [Rozróżnienia, kill-round i indeks ADR](docs/ARCHITECTURE.md). |
 | Sprawdzić ustalenie audytu | [A01–A24 i F01–F15](docs/AUDIT-REGISTER.md); [korekty SD/SR](docs/RESEARCH.md#syntezy-z-10-września-2026). |
 | Przygotować konkretny eksperyment | [Research i źródła](docs/RESEARCH.md); [odrębne numeracje DR](docs/RESEARCH.md#dwie-kampanie-dr). |
