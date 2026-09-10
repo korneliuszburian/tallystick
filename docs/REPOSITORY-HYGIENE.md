@@ -24,4 +24,4 @@ Zapisać wykonanie kontroli po merge. Reguły dopuszczenia operacji są wyłącz
 
 ## Dowody historyczne
 
-Tabela heads, wyjątek PR #15 i obserwacje ustawień z 8 września 2026 są w [baseline](MVP-0-STATUS.md#historyczny-audyt-porządku-repo). Nie są aktualną listą gałęzi do usunięcia. Bieżący odczyt po operacji: `origin/main=1f22a36`, jeden worktree, brak dodatkowych refów; `delete_branch_on_merge=true`, ochrona `main` wymaga `ledger-acceptance`.
+Tabela heads, wyjątek PR #15 i obserwacje ustawień z 8 września 2026 są w [baseline](MVP-0-STATUS.md#historyczny-audyt-porządku-repo). Nie są aktualną listą gałęzi do usunięcia. Bieżący odczyt po operacji: `origin/main=f8a504e`, jeden worktree, brak dodatkowych refów; `delete_branch_on_merge=true`, ochrona `main` wymaga `ledger-acceptance` i obejmuje administratorów.
