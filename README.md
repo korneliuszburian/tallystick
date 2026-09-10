@@ -18,7 +18,7 @@ Transaction/control plane wokół runtime’u Codexa. [Granica systemu](SPEC.md#
 
 | Potrzeba | Źródło |
 |---|---|
-| Uruchomić weryfikację | [Skrypty](package.json), [demo](scripts/demo.ts), [przygotowanie i zapis evidence](docs/LAPTOP-INTEGRATION-AUDIT.md#2-przygotowanie-lokalne--todo). |
+| Uruchomić weryfikację | [Skrypty](package.json), [demo](scripts/demo.ts), [przygotowanie i zapis evidence](docs/DESKTOP-INTEGRATION-AUDIT.md#2-przygotowanie-lokalne--todo). |
 | Zrozumieć język domeny i powody decyzji | [Rozróżnienia, kill-round i indeks ADR](docs/ARCHITECTURE.md). |
 | Sprawdzić ustalenie audytu | [A01–A24 i F01–F15](docs/AUDIT-REGISTER.md); [korekty SD/SR](docs/RESEARCH.md#syntezy-z-10-września-2026). |
 | Przygotować konkretny eksperyment | [Research i źródła](docs/RESEARCH.md); [odrębne numeracje DR](docs/RESEARCH.md#dwie-kampanie-dr). |
@@ -30,7 +30,7 @@ Transaction/control plane wokół runtime’u Codexa. [Granica systemu](SPEC.md#
 | Pytanie | Właściwy dowód lub kryterium |
 |---|---|
 | Co wykazał historyczny CI? | [Baseline z SHA, runem i ograniczeniami](docs/MVP-0-STATUS.md). Nie jest wynikiem dowolnego HEAD. |
-| Co zmierzono w hoście? | [Raporty operatora](docs/AUDIT-REGISTER.md#raporty-operatora--oddzielna-klasa-dowodu), [kryteria S.6](docs/LAPTOP-INTEGRATION-AUDIT.md), [issue #22](https://github.com/korneliuszburian/tallystick/issues/22). |
+| Co zmierzono w hoście? | [Raporty operatora](docs/AUDIT-REGISTER.md#raporty-operatora--oddzielna-klasa-dowodu), [kryteria S.6](docs/DESKTOP-INTEGRATION-AUDIT.md), [issue #22](https://github.com/korneliuszburian/tallystick/issues/22). |
 | Co jest dopiero designem? | [Design docelowy a MVP-0](docs/ARCHITECTURE.md#design-docelowy-a-mvp-0). |
 
 Zgodność rdzenia, kwalifikacja hosta i wartość produktu mają [trzy osobne bramki](docs/RESEARCH.md#trzy-bramki-dalszej-pracy). Zielony baseline nie jest certyfikatem całego profilu enforce.

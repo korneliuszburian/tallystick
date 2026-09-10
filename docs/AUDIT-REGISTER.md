@@ -227,7 +227,7 @@ Poniższe obserwacje pochodzą z odczytu przypiętego kodu. Podane testy są pro
 
 **Weryfikacja:** Na realnym hoście zbadać uprawnienia odczytu klucza, mutacji DB/CAS oraz native write. Logi/DB nie mogą wejść do własnego manifestu wejściowego.
 
-**Źródła:** [R-MIDDLEWARE](RESEARCH.md#r-middleware), [R-LAPTOP](RESEARCH.md#r-laptop), [R-LEDGER](RESEARCH.md#r-ledger).
+**Źródła:** [R-MIDDLEWARE](RESEARCH.md#r-middleware), [R-DESKTOP](RESEARCH.md#r-desktop), [R-LEDGER](RESEARCH.md#r-ledger).
 
 ### A22. Testy stanów nie dowodzą rzeczywistego crash recovery
 
@@ -310,4 +310,4 @@ Dodatkowe zachowane identyfikatory pomiarów operatora: raw 102400 B `x` — `8b
 
 Ostatni aneks operatora wskazuje TOCTOU między odczytem konfiguracji a jej aktywacją przez hosta. W rozmowie właściciel dopuścił przygotowanie eksperymentalnego patcha poza Tallystick; **zatwierdzenie kierunku nie jest wykonanym patchem ani zmianą ADR**. Baza badanego hosta: `openai/codex@ff29a44391deccde0aba0f8390337d7f3c319ea4`. Zmiana hosta wymaga własnego commitu, testów i ponownej walidacji profilu.
 
-**Całe S.6: niezaliczone.** Kryteria zamknięcia są w [audycie integracji](LAPTOP-INTEGRATION-AUDIT.md). Crash/resume, deduplikacja transportowa, brak evidence przed admission i zakończenie przy raw overflow zachowują osobne statusy; udany scenariusz Gate ich nie zalicza.
+**Całe S.6: niezaliczone.** Kryteria zamknięcia są w [audycie integracji](DESKTOP-INTEGRATION-AUDIT.md). Crash/resume, deduplikacja transportowa, brak evidence przed admission i zakończenie przy raw overflow zachowują osobne statusy; udany scenariusz Gate ich nie zalicza.
