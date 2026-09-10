@@ -2,11 +2,11 @@
 
 > **Rola:** raport konfliktu kontraktu
 > **Status:** `NEEDS_DECISION`
-> **Zakres:** audyt implementacji na `ddc81034add54bf47bf63b5a11e48ed1bd64d4d9`; middleware MVP-0 i składane przez niego kontrakty
+> **Zakres:** audyt implementacji na `ddc81034add54bf47bf63b5a11e48ed1bd64d4d9`, ponownie zweryfikowany względem SPEC i implementacji na bazie PR `0f0b600c157c8881f887717d9d9dbf5515eeb04f`; middleware MVP-0 i składane przez niego kontrakty
 > **Źródła:** [SPEC](../SPEC.md), [reguła STOP](../AGENTS.md#sprzeczności-i-brak-rozstrzygnięcia), [PR #25](https://github.com/korneliuszburian/tallystick/pull/25)
 > **Kiedy ten dokument traci aktualność:** po normatywnym rozstrzygnięciu wszystkich poniższych punktów albo zmianie dotkniętych kontraktów SPEC.
 
-Raport rejestruje dwa bezpośrednie konflikty i sąsiadujące luki kontraktu. Nie zmienia SPEC ani nie wybiera rozwiązania.
+Raport rejestruje jeden bezpośredni konflikt i sąsiadujące luki kontraktu. Nie zmienia SPEC ani nie wybiera rozwiązania.
 
 ## Konflikt 1: kolejność proposal, preflight i commitu reservation
 
@@ -29,7 +29,7 @@ Pipeline [R.5](../SPEC.md#r5-cienkie-złożenie-w-srcindexts) określa natomiast
 
 > „→ preflight → commit intent i reservation → wykonanie z permit”
 
-Ta sama reservation nie może być commitowana jednocześnie wewnątrz `preflight()` i w późniejszym kroku R.5. R.5 wymaga też trwałego `proposal_id` w receipt, lecz nie określa, czy zablokowana propozycja ma już event `tool_proposal`.
+Ta sama reservation nie może być commitowana jednocześnie wewnątrz `preflight()` i w późniejszym kroku R.5. R.5 wymaga też `proposal_id` w receipt, lecz nie określa, czy zablokowana propozycja ma już event `tool_proposal`.
 
 Dotknięte API i inwarianty:
 
@@ -51,7 +51,7 @@ Możliwe rozstrzygnięcia:
 2. Uczynić `preflight` czystym obliczeniem decyzji, a proposal, reservation i `ALLOW` zapisywać później atomowo. Wymaga to zmiany ADR-015 i R.4.
 3. Zdefiniować krok R.5 „commit intent i reservation” jako opis skutków już wykonanych przez `preflight`, a osobno zamrozić moment i payload `tool_proposal` dla ALLOW i BLOCK.
 
-## Konflikt 2: tożsamość receipt w ADR-010 i ADR-016
+## Luka 2: tożsamość receipt w ADR-010 i ADR-016
 
 [ADR-010](../SPEC.md#adr-010--receipt_id-wskazuje-zatwierdzone-zdarzenie-evidence-w-ledgerze) obiecuje rozdzielenie identyfikatorów w R.5:
 
@@ -92,12 +92,12 @@ Możliwe rozstrzygnięcia:
 
 | Szew kontraktu | Brakujące rozstrzygnięcie | Testy dotknięte |
 |---|---|---|
-| Revalidation stanu | Kto zapisuje contradiction/freshness, gdy standalone `revalidateMemory()` pozostaje czyste, oraz jak epoch zachowuje zdolność pomiaru po reopen. | File mutation staleness; reopen |
-| Projekcje Gate | Autorytatywne payloady eventów, reducer i jego wersja, moment odbudowy oraz reconciliation failures, reservations i consumed proofs. | Restart gate; replayed proof; reopen storage |
-| Lease worktree | Właściciel, reentrancy, lifetime od pomiaru wejścia do wyjścia, expiry/recovery i walidacja fencing. | Concurrent duplicate; broker crash |
-| Epoki digestów | Czy `tested_epoch` i `compiled_epoch` oznaczają request-specific precondition epoch, pełną world epoch czy osobny fingerprint wejść execution. | Adapter digests; test-result self-invalidation |
-| Rodzice eventów | Jak niepuste `parent_event_ids` trafiają do `append`, storage i `event_hash`, albo czy pole wypada z MVP-0. | Reopen durability; receipt lineage |
-| Reconciliation UNKNOWN | Rozdzielenie pre-spawn rejection i post-spawn uncertainty, authority/API reconciliation, payloady eventów i przejścia reservation. | Crash after intent; zero retry after UNKNOWN |
-| Escape proof w kompozycji | Jak opaque proof trafia do `intercept()` bez ujawnienia signing key albo czy proof pozostaje poza R.5 MVP-0. | Escape proof; replayed proof; E2E |
+| [Revalidation stanu](../SPEC.md#adr-012--state-twin-jest-wiązany-z-ledgerem-przy-konstrukcji) | Kto zapisuje contradiction/freshness, gdy standalone `revalidateMemory()` pozostaje czyste, oraz jak epoch zachowuje zdolność pomiaru po reopen. | File mutation staleness; reopen |
+| [Projekcje Gate](../SPEC.md#adr-013--gate-jest-wiązany-ze-storage-przy-konstrukcji) | Autorytatywne payloady eventów, reducer i jego wersja, moment odbudowy oraz reconciliation failures, reservations i consumed proofs. | Restart gate; replayed proof; reopen storage |
+| [Lease worktree](../SPEC.md#algorytm-computestateepoch) | Właściciel, reentrancy, lifetime od pomiaru wejścia do wyjścia, expiry/recovery i walidacja fencing. | Concurrent duplicate; broker crash |
+| [Epoki digestów](../SPEC.md#testrunnerdigest) | Czy `tested_epoch` i `compiled_epoch` oznaczają request-specific precondition epoch, pełną world epoch czy osobny fingerprint wejść execution. | Adapter digests; test-result self-invalidation |
+| [Rodzice eventów](../SPEC.md#eventrecord) | Jak niepuste `parent_event_ids` trafiają do `append`, storage i `event_hash`, albo czy pole wypada z MVP-0. | Reopen durability; brak testu lineage w SPEC — wymagany nowy test po rozstrzygnięciu |
+| [Reconciliation UNKNOWN](../SPEC.md#obsługa-unknown) | Rozdzielenie pre-spawn rejection i post-spawn uncertainty, authority/API reconciliation, payloady eventów i przejścia reservation. | Crash after intent; zero retry after UNKNOWN |
+| [Escape proof w kompozycji](../SPEC.md#escape-proof) | Jak opaque proof trafia do `intercept()` bez ujawnienia signing key albo czy proof pozostaje poza R.5 MVP-0. | Escape proof; replayed proof; E2E |
 
 Kod zależny od tych punktów pozostaje zatrzymany do czasu normatywnego rozstrzygnięcia w SPEC. Dla tego dokumentacyjnego raportu nie uruchomiono testów; odczyt kodu i testów nie jest wynikiem PASS.
