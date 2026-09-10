@@ -63,10 +63,21 @@ export function gitDiffDigest(process: CapturedProcess): GitDiffDigest {
   }
 
   const { base, head } = refs(process.request.argv);
+  const hasOutput = process.stdoutReceipt.bytes > 0;
+  const hasParsedFiles = summaries.length > 0;
+  const parser_status = invalidStat
+    ? "partial"
+    : hasOutput
+      ? hasParsedFiles
+        ? "recognized"
+        : "unknown"
+      : process.exitCode === 0
+        ? "recognized"
+        : "unknown";
   return {
     kind: "git-diff", adapter_version: "git-diff/v1", raw_event_id: process.rawEventId, receipt_id: process.rawEventId,
     capture_complete: process.stdoutReceipt.complete && process.stderrReceipt.complete,
-    parser_status: invalidStat ? "partial" : process.exitCode === 0 ? "recognized" : summaries.length > 0 ? "partial" : "unknown",
+    parser_status,
     omitted_count: 0, truncated: false, unknown_fragment: null, base, head,
     files_changed: summaries.length,
     additions: summaries.reduce((sum, item) => sum + (item.additions ?? 0), 0),
