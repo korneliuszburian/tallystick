@@ -60,10 +60,10 @@ Dalszy klient integracyjny powstaje dopiero po P2, w odrębnym zatwierdzonym wor
 
 **Odbiór:** istnieje rzeczywisty ślad parent→child z właściwym modelem; nie ma niezinwentaryzowanych kanałów efektów w deklarowanym profilu. Ten wynik nadal nie jest S.6.
 
-## P1 — skill i pilotaż tylko do odczytu
+## P1 — skill i pilotaż tylko do odczytu (`BLOCKED` w bieżącym profilu)
 
 **Pliki:** mapa PR powyżej; skill, role i testy presji z `contracts/pressure-tests.json`.
-**Zależność:** P0 dla profilu pilotażu. Nie wymaga pozornego ogłoszenia Tallystick enforce.
+**Zależność:** P0 dla profilu pilotażu. Bieżący P0 wykazał brak wymaganej izolacji childa, więc P1 pozostaje `BLOCKED` do czasu nowego pomiaru; nie wymaga pozornego ogłoszenia Tallystick enforce.
 **Wejście:** bezpieczny snapshot bez sekretów, jawnie zatwierdzony eksperyment.
 **Wyjście:** raport architektury, testów i propozycja patcha w odpowiedzi; zero zapisów do snapshotu.
 

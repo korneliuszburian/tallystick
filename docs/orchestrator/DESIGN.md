@@ -8,14 +8,14 @@
 > **Kiedy traci aktualność:** po zmianie hosta, SPEC albo granicy harnessu.
 
 Data opracowania: 2026-09-10.
-**Repozytorium:** korneliuszburian/tallystick @ `ec9829d42441ffb026fa4131b5077177d943a25a` (stały punkt tego audytu); `ddc81034add54bf47bf63b5a11e48ed1bd64d4d9` pozostaje wyłącznie historycznym punktem odniesienia.
+**Repozytorium:** korneliuszburian/tallystick, stały **code fixed point** tego audytu: `ec9829d42441ffb026fa4131b5077177d943a25a`; późniejsze commity dokumentacyjne nie zmieniają tego pomiaru. `ddc81034add54bf47bf63b5a11e48ed1bd64d4d9` pozostaje wyłącznie historycznym punktem odniesienia.
 Źródła: identyfikatory S1–S14 oraz R1–R5 opisano w `SOURCES.md`.
 
 ## 1. Cel i miernik sukcesu
 
 Celem jest uzyskać więcej poprawnych, zweryfikowanych rezultatów z konta Pro 5×, bez poszerzania niekontrolowanych uprawnień. Liczba agentów, długość logu, zgodność opinii modeli i liczba wygenerowanych linii kodu nie są miernikami sukcesu.
 
-Hipoteza: Astra jest użyteczna do rozkładu problemu i integracji, Luna do wąskich kontraktów; Sol jest wariantem porównawczym koordynatora i opcjonalnym recenzentem. Konfiguracja zawiera kandydackie identyfikatory ról; sama dokumentacja nie potwierdza, że child rzeczywiście uruchomił się z danym modelem [S1]. Dostępność na konkretnym koncie i tożsamość wykonania muszą zostać zmierzone.
+Hipoteza: Astra jest użyteczna do rozkładu problemu i integracji, Luna do wąskich kontraktów; Sol jest wariantem porównawczym koordynatora i opcjonalnym recenzentem. Bieżąca polityka właściciela nie uruchamia Astry ani Sol bez potrzeby; jeśli Sol zostanie użyty, ma pracować w trybie low przy tworzeniu issue/zadań i delegowaniu, a rola `sol_reviewer` pozostaje wyłączonym wariantem benchmarku. Konfiguracja zawiera kandydackie identyfikatory ról; sama dokumentacja nie potwierdza, że child rzeczywiście uruchomił się z danym modelem [S1]. Dostępność na konkretnym koncie i tożsamość wykonania muszą zostać zmierzone.
 
 ## 2. Nienaruszalna granica odpowiedzialności
 

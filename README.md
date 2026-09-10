@@ -24,7 +24,7 @@ Transaction/control plane wokół runtime’u Codexa. [Granica systemu](SPEC.md#
 | Przygotować konkretny eksperyment | [Research i źródła](docs/RESEARCH.md); [odrębne numeracje DR](docs/RESEARCH.md#dwie-kampanie-dr). |
 | Wprowadzić zmianę | [AGENTS](AGENTS.md) i [formularz PR](.github/pull_request_template.md). |
 | Sprawdzić historyczny podział pracy / porządek gałęzi | [ISSUES](ISSUES.md), [checklista po merge](docs/REPOSITORY-HYGIENE.md). |
-| Uruchomić deweloperski orchestrator | [Projekt i granice](docs/orchestrator/DESIGN.md), [plan](docs/orchestrator/IMPLEMENTATION-PLAN.md), [macierz](docs/orchestrator/SECURITY-TEST-MATRIX.md), [P0 hosta](docs/orchestrator/P0-HOST-REPORT.md). Stan: P0 `PARTIAL`, P1 `NOT_RUN`, P2 `BLOCKED/NOT_RUN`, P3 `BLOCKED` do P2, P4 `NOT_RUN`, P5 `NOT_RUN`, enforce `BLOCKED`; to nie jest task queue produktu. |
+| Sprawdzić stan deweloperskiego orchestratora | [Projekt i granice](docs/orchestrator/DESIGN.md), [plan](docs/orchestrator/IMPLEMENTATION-PLAN.md), [macierz](docs/orchestrator/SECURITY-TEST-MATRIX.md), [P0 hosta](docs/orchestrator/P0-HOST-REPORT.md). Skill wymaga jawnego `$orchestrator`; alias `/orchestrator` nie jest dostarczony. Bieżące statusy P0–P5 i `enforce` są w [indeksie źródeł i statusu](docs/orchestrator/SOURCES.md); to nie jest task queue produktu. |
 | Zobaczyć zatrzymane decyzje SPEC | [Diagnostyka konfliktów](docs/SPEC-CONFLICTS.md). Konflikt wymaga decyzji przed zależną implementacją. |
 
 ## Status bez skrótów

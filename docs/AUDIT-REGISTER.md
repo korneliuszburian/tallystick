@@ -4,7 +4,7 @@
 
 > **Rola:** kryteria reprodukcji i ewidencja dowodów · **Status:** OTWARTE — nie certyfikat S.6
 > **Właściciel:** maintainer audytu · **Konsument:** kolejny audytor i właściciel issue #22
-> **Zakres:** historyczny kod `ddc81034add54bf47bf63b5a11e48ed1bd64d4d9`; research 2026-09-09; bieżąca rewalidacja poniżej na `ec9829d42441ffb026fa4131b5077177d943a25a`; aktualizacja redakcyjna 2026-09-10, Europe/Warsaw (UTC+02:00)
+> **Zakres:** historyczny kod `ddc81034add54bf47bf63b5a11e48ed1bd64d4d9`; research 2026-09-09; code fixed point rewalidacji poniżej `ec9829d42441ffb026fa4131b5077177d943a25a`; późniejsze zmiany dokumentacyjne nie są nowym pomiarem kodu; aktualizacja redakcyjna 2026-09-10, Europe/Warsaw (UTC+02:00)
 > **Źródła:** [S-RESEARCH i manifest źródeł](RESEARCH.md#pochodzenie-materiałów), rejestr F dostarczony przez właściciela
 > **Kiedy ten dokument traci aktualność:** po zmianie właściwego kodu, kontraktu, profilu lub nowym rozstrzygającym teście; każda pozycja wymaga własnej rewalidacji.
 
@@ -16,16 +16,17 @@ Czytaj ten historyczny rejestr razem z [korektami interpretacji K01–K11](RESEA
 
 **Nie są defektami MVP-0 same w sobie:** brak pełnego Context Atlas, semantic memory lifecycle, Recovery Engine, Claim Publisher i Compounding Evaluator. To granica [R.0](../SPEC.md#r0-zakres-środowisko-i-struktura). Receipt w pamięci jest dopuszczony przez [ADR-016](../SPEC.md#adr-016--kompozycja-middleware-zużycie-permit-klucz-i-obwoluta-receipt); historyczny plan ADR-010 nie upoważnia do żądania nowego eventu receipt.
 
-## Rewalidacja bieżącej rewizji
+## Rewalidacja code fixed point
 
-Poniższa tabela jest aktualną dyspozycją dla wskazanych historycznych ustaleń. Oryginalne A01–A24 i F01–F15 pozostają niezmienione jako evidence z własnego SHA; ten dopisek nie przenosi ich zakresu na inne rewizje.
+Poniższa tabela jest dyspozycją dla wskazanych historycznych ustaleń na code fixed point `ec9829d42441ffb026fa4131b5077177d943a25a`. `RESOLVED` oznacza usunięcie opisanego mechanizmu w tym ograniczonym zakresie kodu/testów; nie zamyka całego A/F ani nie zastępuje nowej reprodukcji. Oryginalne A01–A24 i F01–F15 pozostają niezmienione jako evidence z własnego SHA; ten dopisek nie przenosi ich zakresu na późniejsze rewizje.
 
 | Ustalenie | Dyspozycja na `ec9829d42441ffb026fa4131b5077177d943a25a` | Dowód lokalny |
 |---|---|---|
 | A07 / permit–request binding | `RESOLVED` dla verifiera adapters i jego użycia przez middleware; test negatywny pokrywa równoważny verifier wstrzyknięty do adapters | `src/index.ts:124-145`; inspekcja ścieżki middleware; `test/integration/e2e.test.ts:102-115` |
 | A13 / eskalacja i reap procesu | `RESOLVED` dla ścieżek timeout/capture objętych testami POSIX; power-loss pozostaje poza dowodem | `src/adapters/index.ts:229-247`; `test/adapters/adapters.test.ts:240-254,256-290,393-400` |
 | A14 / bounded digest | `RESOLVED` dla pól i kolekcji objętych reducerem; brak ogólnego claimu o wszystkich przyszłych digestach | `src/adapters/index.ts:80-141`; `test/adapters/adapters.test.ts:338-363,387-391` |
-| A18 / paginacja skanów | `RESOLVED` przez wspólny `scanAll`; test poza pierwszą stroną dotyczy UNKNOWN, pozostałe ścieżki mają dowód inspekcji kodu | `src/ledger/scan.ts:1-15`; `src/index.ts:155-165`; `src/guards/index.ts:142-160`; `test/guards/guards.test.ts:211-229` |
+| A16 / SourceHandle i semantyka bajtów | `RESOLVED` dla przetestowanych ścieżek invalid UTF-8 shell oraz unknown git-diff; zakres nie obejmuje wszystkich przyszłych parserów | `src/adapters/index.ts:14-24`; `test/adapters/adapters.test.ts:69-74,218-237` |
+| A18 / paginacja skanów | `RESOLVED` dla wspólnego `scanAll`; test poza pierwszą stroną dotyczy UNKNOWN, pozostałe ścieżki mają wyłącznie dowód inspekcji kodu | `src/ledger/scan.ts:1-15`; `src/index.ts:155-165`; `src/guards/index.ts:142-160`; `test/guards/guards.test.ts:211-229` |
 | A12 / wspólny limit raw | `OPEN` — dwa strumienie nadal archiwizują niezależnie | `src/adapters/index.ts:249-267`; [historyczny wpis A12](#a12-limit-raw-na-strumień-zamiast-na-wykonanie) |
 | A15 / git-diff parser | `OPEN` — exit 0 może nadal oznaczyć nierozpoznany, niepusty output jako `recognized`, a refs są wyprowadzane z argv | `src/adapters/git-diff.ts:3-6,61-74` |
 | A17 / błąd odczytu pliku | `OPEN` — każdy wyjątek fileHash nadal daje `MISSING` | `src/adapters/shell.ts:21-24` |

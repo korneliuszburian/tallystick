@@ -24,7 +24,7 @@ To kolejność researchu, nie zmiana zamrożonej sekwencji implementacji ADR-006
 
 ## Syntezy z 10 września 2026
 
-**Status syntez: analiza źródeł, bez nowych reprodukcji ustaleń kodowych ani pomiaru hosta w tym opracowaniu.** Wspólny wniosek SD/SR/N1/N2: kierunek transaction/control plane pozostaje; przejście istniejących testów nie domyka zgodności rdzenia. Luki rdzenia i integracji są odrębnymi bramkami, a nie argumentem za rozpoczęciem kolejnego modułu pamięci — [SD: status i bramka](#source-sd), [SR: §1 i §8](#source-sr).
+**Status syntez: analiza źródeł, bez nowych reprodukcji ustaleń kodowych ani pomiaru hosta w tym opracowaniu.** Pochodny wspólny wniosek z SD/SR oraz narracyjnych N1/N2 (nie są to niezależne eksperymenty): kierunek transaction/control plane pozostaje; przejście istniejących testów nie domyka zgodności rdzenia. Luki rdzenia i integracji są odrębnymi bramkami, a nie argumentem za rozpoczęciem kolejnego modułu pamięci — [SD: status i bramka](#source-sd), [SR: §1 i §8](#source-sr).
 
 ### Identyfikatory zawsze z pochodzeniem
 
@@ -111,7 +111,7 @@ Każdy wiersz wskazuje odrębne ustalenie z [SR §5](#source-sr) oraz najmniejsz
 
 ### Dwie kampanie DR
 
-Prompty DR-01–DR-20 w dalszej części tego dokumentu zachowują wcześniejszy pakiet **DR20**. SR §2 opisuje inną kampanię dziewięciu tematów. Tożsamość numeru nie wystarcza: `DR20:DR-01` to crash semantics, `SR:DR-01` — integracja. Nie liczymy dopasowań tematycznych jako kolejnych niezależnych badań.
+Zakresy DR-01–DR-20 w dalszej części tego dokumentu zachowują wcześniejszy pakiet **DR20**; pełne prompty pozostają poza repozytorium. SR §2 opisuje inną kampanię dziewięciu tematów. Tożsamość numeru nie wystarcza: `DR20:DR-01` to crash semantics, `SR:DR-01` — integracja. Nie liczymy dopasowań tematycznych jako kolejnych niezależnych badań.
 
 | Temat kampanii SR | Materiał według SR §2 | Powiązania z DR20 / istniejącym rejestrem |
 |---|---|---|
@@ -147,63 +147,37 @@ Rekomendacja z [SR §8](#source-sr) i [SD: bramka dalszej pracy](#source-sd), ni
 | Kwalifikacja hosta | Coverage, admission, izolacja i związanie kwalifikacji z aktywacją. | Dotychczasowe [relacje operatora](AUDIT-REGISTER.md#raporty-operatora--oddzielna-klasa-dowodu) zachowują swój zakres; brak pełnego S.6. |
 | Wartość | Uczciwy baseline, false blocks, correctness, koszt i osobne treatmenty pamięci. | Projekt eksperymentu, hashe raportów i licznik testów nie są pomiarem przewagi. |
 
-Zadanie patcha aktywacji hosta nie zamyka luk rdzenia. Nowe syntezy nie cofają wcześniejszych pomiarów hosta do „braku jakichkolwiek prób”. Ta redakcja nie oznacza żadnego F/A jako naprawionego i nie nadaje nowego ADR.
+Zadanie patcha aktywacji hosta nie zamyka luk rdzenia. Nowe syntezy nie cofają wcześniejszych pomiarów hosta do „braku jakichkolwiek prób”. Ta redakcja RESEARCH nie oznacza żadnego F/A jako naprawionego i nie nadaje nowego ADR.
 
 ## Wspólny kontrakt wyniku badania
 
 Wynik zawiera problem, źródła, najwyżej 2–3 alternatywy, kontrprzykład, eksperyment PASS/FAIL/BLOCKED, koszty i decyzję właściciela potrzebną przed implementacją. Reguły normatywne linkuj z [AGENTS](../AGENTS.md), nie kopiuj ich do każdego raportu. Wskazuj P1–P10 i właściwe ADR; próba nie jest wykonanym testem.
 
-### Architektura Tallystick
+### Indeks zakresów badań
+
+Poniższe `DR-01`–`DR-20` są krótkim indeksem zakresów badań. Pełne prompty pozostają w źródle `S-RESEARCH` poza repozytorium; do Gita trafiają tylko zakresy, pochodzenie i wnioski potrzebne konkretnemu konsumentowi.
 
 #### DR-01. Crash semantics i tożsamość nierozliczonego efektu
 
-<details>
-<summary>Pytanie, kontrprzykłady i wymagany wynik</summary>
-
-```text
-Odtwórz automat stanów intent, reservation, started, raw committed, completed, failure recorded, admitted i UNKNOWN. Oddziel stan procesu od capture oraz admission. Zbadaj wszystkie szczeliny między tymi krokami, zwłaszcza completed→recordFailure i restart started bez execution_unknown. Ustal, czy zmiana epoki albo argv może ominąć obowiązek reconciliation nierozliczonego efektu. Nie projektuj pełnego Recovery Engine. Wynik: macierz crash point × stan trwały × dozwolona następna akcja; minimalne testy z realnym SIGKILL brokera i niezależnym licznikiem efektów. Rozstrzygnij, które przypadki są naprawą obecnego kontraktu, a które potrzebują decyzji właściciela.
-```
-
-</details>
+**Zakres badania:** automat intent/reservation/spawn/capture/completed oraz reconciliation nierozliczonych efektów.
 
 **Materiały startowe:** [R-SPEC](#r-spec), [R-MIDDLEWARE](#r-middleware), [R-GATE](#r-gate), [R-E2E](#r-e2e).
 
 #### DR-02. Replay dowodów, receipts i projekcji
 
-<details>
-<summary>Pytanie, kontrprzykłady i wymagany wynik</summary>
-
-```text
-Sprawdź, czy same append-only events i CAS wystarczą do odtworzenia failures, reservations, zużytych proof i dokładnie dopuszczonego digestu. ADR-016 dopuszcza receipt jako obwolutę w pamięci: nie zakładaj obowiązku nowego event type. Wypisz dane potrzebne do replay oraz gdzie każde z nich jest utrwalone. Sprawdź proof.id, zakończenie reservation, digest_hash, adapter_version, input/output epoch i complete per BlobRef. Wynik: tabela pole→źródło→odtwarzalność oraz plan cold replay z usunięciem wyłącznie odbudowywalnych projekcji w kopii bazy. Podaj najmniejsze kontrprzykłady i wymagane doprecyzowania ADR.
-```
-
-</details>
+**Zakres badania:** odtwarzalność events, CAS, failures, reservations, proofów i admitted digestów po cold replay.
 
 **Materiały startowe:** [R-LEDGER](#r-ledger), [R-SCHEMA](#r-schema), [R-GATE](#r-gate), [R-MIDDLEWARE](#r-middleware), [R-SPEC](#r-spec).
 
 #### DR-03. Budżety zasobów i zakończenie procesu
 
-<details>
-<summary>Pytanie, kontrprzykłady i wymagany wynik</summary>
-
-```text
-Zbadaj wspólny limit raw dla stdout+stderr, backpressure, proces ignorujący SIGTERM, potomków trzymających pipe, timeout i awarię zapisu w trakcie działania. Oddziel limit przechwyconych bajtów, RSS parsera, czas życia procesu i odzyskiwalność partial capture. Przeanalizuj także publikację CAS względem trwałego commitu SQLite i backup/restore. Wynik: macierz awarii i kontrprzykłady, zaczynając od dwóch strumieni po 3072 B przy cap=4096 B. Dla każdego testu wskaż, jakie realne efekty trzeba zmierzyć; nie uznawaj EACCES za dowód obsługi ENOSPC ani SIGTERM za dowód zakończenia całej grupy procesów.
-```
-
-</details>
+**Zakres badania:** wspólny budżet raw, backpressure, timeouty, procesy potomne i trwałość storage.
 
 **Materiały startowe:** [R-ADAPTERS](#r-adapters), [R-LEDGER](#r-ledger), [R-RAWTEST](#r-rawtest), [R-SPEC](#r-spec).
 
 #### DR-04. Czy acceptance i chaos testują kontrakt, czy implementację?
 
-<details>
-<summary>Pytanie, kontrprzykłady i wymagany wynik</summary>
-
-```text
-Zbuduj macierz wszystkich kryteriów R/S do testów i rzeczywistych asercji. Oddziel realny child process, ręcznie skonstruowany stan, mock, odtworzenie po close i realny restart po kill. Szczególnie zbadaj UNKNOWN, missing blob przed admission, ENOSPC, concurrency między procesami, lease i sumaryczny raw limit. Zaproponuj mutation-testing plan: jaka świadoma mutacja łamiąca invariant powinna sprawić, że obecny test stanie się czerwony? Wynik: pokryte, niepokryte, pozornie pokryte i sprzeczne wymagania; priorytet nowych testów. Nie osłabiaj asercji i nie zmieniaj CI w ramach researchu.
-```
-
-</details>
+**Zakres badania:** pokrycie kontraktu R/S przez testy rzeczywistych procesów, chaos i mutation testing.
 
 **Materiały startowe:** [R-SPEC](#r-spec), [R-E2E](#r-e2e), [R-RAWTEST](#r-rawtest), [R-CI](#r-ci).
 
@@ -211,53 +185,25 @@ Zbuduj macierz wszystkich kryteriów R/S do testów i rzeczywistych asercji. Odd
 
 #### DR-05. Kompletna, ale minimalna epoka eksperymentu
 
-<details>
-<summary>Pytanie, kontrprzykłady i wymagany wynik</summary>
-
-```text
-Oceń soundness i precision dependencyPaths: kto deklaruje zbiór, względem jakiej bazy, i skąd wiadomo, że jest kompletny? Zbuduj macierz content, mode, symlink target, git HEAD, ignored/untracked files, installation resolution, inherited env oraz zewnętrznych preconditions z TTL. Utrzymaj ADR-001: wynik testu i zapis failure nigdy nie odblokowują własnej powtórki. Osobno zbadaj globalny HEAD z ADR-011 i zmianę nieistotnego commitu. Wynik: false allow/false block dla obecnego algorytmu, kontrprzykłady oraz porównanie ograniczonych alternatyw pomiaru. Nie proponuj pełnego snapshotu ani verify-everything.
-```
-
-</details>
+**Zakres badania:** minimalna epoka eksperymentu, kompletność preconditions i granice pomiaru świata.
 
 **Materiały startowe:** [R-STATE](#r-state), [R-SHELL](#r-shell), [R-MIDDLEWARE](#r-middleware), [R-GATE](#r-gate), [R-SPEC](#r-spec).
 
 #### DR-06. Atestacje testów i kompilatora bez fałszywej aktualności
 
-<details>
-<summary>Pytanie, kontrprzykłady i wymagany wynik</summary>
-
-```text
-Prześledź pochodzenie tested_epoch, compiled_epoch, test_fingerprint i state_revision_id. Zbadaj użycie goalId jako epoki i przekazywanie pustych testAttestations w middleware. Zdefiniuj kryterium, przy którym tests pass może oznaczać aktualny stan: zakończony run, rozpoznany raport, kompletność i zgodne command/config/input/environment. Wynik: kontrakty wiązania dowodu oraz testy dwóch goalId w tej samej epoce i jednego goalId w dwóch epokach. Oddziel korektę pola od zmiany publicznego API; konflikt z zamrożoną sygnaturą zgłoś, nie rozwiązuj po cichu.
-```
-
-</details>
+**Zakres badania:** wiązanie atestacji testów i kompilatora z epoką bez fałszywej aktualności.
 
 **Materiały startowe:** [R-TEST](#r-test), [R-COMPILER](#r-compiler), [R-MIDDLEWARE](#r-middleware), [R-STATE](#r-state), [R-SPEC](#r-spec).
 
 #### DR-07. Knowledge sandbox: dependency validity nie równa się claim truth
 
-<details>
-<summary>Pytanie, kontrprzykłady i wymagany wynik</summary>
-
-```text
-Zbadaj granicę między revalidateMemory a przyszłym dopuszczeniem wiedzy do modelu. Rozpatrz fałszywy claim przy prawdziwych predicates, puste predicates, historyczny test pass, obcy worktree, brakujący source, quarantined record i prompt injection w źródle. active oznacza zgodność zależności, nie prawdę ani promocję. Wynik: model zagrożeń, macierz stanów lifecycle i kryteria admission. Oznacz elementy poza MVP-0. Nie dodawaj drugiego modelu jako sędziego prawdy; nierozstrzygalne twierdzenia powinny zachować status niezweryfikowany albo quarantine, zgodnie z designem.
-```
-
-</details>
+**Zakres badania:** granica między rewalidacją zależności, prawdą claimu i przyszłym admission pamięci.
 
 **Materiały startowe:** [R-STATE](#r-state), [R-SPEC](#r-spec), [R-MIDDLEWARE](#r-middleware), [C-CONTEXT](#c-context).
 
 #### DR-08. Eksperyment compounding: memory-on kontra memory-off
 
-<details>
-<summary>Pytanie, kontrprzykłady i wymagany wynik</summary>
-
-```text
-Zaprojektuj prerejestrowany eksperyment porównujący memory-on i memory-off/reset na sparowanych rodzinach zadań. Zablokuj confounders: model, wersję hosta, snapshot repo, narzędzia, guard, budżet i acceptance. Zmierz correctness, first-pass success, tokeny, wywołania, powtarzane porażki, interwencje człowieka, latency i koszt recovery. Uwzględnij kolejność prób, kontaminację, negative transfer i niepewność estymacji. Wynik: protokół, zestaw zadań, kryteria odrzucenia hipotezy i promocji konkretnej memory. Odnieś się do ANALIZA rozdz.25/27/29, jeśli plik został dostarczony; nie udawaj jego treści bez odczytu. Nie deklaruj 10× bez pomiaru.
-```
-
-</details>
+**Zakres badania:** prerejestrowane porównanie memory-on kontra memory-off i pomiar compoundingu.
 
 **Materiały startowe:** [R-STATUS](#r-status), [R-SPEC](#r-spec), [O-SESSION](#o-session), [C-CONTEXT](#c-context).
 
@@ -265,53 +211,25 @@ Zaprojektuj prerejestrowany eksperyment porównujący memory-on i memory-off/res
 
 #### DR-09. Koordynator i specjaliści poza LEDGER hot path
 
-<details>
-<summary>Pytanie, kontrprzykłady i wymagany wynik</summary>
-
-```text
-Porównaj pojedynczego agenta z koordynatorem i wyspecjalizowanymi workerami dla zadań tallystick. Role proponowane do eksperymentu: czytający repo, badacz dokumentacji i recenzent dowodów. Ustal minimalny zakres narzędzi, wejścia, limity i kontrakt wyniku każdej roli. Istniejący host prowadzi sesje i model loop; LEDGER jedynie kontroluje efekty i provenance. Wynik: diagram uprawnień, warunki opłacalności delegowania oraz benchmark kosztu na poprawny wynik. Zabroń wspólnego niekontrolowanego writera i oceniania prawdy głosowaniem agentów. Nie wdrażaj nowego koordynatora jako piątego modułu.
-```
-
-</details>
+**Zakres badania:** koordynator i specjaliści poza deterministycznym hot path oraz warunki opłacalności.
 
 **Materiały startowe:** [C-TEAM](#c-team), [O-ASTRA](#o-astra), [R-AGENTS](#r-agents), [R-SPEC](#r-spec).
 
 #### DR-10. Równoległość bez utraty one-writer invariant
 
-<details>
-<summary>Pytanie, kontrprzykłady i wymagany wynik</summary>
-
-```text
-Zbadaj przypadki wielu read-only workerów, dwóch writerów jednego worktree i writerów osobnych worktree z późniejszą integracją. Nie zakładaj, że kopia repo ani numer fencing token automatycznie autoryzują mutację. Prześledź lease od pomiaru aż po zakończenie, tożsamość input SHA i aktualność wyników po integracji. Wynik: macierz dopuszczalnej współbieżności, kontrprzykłady TOCTOU oraz kryteria testu z dwoma rzeczywistymi procesami. Oddziel istniejący MVP-0 od propozycji integracyjnych. Nie twórz distributed lock service ani nowego runtime bez wykazania potrzeby i decyzji właściciela.
-```
-
-</details>
+**Zakres badania:** równoległe analizy przy zachowaniu jednego writera, lease i aktualności SHA.
 
 **Materiały startowe:** [R-STATE](#r-state), [R-GATE](#r-gate), [R-MIDDLEWARE](#r-middleware), [C-TEAM](#c-team).
 
 #### DR-11. Advisor i Outcomes bez resurrectowania Twin Brains
 
-<details>
-<summary>Pytanie, kontrprzykłady i wymagany wynik</summary>
-
-```text
-Rozdziel trzy zadania: propozycja hipotezy, recenzja jakości artefaktu i autoryzacja twierdzenia o świecie. Zestaw advisor i stateless outcome grader z odrzuconym modelem sędziego prawdy. Zaproponuj ograniczony eksperyment doradczy poza hot path, z rubric wymagającą file:line, aktualnego SHA i odzyskiwalnego evidence. Werdykt modelu nie może wystawiać permit ani sam podpisywać escape proof. Wynik: warunki dopuszczalnego użycia, no-fire list ograniczająca scope creep, limit iteracji i koszty oraz test wspólnej błędnej przesłanki writer–grader. Uzasadnij wynik względem kill-round, nie tylko atrakcyjności API.
-```
-
-</details>
+**Zakres badania:** rozdzielenie hipotezy, review artefaktu i autoryzacji twierdzenia o świecie.
 
 **Materiały startowe:** [C-ADVISOR](#c-advisor), [C-OUTCOME](#c-outcome), [R-SPEC](#r-spec), [R-STATUS](#r-status).
 
 #### DR-12. Async tools, anulowanie i spóźnione wyniki
 
-<details>
-<summary>Pytanie, kontrprzykłady i wymagany wynik</summary>
-
-```text
-Oceń wymagania hostowej obsługi równoległych narzędzi i zmiany instrukcji w trakcie pracy. Zbadaj late results, powtórne dostarczenie, cancellation po efekcie, zmianę celu i zmianę epoki przed powrotem workera. Czas ukończenia wiadomości nie jest czasem obowiązywania dowodu. Wynik: scenariusze z call_id/requestId/sessionId/goalId/input_epoch, macierz admission/discard/quarantine oraz testy zachowania UNKNOWN. Ustal, co pozostaje odpowiedzialnością hosta, a co wymaga durable korelacji w LEDGER. Nie zamieniaj async cancellation w domniemanie rollbacku i nie dodawaj wywołań provider API do biblioteki.
-```
-
-</details>
+**Zakres badania:** async tools, anulowanie, late results, resume i zachowanie UNKNOWN.
 
 **Materiały startowe:** [O-ASTRA](#o-astra), [O-APP](#o-app), [R-MIDDLEWARE](#r-middleware), [R-GATE](#r-gate), [R-SPEC](#r-spec).
 
@@ -319,53 +237,25 @@ Oceń wymagania hostowej obsługi równoległych narzędzi i zmiany instrukcji w
 
 #### DR-13. Compaction jako nowy widok, nie utrata źródła
 
-<details>
-<summary>Pytanie, kontrprzykłady i wymagany wynik</summary>
-
-```text
-Porównaj trimming, streszczenie sesji i materializowany checkpoint z zachowaniem źródeł. Zaproponuj eksperyment, w którym po kompaktowaniu trzeba odzyskać dawny constraint, polecenie, błąd i niezakończone zobowiązanie. Dla checkpointu określ covered event range, omitted domains, source handles i required evidence; brak pokrycia ma inicjować odzysk, nie zgadywanie. Wynik: kryteria correctness/recovery/latency/token cost oraz minimalny zestaw adversarial long sessions. To badanie designu docelowego, nie rozszerzenie MVP-0. Nie wdrażaj Tail Ring, jednego globalnego summary ani LLM w hot path.
-```
-
-</details>
+**Zakres badania:** compaction jako nowy widok z zachowaniem źródeł, zobowiązań i recovery.
 
 **Materiały startowe:** [O-SESSION](#o-session), [C-COMPACTION](#c-compaction), [C-CONTEXT](#c-context), [R-SPEC](#r-spec).
 
 #### DR-14. Context Atlas i obowiązkowe evidence dla następnej decyzji
 
-<details>
-<summary>Pytanie, kontrprzykłady i wymagany wynik</summary>
-
-```text
-Na bazie dostarczonego ANALIZA rozdz.19–23 zbadaj routing contextu dla edit, test i recovery. Jeśli pliku nie ma, oznacz brak źródła i nie odtwarzaj normatywnego layoutu z pamięci. Porównaj samo retrieval z obowiązkowymi evidence slots i pobraniem brakującego fragmentu przed publikacją claim. Wynik: zestaw zadań ujawniających lost-in-the-middle, kryteria rozpoznania brakującego dowodu, pomiar false retrieval i liczby recovery calls. Promotion oznacza przesunięcie właściwego dowodu, nie wielokrotną replikację. Oddziel ten eksperyment od implementowania pełnego Context Assemblera w MVP-0.
-```
-
-</details>
+**Zakres badania:** Context Atlas, required evidence slots i odzyskanie brakującego dowodu.
 
 **Materiały startowe:** [R-SPEC](#r-spec), [O-SESSION](#o-session), [C-CONTEXT](#c-context).
 
 #### DR-15. Audyt AGENTS i skills jako wykonywalnego kontekstu
 
-<details>
-<summary>Pytanie, kontrprzykłady i wymagany wynik</summary>
-
-```text
-Przeprowadź read-only audyt instrukcji: aktywne reguły, historyczne etapy, supersesje ADR, duplikaty, sprzeczności oraz reguły zależne od rodzaju zadania. Zbadaj ryzyko niepotrzebnych pytań, niezleconej implementacji i mylenia dokumentu z current world state. Nie sprowadzaj problemu do samego token count. Wynik: reguła→źródło→zakres→konflikt oraz minimalne scenariusze testowe dla analizy, implementacji i audytu. Proponowane skróty muszą zachować krytyczne jednolinijkowe invariants i STOP przy rzeczywistym SPEC conflict. Nie uznawaj draft PR23 za obowiązujące AGENTS na main.
-```
-
-</details>
+**Zakres badania:** audyt AGENTS/skills jako wykonywalnego kontekstu, konfliktów i supersesji.
 
 **Materiały startowe:** [R-AGENTS](#r-agents), [R-SPEC](#r-spec), [R-ISSUES](#r-issues), [O-ASTRA](#o-astra).
 
 #### DR-16. Deterministyczny digest, który nie fałszuje niepewności
 
-<details>
-<summary>Pytanie, kontrprzykłady i wymagany wynik</summary>
-
-```text
-Zbadaj każdy parser i ograniczenie 4096 B. Kontrprzykłady: nieznany output z exit 0, błędny typ JSON, sprzeczne liczniki, ANSI, invalid UTF-8, bardzo długa linia, git pathspec po --, rename i binary output. Dla każdego pola określ, czy jest pomiarem, parsowanym twierdzeniem czy preview. Wynik: macierz recognized/partial/unknown, kompletności, omitted_count/truncated i poprawności wszystkich source handles. Zbadaj błąd renderer/digest-budget po znanym zakończeniu procesu oddzielnie od execution UNKNOWN. Nie używaj LLM do naprawiania parsera w hot path.
-```
-
-</details>
+**Zakres badania:** deterministyczne digesty, parser status, bounded reprezentacja i source handles.
 
 **Materiały startowe:** [R-ADAPTERS](#r-adapters), [R-SHELL](#r-shell), [R-TEST](#r-test), [R-COMPILER](#r-compiler), [R-DIFF](#r-diff), [R-SPEC](#r-spec).
 
@@ -373,53 +263,25 @@ Zbadaj każdy parser i ograniczenie 4096 B. Kontrprzykłady: nieznany output z e
 
 #### DR-17. Pełne broker coverage na rzeczywistym hoście
 
-<details>
-<summary>Pytanie, kontrprzykłady i wymagany wynik</summary>
-
-```text
-Przygotuj wykonalny plan S.6 dla dostępnej wersji Codexa i konfiguracji MCP. Zinwentaryzuj rzeczywiście udostępnione ścieżki shell, file-write, patch, MCP, delegowanie i resume; nie zakładaj dostępności konkretnych flag. Dla każdej ścieżki wskaż kontrolę przed efektem oraz obserwowalną granicę model-facing output. Wynik: macierz enabled/allowed/brokered/disabled-with-proof i PASS/FAIL/BLOCKED. Osobno zmierz awarię brokera, raw admission i permit replay. Jeden działający serwer MCP nie jest dowodem coverage; znany dozwolony bypass oznacza odmowę enforce, bez observer fallback.
-```
-
-</details>
+**Zakres badania:** pełne broker coverage na rzeczywistym hoście i kontrola przed efektem.
 
 **Materiały startowe:** [R-DESKTOP](#r-desktop), [R-SPEC](#r-spec), [O-APP](#o-app), [O-SDK](#o-sdk).
 
 #### DR-18. Codex App Server jako punkt integracji bez własnej pętli modelu
 
-<details>
-<summary>Pytanie, kontrprzykłady i wymagany wynik</summary>
-
-```text
-Zweryfikuj w aktualnej dokumentacji dynamicTools i przepływ item/tool/call oraz required MCP startup. Oddziel request, który rzeczywiście czeka na wykonawcę, od notification, które raportuje już wykonane działanie. Porównaj zwykły MCP executor i klienta App Server sterującego istniejącym Codex runtime. Wynik: sequence diagrams, wersje/experimental status, lista gwarancji i niewiadomych oraz najmniejszy inertny eksperyment desktopowy. Ustal, które native tools pozostają poza badanym punktem. Nie przedstawiaj dynamicTools ani required=true jako automatycznego spełnienia ADR-002.
-```
-
-</details>
+**Zakres badania:** Codex App Server jako cienki punkt integracji bez własnej pętli modelu.
 
 **Materiały startowe:** [O-APP](#o-app), [R-DESKTOP](#r-desktop), [R-MIDDLEWARE](#r-middleware), [R-SPEC](#r-spec).
 
 #### DR-19. Pokrycie guardrails Agents SDK versus Failure Antibody Gate
 
-<details>
-<summary>Pytanie, kontrprzykłady i wymagany wynik</summary>
-
-```text
-Zmapuj osobno agent input/output guardrails, function-tool guardrails, lokalne MCP tools, hosted tools, handoffs i built-in execution tools w aktualnej wersji SDK. Sprawdź tryb równoległy versus blokujący oraz moment względem approval i wykonania. Wynik: tabela punktów kontroli, kontrprzykłady niewystarczającego coverage i plan testu z efektem ubocznym oraz późnym tripwire. Rekomenduj wyłącznie granicę, która kontroluje wykonanie przed efektem i archiwizuje raw przed admission. SDK pozostaje warstwą hosta; nie dodawaj zależności ani provider loop do czterech modułów LEDGER.
-```
-
-</details>
+**Zakres badania:** pokrycie guardrails Agents SDK względem Failure Antibody Gate.
 
 **Materiały startowe:** [O-SDK](#o-sdk), [R-GATE](#r-gate), [R-SPEC](#r-spec).
 
 #### DR-20. Model uprawnień środowiska desktopowego: worktree, CAS, SQLite i klucz
 
-<details>
-<summary>Pytanie, kontrprzykłady i wymagany wynik</summary>
-
-```text
-Zdefiniuj minimalny model uprawnień rzeczywistej integracji: co może czytać i pisać host/model-facing tools, co broker, a co operator. Zweryfikuj dostęp do klucza 0600 przez proces z tym samym UID, native write bypass, ścieżki spoza worktree, symlinki, storage w manifestach i eksport raw zawierającego sekrety. Wynik: macierz capability × actor, testy negatywne i kryteria ponownej walidacji po zmianie wersji/config. Porównaj wykonalne warianty bez narzucania Kubernetes/NFS/nowego serwisu. Oddziel projektowany sidecar od aktualnej biblioteki; brak realnej izolacji to wynik audytu, nie pozwolenie na deklarowanie enforce.
-```
-
-</details>
+**Zakres badania:** model uprawnień desktopowego hosta dla worktree, CAS, SQLite, klucza i symlinków.
 
 **Materiały startowe:** [R-DESKTOP](#r-desktop), [R-MIDDLEWARE](#r-middleware), [R-LEDGER](#r-ledger), [R-SPEC](#r-spec).
 
@@ -434,13 +296,13 @@ Opracowanie materiałów dostarczonych przez właściciela; nie wykonano tu pono
 | S-SYNTEZA | `Wklejony kod markdown.md` — historyczne syntezy/audyty | `b5c029ec1de45a61641bc2a89ce0189a51504c4b1e0ea3b3f770b83df2963891` |
 | S-SYNTEZA-2 | `Wklejony kod markdown (2).md` — synteza A–Z | `75ed37d85f9421f172b3149bb047a6979dd200b387382be89a7f07f29d01e6ca` |
 
-Oryginały pozostają materiałami właściciela; hash identyfikuje plik, nie dowodzi jego wniosków. Nie publikujemy kopii rozmów jako nowego źródła norm. Motywacje wybrano do [architektury](ARCHITECTURE.md); ustalenia A zachowano w [rejestrze audytu](AUDIT-REGISTER.md). Poniższe prompty i bibliografia zachowują treść S-RESEARCH; nowe nagłówki i nawigacja są redakcyjne.
+Oryginały pozostają materiałami właściciela; hash identyfikuje plik, nie dowodzi jego wniosków. Nie publikujemy kopii rozmów jako nowego źródła norm. Motywacje wybrano do [architektury](ARCHITECTURE.md); ustalenia A zachowano w [rejestrze audytu](AUDIT-REGISTER.md). Poniższe zakresy i bibliografia wskazują treść S-RESEARCH; pełne prompty nie są przechowywane w repozytorium, a nowe nagłówki i nawigacja są redakcyjne.
 
 S-SYNTEZA/S-SYNTEZA-2 mieszają historyczny status, rekomendacje i opisy designu, a miejscami różnią się zakresem odczytu logów CI. Nie rozstrzygamy tej historii przez ujednolicenie liczb: dowód baseline jest w [MVP-0-STATUS](MVP-0-STATUS.md), późniejsze raporty operatora są rozliczone oddzielnie. Zewnętrzne prace o pamięci pozostają materiałem do badania; nie uzasadniają deklaracji przewagi ani rozpoczęcia implementacji pamięci.
 
 ### Syntezy dostarczone 10 września 2026
 
-Poniższe aliasy opisują pochodzenie odsyłaczy, nie nowe ADR ani kolejność autorytetu. Oryginały dostarczono jako załączniki; nie są plikami tego repo. SHA-256 policzono z otrzymanych bajtów. Archiwum przekazania v2 zachowuje pełne źródła, ale jego lokalne ścieżki i odsyłacze sesyjne nie są publicznym evidence GitHub.
+Poniższe aliasy opisują pochodzenie odsyłaczy, nie nowe ADR ani kolejność autorytetu. Oryginały dostarczono jako załączniki; nie są plikami tego repo. SHA-256 policzono z otrzymanych bajtów.
 
 | Źródło / alias | Rola | SHA-256 otrzymanych bajtów |
 |---|---|---|
