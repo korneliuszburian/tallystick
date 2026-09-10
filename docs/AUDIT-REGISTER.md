@@ -33,6 +33,16 @@ Poniższa tabela jest dyspozycją dla wskazanych historycznych ustaleń na code 
 
 Nie traktuj `OPEN` jako nowego ADR ani jako zgody na zmianę SPEC; pozycje wymagające decyzji pozostają w sekcjach poniżej.
 
+## Rewalidacja po PR #35
+
+Poniższy wpis dotyczy code fixed point `b878e675cf7a9f2d262b7417be02f92f64239500` po scaleniu PR #35. To osobna rewalidacja A12; nie przepisuje historycznej tabeli powyżej ani nie certyfikuje S.6.
+
+| Ustalenie | Dyspozycja na `b878e675cf7a9f2d262b7417be02f92f64239500` | Dowód wykonania i granica |
+|---|---|---|
+| A12 / wspólny limit raw | `RESOLVED` dla `openLedger` oraz płytkich kopii zachowujących tożsamość funkcji `archive`; stdout+stderr dzielą jeden budżet wykonania | `src/adapters/index.ts:144-186,286-289`; `src/ledger/internal.ts:3-14`; `test/integration/raw-output-limit.test.ts:142-241`; [PR #35](https://github.com/korneliuszburian/tallystick/pull/35) i dwa zielone checki `ledger-acceptance` |
+
+Test 3072+3072 przy capie 4096 wykazuje sumaryczne cięcie, partial capture, rozwiązywalny `SourceHandle` i reap potomka. Owijanie `archive` nową funkcją oraz inne własne implementacje `EventLedger` pozostają poza tym dowodem i wymagają osobnej decyzji kontraktowej.
+
 ## Ustalenia A01–A24
 
 Poniższe obserwacje pochodzą z odczytu przypiętego kodu. Podane testy są propozycjami, nie wynikami reprodukcji. Sformułowanie „ryzyko” nie jest dowodem wystąpienia awarii. Brak pełnego systemu memory lub integracji jest granicą zakresu, nie automatycznie defektem MVP-0.
