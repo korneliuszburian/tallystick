@@ -20,7 +20,7 @@
 ## Wyniki
 
 - `codex debug models` reklamuje `gpt-6-astra`, `gpt-5.6-luna` i `gpt-5.6-sol`; to katalog hosta, nie atestacja wykonania inference.
-- Host task identity `/root/host_preflight` zaobserwowała delegację parent→child. Dokładny model wykonującego childa pozostaje `UNKNOWN`, bo dostępne metadane sesji go nie ujawniają.
+- Operator preflight zaobserwował delegację parent→child. Dokładny model wykonującego childa pozostaje `UNKNOWN`, bo dostępne metadane sesji go nie ujawniają.
 - W tym profilu efektywny kontekst delegowanego childa miał `filesystem unrestricted` i `approval_policy=never`. Repozytoryjne TOML z `sandbox_mode=read-only` nie stanowią na tym hoście egzekwowanej granicy: operator-reported isolation = `FAIL`.
 - To jest raport operatora z terminalowego przebiegu sesji, a nie samodzielnie odtwarzalny host trace; statusy wymagają ponownego pomiaru przed enforce.
 - `codex features list` wykazało `multi_agent stable=true`, `multi_agent_v2 stable=false`, `goals stable=true`, `worktrees experimental=false`.
@@ -40,4 +40,4 @@ git rev-parse HEAD
 git status --short --branch
 ```
 
-Nie wykonano instalacji, testów, push, merge, operacji zdalnych ani zapisu do repo podczas pomiaru. Ten raport operatora nie jest dowodem aktualnej konfiguracji każdego checkoutu; po zmianie profilu trzeba go powtórzyć. Próba utworzenia tymczasowego stderr została zachowana jako nieudana/nieusunięta artefaktowa ścieżka poza repo; nie zawiera danych uwierzytelniających.
+Nie wykonano instalacji, testów, push, merge, operacji zdalnych ani zapisu do repo podczas pomiaru. Ten raport operatora nie jest dowodem aktualnej konfiguracji każdego checkoutu; po zmianie profilu trzeba go powtórzyć. Tymczasowy stderr nie jest częścią repozytorium ani dowodu i powinien zostać usunięty przez operatora.

@@ -24,7 +24,8 @@ Transaction/control plane wokół runtime’u Codexa. [Granica systemu](SPEC.md#
 | Przygotować konkretny eksperyment | [Research i źródła](docs/RESEARCH.md); [odrębne numeracje DR](docs/RESEARCH.md#dwie-kampanie-dr). |
 | Wprowadzić zmianę | [AGENTS](AGENTS.md) i [formularz PR](.github/pull_request_template.md). |
 | Sprawdzić historyczny podział pracy / porządek gałęzi | [ISSUES](ISSUES.md), [checklista po merge](docs/REPOSITORY-HYGIENE.md). |
-| Uruchomić deweloperski orchestrator | [Projekt i granice](docs/orchestrator/DESIGN.md), [plan](docs/orchestrator/IMPLEMENTATION-PLAN.md), [macierz](docs/orchestrator/SECURITY-TEST-MATRIX.md). To nie jest task queue produktu. |
+| Uruchomić deweloperski orchestrator | [Projekt i granice](docs/orchestrator/DESIGN.md), [plan](docs/orchestrator/IMPLEMENTATION-PLAN.md), [macierz](docs/orchestrator/SECURITY-TEST-MATRIX.md), [P0 hosta](docs/orchestrator/P0-HOST-REPORT.md). Stan: pilot częściowy, enforce BLOCKED; to nie jest task queue produktu. |
+| Zobaczyć zatrzymane decyzje SPEC | [Diagnostyka konfliktów](docs/SPEC-CONFLICTS.md). Konflikt wymaga decyzji przed zależną implementacją. |
 
 ## Status bez skrótów
 

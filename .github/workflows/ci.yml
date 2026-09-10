@@ -43,29 +43,3 @@ jobs:
 # https://nodejs.org/en/blog/release/v24.20.0
 # https://github.com/actions/checkout
 # https://github.com/actions/setup-node
-# https://docs.github.com/en/repositories/creating-and-managing-repositories/quickstart-for-repositories
-# https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/managing-a-branch-protection-rule
-# https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/troubleshooting-required-status-checks
-# https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-auto-merge-for-pull-requests-in-your-repository
-# https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/automatically-merging-a-pull-request
-#
-# Uruchomienie z telefonu:
-# 1. W przeglądarce telefonu otwórz GitHub; w razie potrzeby użyj widoku
-#    komputerowego. Utwórz repo i zainicjalizuj main. Ochrona gałęzi i auto-merge
-#    są dostępne dla publicznego repo na Free; prywatne wymaga obsługującego je planu.
-# 2. Utwórz gałąź bootstrap-ledger. Przez Add file > Create new file wklej cztery
-#    artefakty pod dokładnymi ścieżkami. Utwórz pięć issues z ISSUES.md przed
-#    otwarciem pierwszego PR, aby zachować ich numery #1–#5.
-# 3. W Settings > Branches > Add classic branch protection rule ustaw main,
-#    Require a pull request before merging oraz Do not allow bypassing the above
-#    settings. Zapisz regułę; nie wykonuj bezpośrednich push do main.
-# 4. Otwórz PR z bootstrap-ledger. W Settings > General > Pull Requests włącz
-#    Allow auto-merge. Same cztery artefakty nie zapewnią zielonego CI: potrzebne
-#    są package.json, package-lock.json, konfiguracja TypeScript i implementacja.
-# 5. Po wdrożeniu #1–#5 i udanym ledger-acceptance z ostatnich siedmiu dni edytuj
-#    ochronę main: włącz Require status checks to pass before merging, wybierz
-#    ledger-acceptance jako required check i zapisz. Nie pomijaj testów, aby
-#    sztucznie uzyskać pierwszy zielony wynik.
-# 6. Dla PR oczekującego na wymagany check wybierz Enable auto-merge, a następnie
-#    Confirm auto-merge. Opcja jest widoczna dla PR, którego nie można jeszcze
-#    scalić natychmiast; scalanie nastąpi dopiero po spełnieniu wymaganych warunków.
