@@ -106,4 +106,4 @@ Progi 10× i promocji w S-ANALIZA są **kryteriami/targetami designu, nie osiąg
 
 ## Dowody i ograniczenia
 
-Stan biblioteki: [baseline](MVP-0-STATUS.md). Ryzyka i konkretne reprodukcje: [rejestr audytu](AUDIT-REGISTER.md). Kryteria rzeczywistego hosta: [audyt integracji](LAPTOP-INTEGRATION-AUDIT.md). Ta notatka nie nadaje żadnemu z tych obszarów nowego PASS.
+Stan biblioteki: [baseline](MVP-0-STATUS.md). Ryzyka i konkretne reprodukcje: [rejestr audytu](AUDIT-REGISTER.md). Kryteria rzeczywistego hosta: [audyt integracji](DESKTOP-INTEGRATION-AUDIT.md). Ta notatka nie nadaje żadnemu z tych obszarów nowego PASS.

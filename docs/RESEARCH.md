@@ -381,7 +381,7 @@ Przygotuj wykonalny plan S.6 dla dostępnej wersji Codexa i konfiguracji MCP. Zi
 
 </details>
 
-**Materiały startowe:** [R-LAPTOP](#r-laptop), [R-SPEC](#r-spec), [O-APP](#o-app), [O-SDK](#o-sdk).
+**Materiały startowe:** [R-DESKTOP](#r-desktop), [R-SPEC](#r-spec), [O-APP](#o-app), [O-SDK](#o-sdk).
 
 #### DR-18. Codex App Server jako punkt integracji bez własnej pętli modelu
 
@@ -389,12 +389,12 @@ Przygotuj wykonalny plan S.6 dla dostępnej wersji Codexa i konfiguracji MCP. Zi
 <summary>Pytanie, kontrprzykłady i wymagany wynik</summary>
 
 ```text
-Zweryfikuj w aktualnej dokumentacji dynamicTools i przepływ item/tool/call oraz required MCP startup. Oddziel request, który rzeczywiście czeka na wykonawcę, od notification, które raportuje już wykonane działanie. Porównaj zwykły MCP executor i klienta App Server sterującego istniejącym Codex runtime. Wynik: sequence diagrams, wersje/experimental status, lista gwarancji i niewiadomych oraz najmniejszy inertny eksperyment laptopowy. Ustal, które native tools pozostają poza badanym punktem. Nie przedstawiaj dynamicTools ani required=true jako automatycznego spełnienia ADR-002.
+Zweryfikuj w aktualnej dokumentacji dynamicTools i przepływ item/tool/call oraz required MCP startup. Oddziel request, który rzeczywiście czeka na wykonawcę, od notification, które raportuje już wykonane działanie. Porównaj zwykły MCP executor i klienta App Server sterującego istniejącym Codex runtime. Wynik: sequence diagrams, wersje/experimental status, lista gwarancji i niewiadomych oraz najmniejszy inertny eksperyment desktopowy. Ustal, które native tools pozostają poza badanym punktem. Nie przedstawiaj dynamicTools ani required=true jako automatycznego spełnienia ADR-002.
 ```
 
 </details>
 
-**Materiały startowe:** [O-APP](#o-app), [R-LAPTOP](#r-laptop), [R-MIDDLEWARE](#r-middleware), [R-SPEC](#r-spec).
+**Materiały startowe:** [O-APP](#o-app), [R-DESKTOP](#r-desktop), [R-MIDDLEWARE](#r-middleware), [R-SPEC](#r-spec).
 
 #### DR-19. Pokrycie guardrails Agents SDK versus Failure Antibody Gate
 
@@ -409,7 +409,7 @@ Zmapuj osobno agent input/output guardrails, function-tool guardrails, lokalne M
 
 **Materiały startowe:** [O-SDK](#o-sdk), [R-GATE](#r-gate), [R-SPEC](#r-spec).
 
-#### DR-20. Model uprawnień laptopa: worktree, CAS, SQLite i klucz
+#### DR-20. Model uprawnień środowiska desktopowego: worktree, CAS, SQLite i klucz
 
 <details>
 <summary>Pytanie, kontrprzykłady i wymagany wynik</summary>
@@ -420,7 +420,7 @@ Zdefiniuj minimalny model uprawnień rzeczywistej integracji: co może czytać i
 
 </details>
 
-**Materiały startowe:** [R-LAPTOP](#r-laptop), [R-MIDDLEWARE](#r-middleware), [R-LEDGER](#r-ledger), [R-SPEC](#r-spec).
+**Materiały startowe:** [R-DESKTOP](#r-desktop), [R-MIDDLEWARE](#r-middleware), [R-LEDGER](#r-ledger), [R-SPEC](#r-spec).
 
 ## Pochodzenie materiałów
 
@@ -539,10 +539,10 @@ https://github.com/korneliuszburian/tallystick/blob/ddc81034add54bf47bf63b5a11e4
 
 https://github.com/korneliuszburian/tallystick/blob/ddc81034add54bf47bf63b5a11e48ed1bd64d4d9/docs/MVP-0-STATUS.md
 
-<a id="r-laptop"></a>
-**R-LAPTOP — Kryteria audytu integracji S.6**
+<a id="r-desktop"></a>
+**R-DESKTOP — Kryteria audytu integracji S.6**
 
-https://github.com/korneliuszburian/tallystick/blob/ddc81034add54bf47bf63b5a11e48ed1bd64d4d9/docs/LAPTOP-INTEGRATION-AUDIT.md
+https://github.com/korneliuszburian/tallystick/blob/ddc81034add54bf47bf63b5a11e48ed1bd64d4d9/docs/DESKTOP-INTEGRATION-AUDIT.md
 
 <a id="o-astra"></a>
 **O-ASTRA — OpenAI — Using GPT-6 Astra / Model guidance**

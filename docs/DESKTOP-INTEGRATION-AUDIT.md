@@ -17,10 +17,10 @@ Checklistę wykonuje człowiek na małym, izolowanym worktree. Ten dokument nie 
 
 ## 1. Prerequisites — TODO
 
-- [ ] Dostęp do `korneliuszburian/tallystick`, Git, Node i npm; zapisane wersje i system operacyjny. Środowisko referencyjne i granice transferu wyniku: [baseline CI](MVP-0-STATUS.md#fact--zakres-i-identyfikacja-dowodu); nie jest to gwarancja kompatybilności laptopa.
+- [ ] Dostęp do `korneliuszburian/tallystick`, Git, Node i npm; zapisane wersje i system operacyjny. Środowisko referencyjne i granice transferu wyniku: [baseline CI](MVP-0-STATUS.md#fact--zakres-i-identyfikacja-dowodu); nie jest to gwarancja kompatybilności środowiska desktopowego.
 - [ ] Zainstalowany, dostępny lokalnie Codex CLI lub SDK, oraz konfiguracja MCP, jeżeli wybrana ścieżka go używa; zapisane dokładne wersje i źródło informacji o dostępnych interfejsach.
 - [ ] Czysty checkout konkretnego commitu; brak równoległego writera badanego worktree; lokalny filesystem dla SQLite/CAS, nie NFS.
-- [ ] Działające `npm ci`, wszystkie pięć suit, typecheck i demo na laptopie; rzeczywiste exit codes, nie wyłącznie obecność komend.
+- [ ] Działające `npm ci`, wszystkie pięć suit, typecheck i demo na desktopie; rzeczywiste exit codes, nie wyłącznie obecność komend.
 - [ ] SQLite >= 3.51.3 zmierzone przez połączenie `better-sqlite3`; wersja systemowego `sqlite3` nie jest dowodem tej zależności.
 - [ ] Możliwość obserwacji granicy proposal/guard/spawn oraz faktycznych model-facing tool results przed admission; ekran czatu lub końcowe podsumowanie modelu nie wystarczają.
 
@@ -28,7 +28,7 @@ Brak narzędzia, uprawnień albo obserwowalności daje BLOCKED dla odpowiedniego
 
 ## 2. Setup lokalny — TODO
 
-W nowym katalogu sklonuj repo; istniejącego checkoutu nie resetuj ani nie czyść destrukcyjnie. Ustal testowany commit i zachowaj jego SHA. Poniższy setup wymaga Bash; polecenia są planem audytu, nie twierdzeniem o wykonaniu na laptopie.
+W nowym katalogu sklonuj repo; istniejącego checkoutu nie resetuj ani nie czyść destrukcyjnie. Ustal testowany commit i zachowaj jego SHA. Poniższy setup wymaga Bash; polecenia są planem audytu, nie twierdzeniem o wykonaniu na desktopie.
 
 ```bash
 git clone https://github.com/korneliuszburian/tallystick.git
@@ -166,6 +166,6 @@ Nie publikuj harness key, tokenów, haseł ani wrażliwego raw. Oryginały przec
 
 Jeżeli występują jednocześnie FAIL i BLOCKED, wynik całości to FAIL, a blokady pozostają zapisane osobno. UNKNOWN execution oznacza zero automatycznych retry i reconciliation procesu, worktree i skutków przed kontynuacją; nie jest usprawiedliwieniem ponownego wykonania.
 
-Użyj istniejącego [issue #22 — Laptop integration audit: validate Tallystick enforce path with Codex/MCP](https://github.com/korneliuszburian/tallystick/issues/22), zamiast tworzyć drugi tracker. Kolejne wyniki dopisuj do tego issue zamiast produkować duplikaty. Każda proponowana zmiana architektury musi wskazać naruszony ADR i uzyskać jawną decyzję supersedującą; nie edytuj historii ani API po cichu. Brak konieczności zmiany kontraktu nie wymaga sztucznego nowego ADR, lecz wymaga wskazania obowiązujących decyzji w wyniku audytu.
+Użyj istniejącego [issue #22 — Desktop integration audit: validate Tallystick enforce path with Codex/MCP](https://github.com/korneliuszburian/tallystick/issues/22), zamiast tworzyć drugi tracker. Kolejne wyniki dopisuj do tego issue zamiast produkować duplikaty. Każda proponowana zmiana architektury musi wskazać naruszony ADR i uzyskać jawną decyzję supersedującą; nie edytuj historii ani API po cichu. Brak konieczności zmiany kontraktu nie wymaga sztucznego nowego ADR, lecz wymaga wskazania obowiązujących decyzji w wyniku audytu.
 
 Zmiana SHA, wersji/config Codexa/MCP, transportu, dozwolonych narzędzi lub sposobu admission wymaga ponownej walidacji dotkniętych granic. PASS jednego profilu nie jest uniwersalnym certyfikatem produkcyjnym.

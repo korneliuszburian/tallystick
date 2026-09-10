@@ -58,7 +58,7 @@ Nie ma gwarancji wspólnej transakcji exactly-once ani atomowego rollbacku Git, 
 
 | Status historycznego baseline | Ograniczenie / dług | Dalsze postępowanie |
 |---|---|---|
-| TODO / BLOCKED | S.6 nie ma w tym baseline dowodu z realnego Codexa/MCP. | [Kryteria](LAPTOP-INTEGRATION-AUDIT.md) i późniejszy [rejestr](AUDIT-REGISTER.md); brak automatycznego transferu wyników między profilami. |
+| TODO / BLOCKED | S.6 nie ma w tym baseline dowodu z realnego Codexa/MCP. | [Kryteria](DESKTOP-INTEGRATION-AUDIT.md) i późniejszy [rejestr](AUDIT-REGISTER.md); brak automatycznego transferu wyników między profilami. |
 | FACT / TODO | Workflow warunkuje cztery suity istnieniem katalogów; na tym HEAD wszystkie się wykonały, lecz konstrukcja nie wymusza ich obecności. | Zachować dług; nie zmieniać workflow w dokumentacyjnym PR. |
 | FACT / TODO | Dowód dotyczy Ubuntu/Node/npm z tabeli; demo używa `rm -rf`, a storage wymaga lokalnego filesystemu i jednego writera. | Zmierzyć środowisko, zależności natywne, shell i SQLite z better-sqlite3. |
 | FACT / TODO | `.gitignore` baseline obejmuje `.demo-dist/` i `node_modules/`. | Baza, CAS, logi i `<databasePath>.harness-key` poza wersjonowanym worktree; bez sekretów w repo. |
