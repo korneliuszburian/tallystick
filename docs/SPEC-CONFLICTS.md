@@ -1,12 +1,14 @@
-# SPEC diagnostic stop
+# Tallystick — zatrzymanie diagnostyczne SPEC
 
-Status: `NEEDS_DECISION`  
-Base: `ddc81034add54bf47bf63b5a11e48ed1bd64d4d9`  
-Scope: MVP-0 middleware and the contracts it composes
+> **Rola:** decyzja · raport konfliktu kontraktu
+> **Status:** `NEEDS_DECISION`
+> **Zakres:** audyt implementacji na `ddc81034add54bf47bf63b5a11e48ed1bd64d4d9`; middleware MVP-0 i składane przez niego kontrakty
+> **Źródła:** [SPEC](../SPEC.md), [reguła STOP](../AGENTS.md#sprzeczności-i-brak-rozstrzygnięcia), read-only source review oraz [PR #25](https://github.com/korneliuszburian/tallystick/pull/25)
+> **Kiedy ten dokument traci aktualność:** po normatywnym rozstrzygnięciu wszystkich poniższych punktów albo zmianie dotkniętych kontraktów SPEC.
 
 This report records one direct procedural conflict and the adjacent contract gaps discovered while auditing the current implementation. It does not change the specification or select a resolution.
 
-## Direct conflict: proposal, preflight, and reservation commit order
+## Konflikt bezpośredni: kolejność proposal, preflight i commitu reservation
 
 The central invariant requires every executed action to have an approved, durable intent before execution (`SPEC.md`, “Cel i granica systemu”). R.4 requires `FailureGate.preflight()` to create its reservation and persist the `ALLOW` `guard_decision` atomically before returning. R.5, however, orders the pipeline as:
 
@@ -39,7 +41,7 @@ Decision options:
 
 No middleware ordering change should be implemented until one option is accepted in `SPEC.md`.
 
-## Contract decisions needed by later remediation
+## Decyzje kontraktowe wymagane przed późniejszą naprawą
 
 These are not all logical contradictions, but the current public API or persistence model does not determine a single implementation.
 
@@ -54,7 +56,7 @@ These are not all logical contradictions, but the current public API or persiste
 | UNKNOWN reconciliation | Define pre-spawn rejection separately from post-spawn uncertainty, the reconciliation authority/API, event payloads, and reservation transitions. | Crash after intent; zero retry after UNKNOWN |
 | Escape proof composition | Define how an opaque proof reaches middleware `intercept()` without exposing the signing key, or explicitly keep proofs outside R.5 MVP-0. | Escape proof; replayed proof; E2E |
 
-## Implementation findings held behind this stop
+## Ustalenia implementacyjne zatrzymane przez konflikt
 
 The current implementation has independently evidenced defects in permit-to-request binding, UNKNOWN classification, shared raw limits, child termination, whole-output buffering, epoch provenance, lease coverage, projection rebuild, bounded lookup, fixture provenance, chaos tests, and CI gating. Those defects should be repaired in the frozen module order after the relevant decisions above are incorporated into the normative specification.
 
