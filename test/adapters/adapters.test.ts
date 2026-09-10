@@ -237,6 +237,17 @@ describe("Acquisition adapters", () => {
     ledger.close();
   });
 
+  it("does not recognize non-empty unframed git-diff output on exit 0", async () => {
+    const base = root(); const ledger = ledgerAt(base); const api = adapters(ledger);
+    const result = await api.execute(req(base, "git-diff", process.execPath, ["-e", "process.stdout.write('not-a-patch');process.exit(0)"], "unknown-diff-zero"), permit("unknown-diff-zero"));
+    if (result.digest.kind !== "git-diff") throw new Error("wrong digest");
+    expect(result.digest.parser_status).toBe("unknown");
+    expect(result.digest.unknown_fragment).not.toBeNull();
+    expect(result.digest.unknown_fragment?.excerpt).toContain("not-a-patch");
+    await expect(ledger.readFragment(result.digest.unknown_fragment!.source)).resolves.toEqual(new TextEncoder().encode("not-a-patch"));
+    ledger.close();
+  });
+
   it("terminates the child when capture storage fails after consuming streams", async () => {
     const base = root(); const real = ledgerAt(base);
     const broken: EventLedger = {
