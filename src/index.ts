@@ -1,9 +1,10 @@
 import { createHash, createHmac, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
-import { chmodSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { chmodSync, linkSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import { createAdapters, type ExecutionRequest, type TypedDigest } from "./adapters/index.js";
-import { canonical, createFailureGate, fingerprint } from "./guards/index.js";
+import { canonical, createFailureGate } from "./guards/index.js";
 import { openLedger, type EventLedger, type Json } from "./ledger/index.js";
+import { scanAll } from "./ledger/scan.js";
 import { createStateTwin, type MemoryRecord, type StateEpoch } from "./state/index.js";
 
 export { createAdapters } from "./adapters/index.js";
@@ -52,15 +53,22 @@ function environmentFingerprint(): string {
 }
 function signingKeyAt(path: string): string {
   mkdirSync(dirname(path), { recursive: true });
+  const value = randomBytes(32).toString("hex");
+  const temporary = `${path}.${randomUUID()}.tmp`;
   try {
-    const value = randomBytes(32).toString("hex");
-    writeFileSync(path, value, { encoding: "utf8", flag: "wx", mode: 0o600 });
-    chmodSync(path, 0o600);
+    writeFileSync(temporary, value, { encoding: "utf8", flag: "wx", mode: 0o600 });
+    chmodSync(temporary, 0o600);
+    linkSync(temporary, path);
     return value;
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
+    if (readFileSync(path, "utf8").trim().length === 0) throw new Error("harness key file is empty; remove it only after verifying no active writer");
     chmodSync(path, 0o600);
-    return readFileSync(path, "utf8").trim();
+    const existing = readFileSync(path, "utf8").trim();
+    if (!/^[0-9a-f]{64}$/i.test(existing)) throw new Error("harness key file is invalid");
+    return existing;
+  } finally {
+    rmSync(temporary, { force: true });
   }
 }
 function normalize(input: InterceptInput): ExecutionRequest {
@@ -72,7 +80,7 @@ function normalize(input: InterceptInput): ExecutionRequest {
     executable: input.executable,
     argv: [...input.argv],
     cwd: input.cwd,
-    environment: input.environment ?? {},
+    environment: { ...(input.environment ?? {}) },
     dependencyPaths: [...input.dependencyPaths],
     timeoutMs: input.timeoutMs,
   };
@@ -85,7 +93,7 @@ function errorSignature(digest: TypedDigest): string | null {
     return sha(canonical({ exit_code: digest.exit_code, salient_errors: digest.salient_errors.map(item => item.signature) }));
   }
   if (digest.kind === "test-runner") {
-    const failed = (digest.failed ?? 0) > 0;
+    const failed = (digest.failed ?? 0) > 0 || digest.failed_tests.length > 0;
     if (digest.exit_code === 0 && !failed) return null;
     return sha(canonical({ failure_signatures: digest.failure_signatures }));
   }
@@ -95,6 +103,9 @@ function errorSignature(digest: TypedDigest): string | null {
 }
 
 export function createLedgerMiddleware(options: LedgerMiddlewareOptions) {
+  if (!Number.isSafeInteger(options.digestByteLimit) || options.digestByteLimit <= 0) {
+    throw new RangeError("digestByteLimit must be a positive safe integer");
+  }
   const keyPath = `${options.databasePath}.harness-key`;
   const signingKey = signingKeyAt(keyPath);
   const ledger = openLedger({
@@ -111,6 +122,12 @@ export function createLedgerMiddleware(options: LedgerMiddlewareOptions) {
   const state = createStateTwin({ ledger, sessionId: "ledger-session", correlationId: "ledger-goal" });
 
   function verifyAndConsumePermit(request: ExecutionRequest, permit: Parameters<ReturnType<typeof createAdapters>["execute"]>[1]): void {
+    const expectedRequestHash = sha(canonical({
+      tool: request.executable,
+      normalizedArgs: { argv: request.argv, cwd: request.cwd, environment: request.environment },
+      preconditionEpoch: permit.preconditionEpoch,
+    } as unknown as Json));
+    if (permit.requestHash !== expectedRequestHash) throw new Error("execution permit does not match request");
     const { signature, ...unsigned } = permit;
     const expected = createHmac("sha256", signingKey)
       .update(canonical({ schema: "execution-permit/v1", ...unsigned }), "utf8").digest();
@@ -136,11 +153,13 @@ export function createLedgerMiddleware(options: LedgerMiddlewareOptions) {
     return sha(canonical({ kind: input.kind, executable: input.executable, argv: input.argv, cwd: input.cwd, environment: input.environment ?? {}, dependencyPaths: input.dependencyPaths, timeoutMs: input.timeoutMs } as unknown as Json));
   }
   function guardDecisionId(requestId: string, reservationId?: string): string {
-    const events = ledger.scan({ kind: "guard_decision", limit: 100000 });
+    const events = scanAll(ledger, "guard_decision");
     for (let i = events.length - 1; i >= 0; i -= 1) {
       const event = events[i]!;
-      const payload = event.payload as Readonly<Record<string, Json>>;
-      if (payload.requestId === requestId && (reservationId === undefined || payload.reservationId === reservationId)) return event.event_id;
+      const payload = event.payload;
+      if (payload === null || Array.isArray(payload) || typeof payload !== "object") continue;
+      const record = payload as Readonly<Record<string, Json>>;
+      if (record.requestId === requestId && (reservationId === undefined || record.reservationId === reservationId)) return event.event_id;
     }
     throw new Error("guard decision is not resolvable");
   }
@@ -199,24 +218,30 @@ export function createLedgerMiddleware(options: LedgerMiddlewareOptions) {
       capture_completeness: rawEvent.capture_status === "complete",
     };
     if (ledger.getEvent(receipt.proposal_id) === undefined || ledger.getEvent(receipt.guard_decision_id) === undefined) throw new Error("receipt components are not resolvable");
-    const key = equivalentKey(input);
+    const key = equivalentKey(request);
     executionCounts.set(key, (executionCounts.get(key) ?? 0) + 1);
     return { decision: "EXECUTED", digest: result.digest, rawEventId: result.rawEventId, receipt };
   }
 
   return {
     intercept(input: InterceptInput): Promise<InterceptResult> {
-      const run = chain.then(() => interceptUnlocked(input));
+      const snapshot: InterceptInput = {
+        ...input,
+        argv: [...input.argv],
+        environment: { ...(input.environment ?? {}) },
+        dependencyPaths: [...input.dependencyPaths],
+      };
+      const run = chain.then(() => interceptUnlocked(snapshot));
       chain = run.then(() => undefined, () => undefined);
       return run;
     },
     computeStateEpoch: measure,
     fileMemoryFromEpoch(path: string, epoch: StateEpoch): MemoryRecord {
-      const expected = epoch.touched_file_hashes[path];
-      if (expected === undefined) throw new Error(`path is not measured in epoch: ${path}`);
-      const source = ledger.scan({ kind: "state_epoch", limit: 100000 }).find(event => {
-        const payload = event.payload as Readonly<Record<string, Json>>;
-        return payload.epoch_id === epoch.epoch_id;
+      if (!Object.hasOwn(epoch.touched_file_hashes, path)) throw new Error(`path is not measured in epoch: ${path}`);
+      const expected = epoch.touched_file_hashes[path]!;
+      const source = scanAll(ledger, "state_epoch").find(event => {
+        const payload = event.payload;
+        return payload !== null && !Array.isArray(payload) && typeof payload === "object" && (payload as Readonly<Record<string, Json>>).epoch_id === epoch.epoch_id;
       });
       if (source === undefined) throw new Error("state epoch event is not resolvable");
       return {

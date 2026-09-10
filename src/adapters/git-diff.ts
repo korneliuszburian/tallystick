@@ -8,23 +8,30 @@ function refs(argv: readonly string[]): { base: string; head: string } {
 function patchHandle(process: CapturedProcess) {
   return { event_id: process.rawEventId, blob_hash: process.stdoutReceipt.hash, stream: "file" as const, byte_start: 0, byte_end: process.stdoutReceipt.bytes };
 }
+function statCount(value: string): number | null {
+  if (value === "-") return null;
+  const parsed = Number(value);
+  return Number.isSafeInteger(parsed) && parsed >= 0 ? parsed : null;
+}
 
 export function gitDiffDigest(process: CapturedProcess): GitDiffDigest {
   const tokens = Buffer.from(process.stdout).toString("utf8").split("\0");
   const summaries: GitDiffDigest["file_summaries"][number][] = [];
   const stats = new Map<string, { additions: number | null; deletions: number | null }>();
   const binary = new Set<string>();
+  let invalidStat = false;
 
   for (let i = 0; i < tokens.length; i += 1) {
     const token = tokens[i] ?? "";
     const stat = token.match(/^(\d+|-)\t(\d+|-)\t(.*)$/s);
     if (!stat) continue;
-    const additions = stat[1] === "-" ? null : Number(stat[1]);
-    const deletions = stat[2] === "-" ? null : Number(stat[2]);
+    const additions = statCount(stat[1]!);
+    const deletions = statCount(stat[2]!);
+    if ((stat[1] !== "-" && additions === null) || (stat[2] !== "-" && deletions === null)) invalidStat = true;
     const embedded = stat[3] ?? "";
     if (embedded !== "") {
       stats.set(embedded, { additions, deletions });
-      if (additions === null || deletions === null) binary.add(embedded);
+      if (stat[1] === "-" || stat[2] === "-") binary.add(embedded);
       continue;
     }
     const first = tokens[++i] ?? "";
@@ -33,10 +40,10 @@ export function gitDiffDigest(process: CapturedProcess): GitDiffDigest {
       const second = tokens[++i] ?? "";
       stats.set(first, { additions, deletions });
       stats.set(second, { additions, deletions });
-      if (additions === null || deletions === null) { binary.add(first); binary.add(second); }
+      if (stat[1] === "-" || stat[2] === "-") { binary.add(first); binary.add(second); }
     } else {
       stats.set(first, { additions, deletions });
-      if (additions === null || deletions === null) binary.add(first);
+      if (stat[1] === "-" || stat[2] === "-") binary.add(first);
     }
   }
 
@@ -59,7 +66,7 @@ export function gitDiffDigest(process: CapturedProcess): GitDiffDigest {
   return {
     kind: "git-diff", adapter_version: "git-diff/v1", raw_event_id: process.rawEventId, receipt_id: process.rawEventId,
     capture_complete: process.stdoutReceipt.complete && process.stderrReceipt.complete,
-    parser_status: process.exitCode === 0 ? "recognized" : summaries.length > 0 ? "partial" : "unknown",
+    parser_status: invalidStat ? "partial" : process.exitCode === 0 ? "recognized" : summaries.length > 0 ? "partial" : "unknown",
     omitted_count: 0, truncated: false, unknown_fragment: null, base, head,
     files_changed: summaries.length,
     additions: summaries.reduce((sum, item) => sum + (item.additions ?? 0), 0),

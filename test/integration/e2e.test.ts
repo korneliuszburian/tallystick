@@ -1,6 +1,6 @@
-import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
+import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { execFileSync } from "node:child_process";
-import { chmodSync, mkdtempSync, mkdirSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
+import { accessSync, chmodSync, mkdtempSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, unlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
@@ -8,6 +8,7 @@ import { createAdapters, type ExecutionRequest } from "../../src/adapters/index.
 import { canonical, createFailureGate } from "../../src/guards/index.js";
 import { createLedgerMiddleware } from "../../src/index.js";
 import { openLedger, type EventLedger } from "../../src/ledger/index.js";
+import type { StateEpoch } from "../../src/state/types.js";
 
 const roots: string[] = [];
 afterEach(() => { for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true }); });
@@ -24,6 +25,13 @@ function request(repo: string, id: string, argv: string[]): ExecutionRequest {
 }
 function ledgerAt(base: string, raw = 64 * 1024 * 1024): EventLedger {
   return openLedger({ databasePath: join(base, "ledger.sqlite"), blobDirectory: join(base, "blobs"), projectId: "e2e", maxRawBytesPerExecution: raw });
+}
+function requestHash(candidate: ExecutionRequest, preconditionEpoch: string): string {
+  return createHash("sha256").update(canonical({
+    tool: candidate.executable,
+    normalizedArgs: { argv: candidate.argv, cwd: candidate.cwd, environment: candidate.environment },
+    preconditionEpoch,
+  })).digest("hex");
 }
 function verifier(ledger: EventLedger, signingKey: string) {
   return (candidate: ExecutionRequest, permit: { reservationId: string; requestHash: string; preconditionEpoch: string; fencingToken: number; signature: string }) => {
@@ -46,6 +54,87 @@ async function archive(ledger: EventLedger, value: Uint8Array, complete = true) 
 }
 
 describe("R.5 middleware integration", () => {
+  it("rejects a non-positive digest limit at construction", () => {
+    const base = root(); const repo = repoAt(base);
+    expect(() => createLedgerMiddleware({ repositoryRoot: repo, databasePath: join(base, "invalid.sqlite"), blobDirectory: join(base, "invalid-blobs"), digestByteLimit: 0, maxRawBytesPerExecution: 4096 })).toThrow(/digestByteLimit/);
+  });
+
+  it("fails clearly when a pre-existing harness key is empty", () => {
+    const base = root(); const repo = repoAt(base); const databasePath = join(base, "ledger.sqlite");
+    writeFileSync(`${databasePath}.harness-key`, "");
+    expect(() => createLedgerMiddleware({ repositoryRoot: repo, databasePath, blobDirectory: join(base, "blobs"), digestByteLimit: 4096, maxRawBytesPerExecution: 4096 })).toThrow(/harness key file is empty/);
+  });
+
+  it("fails clearly when a pre-existing harness key has the wrong format", () => {
+    const base = root(); const repo = repoAt(base); const databasePath = join(base, "ledger.sqlite");
+    writeFileSync(`${databasePath}.harness-key`, "not-a-hex-key");
+    expect(() => createLedgerMiddleware({ repositoryRoot: repo, databasePath, blobDirectory: join(base, "blobs"), digestByteLimit: 4096, maxRawBytesPerExecution: 4096 })).toThrow(/harness key file is invalid/);
+  });
+
+  it("creates and reuses a 0600 harness key without temp residue", async () => {
+    const base = root(); const repo = repoAt(base); const databasePath = join(base, "ledger.sqlite");
+    const first = createLedgerMiddleware({ repositoryRoot: repo, databasePath, blobDirectory: join(base, "blobs"), digestByteLimit: 4096, maxRawBytesPerExecution: 4096 });
+    const keyPath = `${databasePath}.harness-key`; const key = readFileSync(keyPath, "utf8");
+    expect(key).toMatch(/^[0-9a-f]{64}$/i); expect(statSync(keyPath).mode & 0o777).toBe(0o600);
+    expect(readdirSync(base).filter(name => name.startsWith("ledger.sqlite.harness-key.") && name.endsWith(".tmp"))).toEqual([]);
+    await first.close();
+    const second = createLedgerMiddleware({ repositoryRoot: repo, databasePath, blobDirectory: join(base, "blobs"), digestByteLimit: 4096, maxRawBytesPerExecution: 4096 });
+    expect(readFileSync(keyPath, "utf8")).toBe(key);
+    expect(readdirSync(base).filter(name => name.startsWith("ledger.sqlite.harness-key.") && name.endsWith(".tmp"))).toEqual([]);
+    await second.close();
+  });
+
+  it("rejects an unmeasured prototype-key path when creating file memory", async () => {
+    const base = root(); const repo = repoAt(base); const api = middlewareAt(base, repo); const epoch = await api.computeStateEpoch();
+    expect(() => api.fileMemoryFromEpoch("constructor", epoch)).toThrow(/not measured/); await api.close();
+  });
+
+  it("skips malformed state-epoch payloads with a controlled resolvability error", async () => {
+    const base = root(); const repo = repoAt(base); const ledger = ledgerAt(base);
+    ledger.append({ eventId: "malformed-state", sessionId: "session", correlationId: "goal", kind: "state_epoch", sourceTimestamp: new Date().toISOString(), payload: null, blobs: [] });
+    ledger.close();
+    const api = middlewareAt(base, repo);
+    const epoch = { epoch_id: "missing-epoch", touched_file_hashes: { "state.txt": "MISSING" } } as unknown as StateEpoch;
+    expect(() => api.fileMemoryFromEpoch("state.txt", epoch)).toThrow(/state epoch event is not resolvable/);
+    await api.close();
+  });
+
+  it("rejects a permit bound to different argv before spawning", async () => {
+    const base = root(); const repo = repoAt(base); const ledger = ledgerAt(base); const key = randomBytes(32).toString("hex"); const gate = createFailureGate({ ledger, signingKey: key });
+    const original = request(repo, "permit-original", ["-e", "process.stdout.write('original')"]);
+    const pre = gate.preflight({ request: original, preconditionEpoch: "epoch" });
+    expect(pre.decision).toBe("ALLOW"); if (pre.decision !== "ALLOW") throw new Error("allow expected");
+    const adapters = createAdapters({ ledger, digestByteLimit: 4096, verifyAndConsumePermit(candidate, permit) {
+      if (permit.requestHash !== requestHash(candidate, permit.preconditionEpoch)) throw new Error("execution permit does not match request");
+      verifier(ledger, key)(candidate, permit);
+    } });
+    const tampered = { ...original, argv: ["-e", `require('fs').writeFileSync(${JSON.stringify(join(repo, "spawned.txt"))},'bad')`] };
+    await expect(adapters.execute(tampered, pre.permit)).rejects.toThrow(/does not match request/);
+    expect(() => accessSync(join(repo, "spawned.txt"))).toThrow();
+    ledger.close();
+  });
+
+  it("blocks an equivalent retry when parsed failures lack a failure counter", async () => {
+    const base = root(); const repo = repoAt(base); const api = middlewareAt(base, repo);
+    const argv = ["-e", "process.stdout.write(JSON.stringify({numTotalTests:1,numPassedTests:0,testResults:[{name:'fixture',assertionResults:[{title:'failed assertion',status:'failed',failureMessages:['known failure']}]}]}))"];
+    const first = await api.intercept({ requestId: "missing-counter-one", kind: "test-runner", executable: process.execPath, argv, cwd: repo, environment: {}, dependencyPaths: [], timeoutMs: 3000 });
+    expect(first.decision).toBe("EXECUTED");
+    const second = await api.intercept({ requestId: "missing-counter-two", kind: "test-runner", executable: process.execPath, argv, cwd: repo, environment: {}, dependencyPaths: [], timeoutMs: 3000 });
+    expect(second.decision).toBe("BLOCK"); await api.close();
+  });
+
+  it("snapshots queued intercept input before the serialized continuation runs", async () => {
+    const base = root(); const repo = repoAt(base); const api = middlewareAt(base, repo);
+    const firstInput = { requestId: "queue-first", kind: "shell" as const, executable: process.execPath, argv: ["-e", "setTimeout(()=>process.stdout.write('first'),100)"], cwd: repo, dependencyPaths: [], timeoutMs: 3000 };
+    const secondInput = { requestId: "queue-second", kind: "shell" as const, executable: process.execPath, argv: ["-e", "process.stdout.write('stable')"], cwd: repo, dependencyPaths: [], timeoutMs: 3000 };
+    const first = api.intercept(firstInput); const second = api.intercept(secondInput);
+    (secondInput.argv as string[])[1] = "process.stdout.write('tampered')";
+    await first; const result = await second;
+    expect(result.decision).toBe("EXECUTED"); if (result.decision !== "EXECUTED") throw new Error("expected execution");
+    expect(Buffer.from(await api.readRawStdout(result.rawEventId)).toString()).toBe("stable");
+    await api.close();
+  });
+
   it("tool loop executes once, then blocks equivalent failures and returns a resolvable receipt", async () => {
     const base = root(); const repo = repoAt(base); const api = middlewareAt(base, repo);
     const failing = { kind: "shell" as const, executable: process.execPath, argv: ["-e", "process.stderr.write('KNOWN_FAILURE\\n');process.exit(7)"], cwd: repo, dependencyPaths: ["state.txt"], timeoutMs: 3000 };
@@ -98,7 +187,7 @@ describe("S.3 chaos and recovery boundaries", () => {
     expect(ledger.getEvent(result.rawEventId)?.capture_status).toBe("complete"); ledger.close();
   });
 
-  it("broker crash after spawn is UNKNOWN across reopen and cannot auto-retry", () => {
+  it("unknown execution state blocks equivalent retry across reopen", () => {
     const base = root(); const repo = repoAt(base); const key = randomBytes(32).toString("hex"); let ledger = ledgerAt(base); let gate = createFailureGate({ ledger, signingKey: key });
     const req = request(repo, "unknown-one", ["-e", "require('fs').writeFileSync('effect.txt','once')"]); const pre = gate.preflight({ request: req, preconditionEpoch: "epoch" });
     expect(pre.decision).toBe("ALLOW"); if (pre.decision !== "ALLOW") throw new Error("allow expected");
@@ -113,13 +202,13 @@ describe("S.3 chaos and recovery boundaries", () => {
     expect(retry.reason).toContain("UNKNOWN"); expect(ledger.scan({ kind: "tool_output", limit: 100 }).length).toBe(0); ledger.close();
   });
 
-  it("capture crash preserves partial bytes but creates no tool_output receipt", async () => {
+  it("interrupted capture preserves partial bytes without a tool_output receipt", async () => {
     const base = root(); repoAt(base); const ledger = ledgerAt(base, 4096); const receipt = await archive(ledger, Buffer.from("partial"), false);
     expect(receipt.complete).toBe(false); expect(Buffer.from(await ledger.readBlob(receipt.hash)).toString()).toBe("partial");
     expect(ledger.scan({ kind: "tool_output", limit: 100 })).toHaveLength(0); ledger.close();
   });
 
-  it("blob-seal/commit crash leaves an orphan blob, never a success receipt", async () => {
+  it("sealed-but-uncommitted blob remains a detectable orphan", async () => {
     const base = root(); repoAt(base); const ledger = ledgerAt(base); const receipt = await archive(ledger, Buffer.from("sealed-but-uncommitted"));
     const orphan = ledger.transactionImmediate(db => db.prepare("SELECT COUNT(*) AS n FROM blobs b LEFT JOIN event_blobs eb ON eb.blob_hash=b.hash WHERE b.hash=? AND eb.blob_hash IS NULL").get(receipt.hash) as { n: number });
     expect(orphan.n).toBe(1); expect(ledger.scan({ kind: "tool_output", limit: 100 })).toHaveLength(0); ledger.close();
@@ -145,7 +234,7 @@ describe("S.3 chaos and recovery boundaries", () => {
     } finally { ledger?.close(); chmodSync(blocked, 0o700); }
   });
 
-  it("intent, spawn, capture, seal and commit boundary states contain zero fabricated receipt events", async () => {
+  it("explicit intent, capture, seal and commit states contain no fabricated receipt events", async () => {
     const base = root(); const repo = repoAt(base); const ledger = ledgerAt(base); const key = randomBytes(32).toString("hex"); const gate = createFailureGate({ ledger, signingKey: key });
     const req = request(repo, "boundary", ["-e", "process.exit(0)"]); const pre = gate.preflight({ request: req, preconditionEpoch: "epoch" });
     expect(pre.decision).toBe("ALLOW"); if (pre.decision !== "ALLOW") throw new Error("allow expected");
