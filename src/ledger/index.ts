@@ -6,6 +6,7 @@ import type {
   AppendEventInput, BlobReceipt, DatabaseHandle, EventLedger, EventRecord, Json,
   LedgerOptions, SourceHandle,
 } from "./types.js";
+import { registerRawByteLimit } from "./internal.js";
 
 interface Statement {
   get(...parameters: unknown[]): unknown;
@@ -180,7 +181,7 @@ export function openLedger(options: LedgerOptions): EventLedger {
     return rowToEvent(database.prepare("SELECT * FROM events WHERE event_id = ?").get(input.eventId) as EventRow);
   });
 
-  return {
+  const api: EventLedger = {
     append(input) {
       assertOpen();
       const payloadJson = canonicalJson(input.payload);
@@ -268,6 +269,8 @@ export function openLedger(options: LedgerOptions): EventLedger {
     },
     close() { if (!closed) { database.close(); closed = true; } },
   };
+  registerRawByteLimit(api, options.maxRawBytesPerExecution);
+  return api;
 }
 
 export type {
